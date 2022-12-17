@@ -4,8 +4,8 @@
     <a href="https://github.com/lbkolev/openai-rs/blob/master/LICENSE">
         <img src="https://img.shields.io/badge/license-MIT-blue.svg">
     </a>
-    <a href="https://github.com/lbkolev/openai-rs/workflows/CI/badge.svg">
-        <img src="https://github.com/lbkolev/openai-rs/actions?query=workflow%3ACI+branch%3Amaster">
+    <a href="https://github.com/lbkolev/openai-rs/actions?query=workflow%3ACI+branch%3Amaster">
+        <img src="https://github.com/lbkolev/openai-rs/actions/workflows/ci.yml/badge.svg">
     </a>
 </p>
 
