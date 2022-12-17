@@ -1,3 +1,5 @@
+//! OpenAI
+
 pub mod api_resources;
 pub mod client;
 pub mod config;

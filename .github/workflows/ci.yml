@@ -30,7 +30,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     env:
-      COINMARKETCAP_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
