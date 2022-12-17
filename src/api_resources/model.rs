@@ -97,7 +97,7 @@ impl<'a> Client<'a> {
 
     async fn retrieve_model(&self, model: Model) -> Result<ModelResponse> {
         let resp = self
-            .get::<(), ModelResponse>(format!("/models/{}", model), None)
+            .get::<(), ModelResponse>(format!("/models/{model}"), None)
             .await?;
 
         Ok(resp)

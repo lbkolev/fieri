@@ -17,5 +17,7 @@ repos:
     rev: v1.0
     hooks:
     -   id: fmt
-    -   id: cargo-check
+        args: ['--all', '--', '--check']
     -   id: clippy
+        args: ['--', '-D', 'warnings']
+    -   id: cargo-check
