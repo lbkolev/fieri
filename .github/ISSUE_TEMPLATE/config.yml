@@ -1,0 +1,4 @@
+contact_links:
+  - name: Question
+    url: https://github.com/lbkolev/openai-rs/discussions
+    about: Questions about openai-rs should be posted as a GitHub discussion.
