@@ -2,7 +2,25 @@
 name = "openai-rs"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = [ "Lachezar Kolev <lachezarkolevgg@gmail.com>" ]
+rust-version = "1.65.0"
+description = "Unofficial Rust client for the OpenAI API"
+documentation = "https://docs.rs/openai-rs"
+readme = "./README.md"
+homepage = "https://docs.rs/openai-rs"
+repository = "https://github.com/lbkolev/openai-rs"
+license = "MIT"
 
 [dependencies]
+tokio           = { version = "1.23.0",  features = ["full"] }
+reqwest         = { version = "0.11.13", features = ["json"] }
+serde           = { version = "1.0.151", features = ["derive"] }
+serde_json      = { version = "1.0.89"  }
+thiserror       = { version = "1.0.37"  }
+dotenv          = { version = "0.15.0"  }
+derive-getters  = { version = "0.2.0"   }
+more-asserts    = { version = "0.3.1"   }
+
+[[example]]
+name = "get_models"
+path = "examples/get_models.rs"
