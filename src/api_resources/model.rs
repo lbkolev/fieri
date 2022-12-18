@@ -1,3 +1,7 @@
+//! List and describe the various models available in the API.
+//!
+//! You can refer to the Models documentation to understand what models are available and the differences between them.
+
 use derive_getters::Getters;
 use serde::Deserialize;
 
@@ -35,7 +39,8 @@ pub struct Permissions {
     is_blocking: bool,
 }
 
-/// Object containing the available Models that are offered for usage through the API.
+/// Object containing the available Models offered for usage through the API.
+#[derive(Debug)]
 pub enum Model {
     Ada,
     Babbage,
@@ -51,6 +56,7 @@ pub enum Model {
     CodeDavinci003,
     CurieInstructBeta,
     DavinciInstructBeta,
+    None,
 }
 
 impl std::fmt::Display for Model {
@@ -72,18 +78,65 @@ impl std::fmt::Display for Model {
             CodeDavinci003 => write!(f, "code-davinci-003"),
             CurieInstructBeta => write!(f, "curie-instruct-beta"),
             DavinciInstructBeta => write!(f, "davinci-instruct-beta"),
+            None => write!(f, ""),
         }
     }
 }
 
-/// Lists the currently available models, and provides basic information about each one.
-pub async fn list_models(client: &Client<'_>) -> Result<ModelsResponse> {
-    client.list_models().await
-}
-
 /// Retrieves a model instance, providing basic information about the model such as the owner and permissioning.
+/// 
+/// Example:
+/// ```rust
+/// use std::env;
+/// use openai_rs::{
+///     client::Client,
+///     config::Config,
+///     api_resources::model::{
+///         Model,
+///         retrieve_model,
+///     }
+/// };
+/// 
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let config = Config::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new(&config);
+///
+///     let resp = retrieve_model(&client, Model::TextBabbage001).await?;
+///     println!("{:#?}", resp);
+///     Ok(())
+/// }
+/// ```
 pub async fn retrieve_model(client: &Client<'_>, model: Model) -> Result<ModelResponse> {
     client.retrieve_model(model).await
+}
+
+/// Lists the currently available models, and provides basic information about each one.
+/// 
+/// Example:
+/// ```rust
+/// use std::env;
+/// use openai_rs::{
+///     client::Client,
+///     config::Config,
+///     api_resources::model::{
+///         Model,
+///         list_models,
+///     }
+/// };
+/// 
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let config = Config::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new(&config);
+///
+///     let resp = list_models(&client).await?;
+///     println!("{:#?}", resp);
+///     Ok(())
+/// }
+/// ```
+pub async fn list_models(client: &Client<'_>) -> Result<ModelsResponse> {
+    client.list_models().await
 }
 
 impl<'a> Client<'a> {

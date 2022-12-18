@@ -17,13 +17,13 @@ pub struct Client<'a> {
 impl<'a> Client<'a> {
     pub fn new(config: &'a Config) -> Self {
         let mut headers = HeaderMap::new();
+        headers.insert("Content-Type", "application/json".parse().unwrap());
         headers.insert(
             "Authorization",
             format!("Bearer {}", config.api_key())
                 .parse()
                 .expect("Unable to parse the API key."),
         );
-        headers.insert("Content-Type", "application/json".parse().unwrap());
 
         if let Some(org) = config.organization().clone() {
             headers.insert(
