@@ -25,8 +25,8 @@ pub struct CompletionParam {
     /// Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
     pub max_tokens: Option<u16>,
 
-    /// Higher values means the model will take more risks. 
-    /// 
+    /// Higher values means the model will take more risks.
+    ///
     /// Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
     pub temperature: Option<f32>,
 
@@ -38,3 +38,9 @@ pub struct CompletionParam {
     //    Self { model: Model::None }
     //}
 //}
+
+
+#[cfg(test)]
+mod tests {
+    
+}
