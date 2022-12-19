@@ -3,7 +3,7 @@
 //! You can refer to the Models documentation to understand what models are available and the differences between them.
 
 use derive_getters::Getters;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{client::Client, Result};
 
@@ -40,7 +40,6 @@ pub struct Permissions {
 }
 
 /// Object containing the available Models offered for usage through the API.
-#[derive(Debug)]
 pub enum Model {
     Ada,
     Babbage,
@@ -84,7 +83,7 @@ impl std::fmt::Display for Model {
 }
 
 /// Retrieves a model instance, providing basic information about the model such as the owner and permissioning.
-/// 
+///
 /// Example:
 /// ```rust
 /// use std::env;
@@ -96,7 +95,7 @@ impl std::fmt::Display for Model {
 ///         retrieve_model,
 ///     }
 /// };
-/// 
+///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
@@ -112,7 +111,7 @@ pub async fn retrieve_model(client: &Client<'_>, model: Model) -> Result<ModelRe
 }
 
 /// Lists the currently available models, and provides basic information about each one.
-/// 
+///
 /// Example:
 /// ```rust
 /// use std::env;
@@ -124,7 +123,7 @@ pub async fn retrieve_model(client: &Client<'_>, model: Model) -> Result<ModelRe
 ///         list_models,
 ///     }
 /// };
-/// 
+///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
