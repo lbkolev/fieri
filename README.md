@@ -1,4 +1,4 @@
-# <p align="center">Community-maintained Rust client for the OpenAI API</p>
+# <p align="center">Unofficial Rust client for the OpenAI API</p>
 
 <p align="center">
     <a href="https://github.com/lbkolev/openai-rs/blob/master/LICENSE">
