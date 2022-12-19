@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, default, hash::Hash};
 use serde_json::json;
 
+
 use crate::{api_resources::model::Model, client::Client, Result};
 
 /// TMP
@@ -17,6 +18,7 @@ pub struct CompletionParam {
 
     /// The prompt(s) to generate completions for, encoded as a string.
     pub prompt: String,
+
 
     /// The suffix that comes after a completion of inserted text.
     pub suffix: Option<String>,

@@ -40,7 +40,6 @@ pub struct Permissions {
 }
 
 /// Object containing the available Models offered for usage through the API.
-#[derive(Debug, Serialize)]
 pub enum Model {
     Ada,
     Babbage,
