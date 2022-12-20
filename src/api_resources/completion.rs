@@ -3,94 +3,46 @@
 
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, default, hash::Hash};
-use serde_json::json;
-
+use std::collections::HashMap;
 
 use crate::{api_resources::model::Model, client::Client, Result};
 
-/// TMP
+///
 #[derive(Debug, Getters, Serialize)]
 pub struct CompletionParam {
-    /// TODO: make a link to the models::list_models function
-    /// ID of the model to use. You can use the List models API to see all of your available models.
     model: String,
 
-    /// The prompt(s) to generate completions for, encoded as a string.
-    pub prompt: String,
+    prompt: String,
 
+    suffix: Option<String>,
 
-    /// The suffix that comes after a completion of inserted text.
-    pub suffix: Option<String>,
+    max_tokens: u16,
 
-    /// The maximum number of tokens to generate in the completion.
-    ///
-    /// The token count of your prompt plus `max_tokens` cannot exceed the model's context length.
-    /// Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
-    pub max_tokens: u16,
+    temperature: f32,
 
-    /// Higher values means the model will take more risks.
-    ///
-    /// Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
-    pub temperature: f32,
+    top_p: f32,
 
-    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass.
-    /// So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    ///
-    /// It's generally recommended to alter this or `temperature` but not both.
-    pub top_p: f32,
-
-    /// How many completions to generate for each prompt.
-    ///
-    /// Note: Because this parameter generates many completions, it can quickly consume your token quota.
-    /// Use carefully and ensure that you have reasonable settings for `max_tokens` and `stop`.
-    pub n: u32,
+    n: u32,
 
     // TODO add stream
     // Whether to stream back partial progress.
-    // pub stream: Option<bool>,
+    // stream: Option<bool>,
+    logprobs: Option<f32>,
 
-    /// Include the log probabilities on the `logprobs` most likely tokens, as well the chosen tokens.
-    pub logprobs: Option<f32>,
+    echo: bool,
 
-    /// Echo back the prompt in addition to the completion
-    pub echo: bool,
+    stop: Option<String>,
 
-    /// Up to 4 sequences where the API will stop generating further tokens.
-    ///
-    /// The returned text will not contain the stop sequence.
-    pub stop: Option<String>,
+    presence_penalty: f32,
 
-    /// Number between -2.0 and 2.0.
-    ///
-    /// Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-    pub presence_penalty: f32,
+    frequency_penalty: f32,
 
-    /// Number between -2.0 and 2.0.
-    ///
-    /// Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-    pub frequency_penalty: f32,
+    best_of: u16,
 
-    /// Generates best_of completions server-side and returns the "best" (the one with the highest log probability per token).
-    ///
-    /// Results cannot be streamed.
-    pub best_of: u16,
+    logit_bias: HashMap<String, i8>,
 
-    /// Modify the likelihood of specified tokens appearing in the completion.
-    pub logit_bias: HashMap<String, i8>,
-
-    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
-    pub user: String,
+    user: String,
 }
-
-#[derive(Debug, Deserialize)]
-pub struct ErrorResp {
-    message: Option<String>,
-    //typee: Option<String>,
-    param: Option<String>,
-    code: Option<i32>,
-}
-
 
 impl Default for CompletionParam {
     fn default() -> Self {
@@ -115,101 +67,133 @@ impl Default for CompletionParam {
 }
 
 impl CompletionParam {
-    pub fn new(
-    ) -> Self {
+    pub fn new() -> Self {
         Self::default()
     }
 
+    /// ID of the model to use. You can use the List models API to see all of your available models.
     pub fn add_model(mut self, model: Model) -> Self {
         self.model = model.to_string();
 
         self
     }
 
+    /// The prompt(s) to generate completions for, encoded as a string.
     pub fn add_prompt(mut self, prompt: String) -> Self {
         self.prompt = prompt;
 
         self
     }
 
+    /// The suffix that comes after a completion of inserted text.
     pub fn add_suffix(mut self, suffix: Option<String>) -> Self {
         self.suffix = suffix;
 
         self
     }
 
+    /// The maximum number of tokens to generate in the completion.
+    ///
+    /// The token count of your prompt plus `max_tokens` cannot exceed the model's context length.
+    /// Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
     pub fn add_maxtokens(mut self, max_tokens: u16) -> Self {
         self.max_tokens = max_tokens;
 
         self
     }
 
+    /// Higher values means the model will take more risks.
+    ///
+    /// Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
     pub fn add_temperature(mut self, temperature: f32) -> Self {
         self.temperature = temperature;
 
         self
     }
 
+    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass.
+    /// So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+    ///
+    /// It's generally recommended to alter this or `temperature` but not both.
     pub fn add_top_p(mut self, top_p: f32) -> Self {
         self.top_p = top_p;
 
         self
     }
 
+    /// How many completions to generate for each prompt.
+    ///
+    /// Note: Because this parameter generates many completions, it can quickly consume your token quota.
+    /// Use carefully and ensure that you have reasonable settings for `max_tokens` and `stop`.
     pub fn add_n(mut self, n: u32) -> Self {
         self.n = n;
 
         self
     }
 
+    /// Include the log probabilities on the `logprobs` most likely tokens, as well the chosen tokens.
     pub fn add_logprobs(mut self, logprobs: Option<f32>) -> Self {
         self.logprobs = logprobs;
 
         self
     }
 
+    /// Echo back the prompt in addition to the completion
     pub fn add_echo(mut self, echo: bool) -> Self {
         self.echo = echo;
 
         self
     }
 
+    /// Up to 4 sequences where the API will stop generating further tokens.
+    ///
+    /// The returned text will not contain the stop sequence.
     pub fn add_stop(mut self, stop: Option<String>) -> Self {
         self.stop = stop;
 
         self
     }
 
+    /// Number between -2.0 and 2.0.
+    ///
+    /// Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
     pub fn add_presence_penalty(mut self, presence_penalty: f32) -> Self {
         self.presence_penalty = presence_penalty;
 
         self
     }
 
+    /// Number between -2.0 and 2.0.
+    ///
+    /// Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     pub fn add_frequency_penalty(mut self, frequency_penalty: f32) -> Self {
         self.frequency_penalty = frequency_penalty;
 
         self
     }
 
+    /// Generates best_of completions server-side and returns the "best" (the one with the highest log probability per token).
+    ///
+    /// Results cannot be streamed.
     pub fn add_best_of(mut self, best_of: u16) -> Self {
         self.best_of = best_of;
 
         self
     }
 
-    pub fn add_logit_bias(mut self, logit_bias: HashMap<String,i8>) -> Self {
+    /// Modify the likelihood of specified tokens appearing in the completion.
+    pub fn add_logit_bias(mut self, logit_bias: HashMap<String, i8>) -> Self {
         self.logit_bias = logit_bias;
 
         self
     }
 
+    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
     pub fn add_user(mut self, user: String) -> Self {
         self.user = user;
 
         self
     }
-
 }
 
 #[derive(Debug, Getters, Deserialize)]
@@ -221,6 +205,14 @@ pub struct CompletionResp {
     choices: Option<Vec<Choices>>,
     usage: Option<TokenUsage>,
     error: Option<ErrorResp>,
+}
+
+#[derive(Debug, Getters, Deserialize)]
+pub struct ErrorResp {
+    message: Option<String>,
+    r#type: Option<String>,
+    param: Option<String>,
+    code: Option<i32>,
 }
 
 #[derive(Debug, Getters, Deserialize)]
@@ -269,7 +261,10 @@ pub struct TokenUsage {
 ///     Ok(())
 /// }
 /// ```
-pub async fn create_completion(client: &Client<'_>, param: CompletionParam) -> Result<CompletionResp> {
+pub async fn create_completion(
+    client: &Client<'_>,
+    param: CompletionParam,
+) -> Result<CompletionResp> {
     client.create_completion(param).await
 }
 
@@ -286,11 +281,7 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        config::Config,
-        client::Client,
-        api_resources::completion::CompletionParam,
-    };
+    use crate::{api_resources::completion::CompletionParam, client::Client, config::Config};
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
@@ -306,7 +297,7 @@ mod tests {
         let resp = create_completion(&client, param).await?;
         println!("{:#?}", resp);
 
-        //assert_ne!(resp.id(), None);
+        assert_eq!(resp.error().is_none(), true);
         Ok(())
     }
 }

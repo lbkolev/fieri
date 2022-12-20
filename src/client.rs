@@ -1,7 +1,6 @@
 use derive_getters::Getters;
 use reqwest::header::HeaderMap;
 use serde::{de::DeserializeOwned, Serialize};
-use serde_json::json;
 
 use crate::{config::Config, Result};
 
@@ -65,7 +64,6 @@ impl<'a> Client<'a> {
         T: Serialize,
         Y: DeserializeOwned,
     {
-
         let resp = self
             .handler()
             .post(format!("{}{}", self.config().url(), identifier))
