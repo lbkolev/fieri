@@ -3,7 +3,7 @@
 //! You can refer to the Models documentation to understand what models are available and the differences between them.
 
 use derive_getters::Getters;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::{client::Client, Result};
 
