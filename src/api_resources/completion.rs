@@ -225,9 +225,9 @@ pub struct Choices {
 
 #[derive(Debug, Getters, Deserialize)]
 pub struct TokenUsage {
-    prompt_tokens: u32,
-    completion_tokens: u32,
-    total_tokens: u32,
+    prompt_tokens: Option<u32>,
+    completion_tokens: Option<u32>,
+    total_tokens: Option<u32>,
 }
 
 /// Creates a completion for the provided prompt and parameters
