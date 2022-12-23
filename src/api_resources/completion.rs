@@ -7,15 +7,15 @@ use std::collections::HashMap;
 
 use crate::{
     api_resources::{Choices, ErrorResp, TokenUsage},
-    client::Client,
-    config::Models,
-    Result,
+    Client, Models, Result,
 };
 
 /// Parameters for [`create`](crate::api_resources::completion::create) completion request.
 #[derive(Debug, Serialize)]
 pub struct CompletionParam {
-    /// ID of the model to use. You can use the List models API to see all of your available models.
+    /// The model to use for the completion request.
+    ///
+    /// The available models can be found [`here`](crate::Models).
     pub model: Option<Models>,
 
     /// The prompt(s) to generate completions for.
@@ -315,7 +315,7 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::Config;
+    use crate::Config;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]

@@ -5,15 +5,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     api_resources::{Choices, ErrorResp, TokenUsage},
-    client::Client,
-    config::Models,
-    error::Error,
-    Result,
+    Client, Error, Models, Result,
 };
 
 /// Parameters for [`create`](crate::api_resources::edit::create) edit request.
 #[derive(Debug, Clone, Serialize)]
 pub struct EditParam {
+    /// The model to use for the edit request.
+    ///
+    /// The available models can be found [`here`](crate::Models).
     pub model: Option<Models>,
 
     /// The input text to use as a starting point for the edit.

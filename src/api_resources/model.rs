@@ -5,7 +5,7 @@
 use derive_getters::Getters;
 use serde::Deserialize;
 
-use crate::{client::Client, config::Models, Result};
+use crate::{Client, Models, Result};
 
 #[derive(Debug, Getters, Deserialize)]
 pub struct ModelsResponse {
@@ -115,7 +115,7 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::Config;
+    use crate::Config;
     use more_asserts as ma;
     use std::env;
 
