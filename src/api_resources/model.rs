@@ -5,7 +5,7 @@
 use derive_getters::Getters;
 use serde::Deserialize;
 
-use crate::{client::Client, config::Model, Result};
+use crate::{client::Client, config::Models, Result};
 
 #[derive(Debug, Getters, Deserialize)]
 pub struct ModelsResponse {
@@ -47,7 +47,8 @@ pub struct Permissions {
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     config::{Config, Model},
+///     Models,
+///     config::Config,
 ///     client::Client,
 ///     api_resources::model::retrieve
 /// };
@@ -57,12 +58,12 @@ pub struct Permissions {
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
 ///     let client = Client::new(&config);
 ///
-///     let resp = retrieve(&client, Model::TextBabbage001).await?;
+///     let resp = retrieve(&client, Models::TextBabbage001).await?;
 ///     println!("{:#?}", resp);
 ///     Ok(())
 /// }
 /// ```
-pub async fn retrieve(client: &Client<'_>, model: Model) -> Result<ModelResponse> {
+pub async fn retrieve(client: &Client<'_>, model: Models) -> Result<ModelResponse> {
     client.retrieve(model).await
 }
 
@@ -74,7 +75,7 @@ pub async fn retrieve(client: &Client<'_>, model: Model) -> Result<ModelResponse
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     config::{Config, Model},
+///     config::Config,
 ///     client::Client,
 ///     api_resources::model::list
 /// };
@@ -94,17 +95,17 @@ pub async fn list(client: &Client<'_>) -> Result<ModelsResponse> {
 }
 
 impl<'a> Client<'a> {
-    async fn list(&self) -> Result<ModelsResponse> {
+    async fn retrieve(&self, model: Models) -> Result<ModelResponse> {
         let resp = self
-            .get::<(), ModelsResponse>("/models".to_string(), None)
+            .get::<(), ModelResponse>(format!("/models/{model}"), None)
             .await?;
 
         Ok(resp)
     }
 
-    async fn retrieve(&self, model: Model) -> Result<ModelResponse> {
+    async fn list(&self) -> Result<ModelsResponse> {
         let resp = self
-            .get::<(), ModelResponse>(format!("/models/{model}"), None)
+            .get::<(), ModelsResponse>("/models".to_string(), None)
             .await?;
 
         Ok(resp)
@@ -123,7 +124,7 @@ mod tests {
         let config = Config::new(env::var("OPENAI_API_KEY")?);
         let client = Client::new(&config);
 
-        let resp = retrieve(&client, Model::TextBabbage001).await?;
+        let resp = retrieve(&client, Models::TextBabbage001).await?;
 
         assert_eq!(resp.root(), "text-babbage-001");
         Ok(())

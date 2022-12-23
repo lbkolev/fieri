@@ -16,7 +16,7 @@ pub struct Config {
     pub organization: Option<String>,
 
     #[getter(skip)]
-    pub default_model: Option<Model>,
+    pub default_model: Option<Models>,
 }
 
 impl Default for Config {
@@ -45,7 +45,7 @@ impl Config {
     }
 
     /// Optional default model to use for requests.
-    pub fn default_model(mut self, model: Option<Model>) -> Self {
+    pub fn default_model(mut self, model: Option<Models>) -> Self {
         self.default_model = model;
 
         self
@@ -58,7 +58,7 @@ impl Config {
 ///
 /// [Models List]: crate::api_resources::model::list
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Model {
+pub enum Models {
     None,
 
     Ada,
@@ -133,9 +133,9 @@ pub enum Model {
     TextSimilarityDavinci001,
 }
 
-impl std::fmt::Display for Model {
+impl std::fmt::Display for Models {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use Model::*;
+        use Models::*;
 
         match self {
             None => write!(f, "none"),
@@ -213,7 +213,7 @@ impl std::fmt::Display for Model {
     }
 }
 
-impl Serialize for Model {
+impl Serialize for Models {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,

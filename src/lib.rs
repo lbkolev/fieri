@@ -10,7 +10,7 @@ pub mod error;
 
 pub use api_resources::{completion, edit, embedding, file, fine_tune, image, model, moderation};
 pub use client::Client;
-pub use config::{Config, Model};
+pub use config::{Config, Models};
 pub use error::Error;
 
 /// Result returned from each interaction with the OpenAI API.

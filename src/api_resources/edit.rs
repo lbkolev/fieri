@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     api_resources::{Choices, ErrorResp, TokenUsage},
     client::Client,
-    config::Model,
+    config::Models,
     error::Error,
     Result,
 };
@@ -14,7 +14,7 @@ use crate::{
 /// Parameters for [`create`](crate::api_resources::edit::create) edit request.
 #[derive(Debug, Clone, Serialize)]
 pub struct EditParam {
-    pub model: Option<Model>,
+    pub model: Option<Models>,
 
     /// The input text to use as a starting point for the edit.
     pub input: String,
@@ -54,7 +54,7 @@ impl EditParam {
         Self::default()
     }
 
-    pub fn model(mut self, model: Option<Model>) -> Self {
+    pub fn model(mut self, model: Option<Models>) -> Self {
         self.model = model;
 
         self
@@ -109,8 +109,9 @@ pub struct EditResp {
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
+///     Models,
 ///     client::Client,
-///     config::{Config, Model},
+///     config::Config,
 ///     api_resources::edit::{
 ///         create,
 ///         EditParam,
@@ -124,7 +125,7 @@ pub struct EditResp {
 ///     let client = Client::new(&config);
 ///
 ///     let param = EditParam::new()
-///         .model(Some(Model::TextDavinci001))
+///         .model(Some(Models::TextDavinci001))
 ///         .input("What dey of the wek is it?".to_string())
 ///         .instruction("Fix the spelling mistakes".to_string());
 ///     let resp: EditResp = create(&client, &param).await?;
@@ -173,7 +174,7 @@ mod tests {
         let client = Client::new(&config);
 
         let param = EditParam::new()
-            .model(Some(Model::TextDavinciEdit001))
+            .model(Some(Models::TextDavinciEdit001))
             .input("Can u actuqli fix spilling mistekis?".to_string())
             .instruction("Fix the spelling mistakes".to_string())
             .temperature(0.5);

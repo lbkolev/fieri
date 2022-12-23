@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use crate::{
     api_resources::{Choices, ErrorResp, TokenUsage},
     client::Client,
-    config::Model,
+    config::Models,
     Result,
 };
 
@@ -16,7 +16,7 @@ use crate::{
 #[derive(Debug, Serialize)]
 pub struct CompletionParam {
     /// ID of the model to use. You can use the List models API to see all of your available models.
-    pub model: Option<Model>,
+    pub model: Option<Models>,
 
     /// The prompt(s) to generate completions for.
     pub prompt: String,
@@ -111,7 +111,7 @@ impl CompletionParam {
         Self::default()
     }
 
-    pub fn model(mut self, model: Option<Model>) -> Self {
+    pub fn model(mut self, model: Option<Models>) -> Self {
         self.model = model;
 
         self
@@ -253,8 +253,9 @@ impl Iterator for CompletionResp {
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
+///     Models,
 ///     client::Client,
-///     config::{Config, Model},
+///     config::Config,
 ///     api_resources::completion::{
 ///         create,
 ///         CompletionParam,
@@ -268,8 +269,9 @@ impl Iterator for CompletionResp {
 ///     let client = Client::new(&config);
 ///
 ///     let param = CompletionParam::new()
-///         .model(Some(Model::Ada))
-///         .prompt("sup?".to_string());
+///         .model(Some(Models::Ada))
+///         .prompt("Generate a complex and unintuitive 'Hello, World' example in Haskell.".to_string())
+///         .temperature(0.5);
 ///     let resp: CompletionResp = create(&client, &param).await?;
 ///     println!("{:#?}", resp);
 ///     Ok(())
@@ -322,7 +324,7 @@ mod tests {
         let client = Client::new(&config);
 
         let param = CompletionParam::new()
-            .model(Some(Model::CurieInstructBeta))
+            .model(Some(Models::CurieInstructBeta))
             .prompt("Generate a complex and elaborate 'Hello, World' in R.".to_string());
 
         let resp = create(&client, &param).await?;
