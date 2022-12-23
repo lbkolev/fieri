@@ -1,3 +1,5 @@
 /target
 /Cargo.lock
 /img
+src/test.rs
+src/main.rs

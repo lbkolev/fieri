@@ -9,5 +9,16 @@
     </a>
 </p>
 
-
 ### Soon™️
+
+### Endpoints:
+
+- [x]   `/models`
+- [x]   `/completions`
+- [x]   `/edits`
+- [ ]   `/images`
+- [ ]   `/embeddings`
+- [ ]   `/files`
+- [ ]   `/fine-tunes`
+- [ ]   `/moderations`
+- `/engines` - *DEPRECATED*

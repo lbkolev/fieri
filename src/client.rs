@@ -8,7 +8,7 @@ use crate::{config::Config, Result};
 #[derive(Debug, Getters)]
 pub struct Client<'a> {
     /// The HTTP client that'll execute requests.
-    handler: reqwest::Client,
+    pub handler: reqwest::Client,
 
     /// Configuration needed to authorize against the API.
     config: &'a Config,
@@ -25,7 +25,7 @@ impl<'a> Client<'a> {
                 .expect("Unable to parse the API key."),
         );
 
-        if let Some(org) = config.organization().clone() {
+        if let Some(org) = &config.organization {
             headers.insert(
                 "OpenAI-Organization",
                 org.parse()
@@ -42,15 +42,15 @@ impl<'a> Client<'a> {
         }
     }
 
-    pub async fn get<T, Y>(&self, identifier: String, params: Option<T>) -> Result<Y>
+    pub async fn get<T, Y>(&self, identifier: String, param: Option<&T>) -> Result<Y>
     where
         T: Serialize,
         Y: DeserializeOwned,
     {
         let resp = self
-            .handler()
+            .handler
             .get(format!("{}{}", self.config().url(), identifier))
-            .query(&params)
+            .query(&param)
             .send()
             .await?
             .json::<Y>()
@@ -59,15 +59,15 @@ impl<'a> Client<'a> {
         Ok(resp)
     }
 
-    pub async fn post<T, Y>(&self, identifier: String, params: Option<T>) -> Result<Y>
+    pub async fn post<T, Y>(&self, identifier: String, param: Option<&T>) -> Result<Y>
     where
         T: Serialize,
         Y: DeserializeOwned,
     {
         let resp = self
-            .handler()
+            .handler
             .post(format!("{}{}", self.config().url(), identifier))
-            .json(&params)
+            .json(&param)
             .send()
             .await?
             .json::<Y>()

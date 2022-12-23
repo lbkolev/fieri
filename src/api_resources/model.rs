@@ -5,9 +5,9 @@
 use derive_getters::Getters;
 use serde::Deserialize;
 
-use crate::{client::Client, Result};
+use crate::{client::Client, config::Model, Result};
 
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Getters, Deserialize)]
 pub struct ModelsResponse {
     data: Vec<ModelResponse>,
 }
@@ -23,7 +23,7 @@ pub struct ModelResponse {
     parent: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Getters, Deserialize)]
 pub struct Permissions {
     id: String,
     object: String,
@@ -39,61 +39,17 @@ pub struct Permissions {
     is_blocking: bool,
 }
 
-/// Object containing the available Models offered for usage through the API.
-pub enum Model {
-    Ada,
-    Babbage,
-    Curie,
-    Davinci,
-    TextAda001,
-    TextBabbage001,
-    TextCurie001,
-    TextDavinci001,
-    TextDavinci002,
-    TextDavinci003,
-    CodeCushman001,
-    CodeDavinci003,
-    CurieInstructBeta,
-    DavinciInstructBeta,
-    None,
-}
-
-impl std::fmt::Display for Model {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use Model::*;
-
-        match &self {
-            Ada => write!(f, "ada"),
-            Babbage => write!(f, "babbage"),
-            Curie => write!(f, "curie"),
-            Davinci => write!(f, "davinci"),
-            TextAda001 => write!(f, "text-ada-001"),
-            TextBabbage001 => write!(f, "text-babbage-001"),
-            TextCurie001 => write!(f, "text-curie-001"),
-            TextDavinci001 => write!(f, "text-davinci-001"),
-            TextDavinci002 => write!(f, "text-davinci-002"),
-            TextDavinci003 => write!(f, "text-davinci-003"),
-            CodeCushman001 => write!(f, "code-cushman-001"),
-            CodeDavinci003 => write!(f, "code-davinci-003"),
-            CurieInstructBeta => write!(f, "curie-instruct-beta"),
-            DavinciInstructBeta => write!(f, "davinci-instruct-beta"),
-            None => write!(f, ""),
-        }
-    }
-}
-
 /// Retrieves a model instance, providing basic information about the model such as the owner and permissioning.
 ///
-/// Example:
+/// Related OpenAI docs: [Retrieve a Model](https://beta.openai.com/docs/api-reference/models/retrieve)
+///
+/// ## Example:
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
+///     config::{Config, Model},
 ///     client::Client,
-///     config::Config,
-///     api_resources::model::{
-///         Model,
-///         retrieve_model,
-///     }
+///     api_resources::model::retrieve
 /// };
 ///
 /// #[tokio::main]
@@ -101,27 +57,26 @@ impl std::fmt::Display for Model {
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
 ///     let client = Client::new(&config);
 ///
-///     let resp = retrieve_model(&client, Model::TextBabbage001).await?;
+///     let resp = retrieve(&client, Model::TextBabbage001).await?;
 ///     println!("{:#?}", resp);
 ///     Ok(())
 /// }
 /// ```
-pub async fn retrieve_model(client: &Client<'_>, model: Model) -> Result<ModelResponse> {
-    client.retrieve_model(model).await
+pub async fn retrieve(client: &Client<'_>, model: Model) -> Result<ModelResponse> {
+    client.retrieve(model).await
 }
 
 /// Lists the currently available models, and provides basic information about each one.
 ///
-/// Example:
+/// Related OpenAI docs: [List Models](https://beta.openai.com/docs/api-reference/models/list)
+///
+/// ## Example
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
+///     config::{Config, Model},
 ///     client::Client,
-///     config::Config,
-///     api_resources::model::{
-///         Model,
-///         list_models,
-///     }
+///     api_resources::model::list
 /// };
 ///
 /// #[tokio::main]
@@ -129,17 +84,17 @@ pub async fn retrieve_model(client: &Client<'_>, model: Model) -> Result<ModelRe
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
 ///     let client = Client::new(&config);
 ///
-///     let resp = list_models(&client).await?;
+///     let resp = list(&client).await?;
 ///     println!("{:#?}", resp);
 ///     Ok(())
 /// }
 /// ```
-pub async fn list_models(client: &Client<'_>) -> Result<ModelsResponse> {
-    client.list_models().await
+pub async fn list(client: &Client<'_>) -> Result<ModelsResponse> {
+    client.list().await
 }
 
 impl<'a> Client<'a> {
-    async fn list_models(&self) -> Result<ModelsResponse> {
+    async fn list(&self) -> Result<ModelsResponse> {
         let resp = self
             .get::<(), ModelsResponse>("/models".to_string(), None)
             .await?;
@@ -147,7 +102,7 @@ impl<'a> Client<'a> {
         Ok(resp)
     }
 
-    async fn retrieve_model(&self, model: Model) -> Result<ModelResponse> {
+    async fn retrieve(&self, model: Model) -> Result<ModelResponse> {
         let resp = self
             .get::<(), ModelResponse>(format!("/models/{model}"), None)
             .await?;
@@ -159,27 +114,27 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{client::Client, config::Config};
+    use crate::config::Config;
     use more_asserts as ma;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_list_models() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    async fn test_list() -> Result<()> {
         let config = Config::new(env::var("OPENAI_API_KEY")?);
         let client = Client::new(&config);
 
-        let resp = retrieve_model(&client, Model::TextBabbage001).await?;
+        let resp = retrieve(&client, Model::TextBabbage001).await?;
 
         assert_eq!(resp.root(), "text-babbage-001");
         Ok(())
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_retrieve_model() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    async fn test_retrieve() -> Result<()> {
         let config = Config::new(env::var("OPENAI_API_KEY")?);
         let client = Client::new(&config);
 
-        let resp = list_models(&client).await?;
+        let resp = list(&client).await?;
 
         ma::assert_gt!(resp.data().len(), 1);
         Ok(())
