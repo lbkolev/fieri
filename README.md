@@ -17,9 +17,9 @@
 - [x]   `/completions`
 - [x]   `/edits`
 - [ ]   `/images`
-- [ ]   `/embeddings`
+- [x]   `/embeddings`
 - [ ]   `/files`
 - [ ]   `/fine-tunes`
-- [ ]   `/moderations`
-- [ ]   `/engines` - *DEPRECATED*
+- [x]   `/moderations`
+- [-]   `/engines` - *DEPRECATED*
 

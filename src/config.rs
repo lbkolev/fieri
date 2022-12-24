@@ -59,8 +59,6 @@ impl Config {
 /// [Models List]: crate::api_resources::model::list
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Models {
-    None,
-
     Ada,
     AdaCodeSearchCode,
     AdaCodeSearchText,
@@ -131,6 +129,8 @@ pub enum Models {
     TextSimilarityBabbage001,
     TextSimilarityCurie001,
     TextSimilarityDavinci001,
+    TextModerationStable,
+    TextModerationLatest,
 }
 
 impl std::fmt::Display for Models {
@@ -138,7 +138,6 @@ impl std::fmt::Display for Models {
         use Models::*;
 
         match self {
-            None => write!(f, "none"),
             Ada => write!(f, "ada"),
             AdaCodeSearchCode => write!(f, "ada-code-search-code"),
             AdaCodeSearchText => write!(f, "ada-code-search-text"),
@@ -209,6 +208,8 @@ impl std::fmt::Display for Models {
             TextSimilarityBabbage001 => write!(f, "text-similarity-babbage-001"),
             TextSimilarityCurie001 => write!(f, "text-similarity-curie-001"),
             TextSimilarityDavinci001 => write!(f, "text-similarity-davinci-001"),
+            TextModerationStable => write!(f, "text-moderation-stable"),
+            TextModerationLatest => write!(f, "text-moderation-latest"),
         }
     }
 }

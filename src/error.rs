@@ -11,4 +11,7 @@ pub enum Error {
         "Missing mandatory model for request. Please use the `model` method to set the model."
     )]
     MissingModel,
+
+    #[error("{0}")]
+    InvalidRequest(String),
 }

@@ -78,7 +78,7 @@ type Embeddings = Vec<f32>;
 
 /// Creates an embedding vector representing the input text.
 ///
-/// Related OpenAI docs: [Create embeddings](https://beta.openai.com/docs/api-reference/embeddings/create)
+/// Related OpenAI docs: [Create embeddings](https://beta.openai.com/docs/api-reference/embeddings/create).
 ///
 /// ## Example
 /// ```rust
@@ -138,7 +138,7 @@ mod tests {
 
         let resp = create(&client, &param).await?;
 
-        println!("{:?}", resp);
+        println!("{:#?}", resp);
         assert!(resp.error().is_none());
         Ok(())
     }
