@@ -48,7 +48,9 @@ pub struct CompletionParam {
     pub n: u32,
 
     // Whether to stream back partial progress.
-    pub stream: bool,
+    // defaults to false.
+    // For streamed progress, use [`create_with_stream`](crate::api_resources::completion::create_with_stream).
+    stream: bool,
 
     /// Include the log probabilities on the `logprobs` most likely tokens, as well the chosen tokens.
     pub logprobs: Option<f32>,
@@ -153,7 +155,9 @@ impl CompletionParam {
         self
     }
 
-    pub fn stream(mut self, stream: bool) -> Self {
+    // TODO:
+    #[allow(dead_code)]
+    fn stream(mut self, stream: bool) -> Self {
         self.stream = stream;
 
         self
@@ -288,7 +292,7 @@ pub async fn create(client: &Client<'_>, param: &CompletionParam) -> Result<Comp
 impl<'a> Client<'a> {
     async fn create_completion(&self, param: &CompletionParam) -> Result<CompletionResp> {
         let resp = self
-            .post::<CompletionParam, CompletionResp>("/completions".to_string(), Some(param))
+            .post::<&str, CompletionParam, CompletionResp>("/completions", Some(param))
             .await?;
 
         Ok(resp)

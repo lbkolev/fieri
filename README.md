@@ -29,9 +29,9 @@
     - [ ] [create](https://beta.openai.com/docs/api-reference/embeddings/create)
 - [ ]   `/files`
     - [x] [list](https://beta.openai.com/docs/api-reference/files/list)
-    - [ ] [upload](https://beta.openai.com/docs/api-reference/files/upload)
-    - [ ] [delete](https://beta.openai.com/docs/api-reference/files/delete)
-    - [ ] [retrieve](https://beta.openai.com/docs/api-reference/files/retrieve)
+    - [x] [upload](https://beta.openai.com/docs/api-reference/files/upload)
+    - [x] [delete](https://beta.openai.com/docs/api-reference/files/delete)
+    - [x] [retrieve](https://beta.openai.com/docs/api-reference/files/retrieve)
     - [ ] [retrieve content](https://beta.openai.com/docs/api-reference/files/retrieve-content)
 - [ ]   `/fine-tunes`
     - [ ] [create](https://beta.openai.com/docs/api-reference/fine-tunes/create)
@@ -42,4 +42,4 @@
     - [ ] [delete](https://beta.openai.com/docs/api-reference/fine-tunes/delete-model)
 - [x]   `/moderations`
     - [x] [create](https://beta.openai.com/docs/api-reference/moderations/create)
-- [-]   `/engines` - *DEPRECATED*
+- [ ]   `/engines` - *DEPRECATED*

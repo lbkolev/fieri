@@ -143,7 +143,7 @@ impl<'a> Client<'a> {
             return Err(Error::MissingModel);
         } else if param.model.is_some() {
             let resp = self
-                .post::<EditParam, EditResp>("/edits".to_string(), Some(param))
+                .post::<&str, EditParam, EditResp>("/edits", Some(param))
                 .await?;
 
             return Ok(resp);
@@ -154,7 +154,7 @@ impl<'a> Client<'a> {
             ..param.to_owned()
         };
         let resp = self
-            .post::<EditParam, EditResp>("/edits".to_string(), Some(param))
+            .post::<&str, EditParam, EditResp>("/edits", Some(param))
             .await?;
 
         Ok(resp)

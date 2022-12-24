@@ -7,6 +7,9 @@ pub enum Error {
     #[error("{0}")]
     VarError(#[from] std::env::VarError),
 
+    #[error("{0}")]
+    FileError(#[from] std::io::Error),
+
     #[error(
         "Missing mandatory model for request. Please use the `model` method to set the model."
     )]
