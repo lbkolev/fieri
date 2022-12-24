@@ -2,13 +2,13 @@ use derive_getters::Getters;
 use reqwest::header::HeaderMap;
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{config::Config, Result};
+use crate::{Config, Result};
 
 /// The Client used to interact with the OpenAI API.
 #[derive(Debug, Getters)]
 pub struct Client<'a> {
     /// The HTTP client that'll execute requests.
-    pub handler: reqwest::Client,
+    handler: reqwest::Client,
 
     /// Configuration needed to authorize against the API.
     config: &'a Config,
@@ -17,14 +17,12 @@ pub struct Client<'a> {
 impl<'a> Client<'a> {
     pub fn new(config: &'a Config) -> Self {
         let mut headers = HeaderMap::new();
-        headers.insert("Content-Type", "application/json".parse().unwrap());
         headers.insert(
             "Authorization",
             format!("Bearer {}", config.api_key())
                 .parse()
                 .expect("Unable to parse the API key."),
         );
-
         if let Some(org) = &config.organization {
             headers.insert(
                 "OpenAI-Organization",
@@ -42,10 +40,11 @@ impl<'a> Client<'a> {
         }
     }
 
-    pub async fn get<T, Y>(&self, identifier: String, param: Option<&T>) -> Result<Y>
+    pub async fn get<X, Y, Z>(&self, identifier: X, param: Option<&Y>) -> Result<Z>
     where
-        T: Serialize,
-        Y: DeserializeOwned,
+        X: Into<String> + std::fmt::Display,
+        Y: Serialize,
+        Z: DeserializeOwned,
     {
         let resp = self
             .handler
@@ -53,16 +52,17 @@ impl<'a> Client<'a> {
             .query(&param)
             .send()
             .await?
-            .json::<Y>()
+            .json::<Z>()
             .await?;
 
         Ok(resp)
     }
 
-    pub async fn post<T, Y>(&self, identifier: String, param: Option<&T>) -> Result<Y>
+    pub async fn post<X, Y, Z>(&self, identifier: X, param: Option<&Y>) -> Result<Z>
     where
-        T: Serialize,
-        Y: DeserializeOwned,
+        X: Into<String> + std::fmt::Display,
+        Y: Serialize,
+        Z: DeserializeOwned,
     {
         let resp = self
             .handler
@@ -70,7 +70,46 @@ impl<'a> Client<'a> {
             .json(&param)
             .send()
             .await?
-            .json::<Y>()
+            .json::<Z>()
+            .await?;
+
+        Ok(resp)
+    }
+
+    pub async fn delete<X, Y, Z>(&self, identifier: X, param: Option<&Y>) -> Result<Z>
+    where
+        X: Into<String> + std::fmt::Display,
+        Y: Serialize,
+        Z: DeserializeOwned,
+    {
+        let resp = self
+            .handler
+            .delete(format!("{}{}", self.config().url(), identifier))
+            .query(&param)
+            .send()
+            .await?
+            .json::<Z>()
+            .await?;
+
+        Ok(resp)
+    }
+
+    pub async fn post_data<X, Y, Z>(
+        &self,
+        identifier: X,
+        param: reqwest::multipart::Form,
+    ) -> Result<Z>
+    where
+        X: Into<String> + std::fmt::Display,
+        Z: DeserializeOwned,
+    {
+        let resp = self
+            .handler
+            .post(format!("{}{}", self.config().url(), identifier))
+            .multipart(param)
+            .send()
+            .await?
+            .json::<Z>()
             .await?;
 
         Ok(resp)

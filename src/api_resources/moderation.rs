@@ -133,7 +133,7 @@ pub async fn create(client: &Client<'_>, param: &ModerationParam) -> Result<Mode
 impl<'a> Client<'a> {
     async fn create_moderation(&self, param: &ModerationParam) -> Result<ModerationResp> {
         let resp = self
-            .post::<ModerationParam, ModerationResp>("/moderations".to_string(), Some(param))
+            .post::<&str, ModerationParam, ModerationResp>("/moderations", Some(param))
             .await?;
 
         Ok(resp)

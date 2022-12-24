@@ -114,7 +114,7 @@ pub async fn create(client: &Client<'_>, param: &EmbeddingParam) -> Result<Embed
 impl<'a> Client<'a> {
     async fn create_embeddings(&self, param: &EmbeddingParam) -> Result<EmbeddingResp> {
         let resp = self
-            .post::<EmbeddingParam, EmbeddingResp>("/embeddings".to_string(), Some(param))
+            .post::<&str, EmbeddingParam, EmbeddingResp>("/embeddings", Some(param))
             .await?;
 
         Ok(resp)
