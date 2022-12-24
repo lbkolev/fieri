@@ -2,7 +2,7 @@ use derive_getters::Getters;
 use reqwest::header::HeaderMap;
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{config::Config, Result};
+use crate::{Config, Result};
 
 /// The Client used to interact with the OpenAI API.
 #[derive(Debug, Getters)]

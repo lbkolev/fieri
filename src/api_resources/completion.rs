@@ -208,7 +208,7 @@ impl CompletionParam {
     }
 }
 
-/// Response from [`create`](crate::completion::Completion::create) completion reqest.
+/// Response from [`create`](crate::api_resources::completion::create) completion reqest.
 #[derive(Debug, Getters, Deserialize)]
 pub struct CompletionResp {
     id: Option<String>,
