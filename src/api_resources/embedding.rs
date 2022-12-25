@@ -51,7 +51,7 @@ impl EmbeddingParam {
 
 /// Response from [`Create Embedding`](create) request.
 #[derive(Debug, Clone, Deserialize, Getters)]
-pub struct EmbeddingResp {
+pub struct Embedding {
     object: Option<String>,
     data: Option<Vec<EmbeddingData>>,
     mode: Option<String>,
@@ -94,14 +94,14 @@ type Embeddings = Vec<f32>;
 ///     Ok(())
 /// }
 /// ```
-pub async fn create(client: &Client<'_>, param: &EmbeddingParam) -> Result<EmbeddingResp> {
+pub async fn create(client: &Client<'_>, param: &EmbeddingParam) -> Result<Embedding> {
     client.create_embeddings(param).await
 }
 
 impl<'a> Client<'a> {
-    async fn create_embeddings(&self, param: &EmbeddingParam) -> Result<EmbeddingResp> {
+    async fn create_embeddings(&self, param: &EmbeddingParam) -> Result<Embedding> {
         let resp = self
-            .post::<&str, EmbeddingParam, EmbeddingResp>("/embeddings", Some(param))
+            .post::<&str, EmbeddingParam, Embedding>("/embeddings", Some(param))
             .await?;
 
         Ok(resp)

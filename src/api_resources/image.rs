@@ -79,9 +79,9 @@ impl Default for GenerateImage {
 }
 
 impl GenerateImage {
-    pub fn new(prompt: String) -> Self {
+    pub fn new<T: Into<String>>(prompt: T) -> Self {
         Self {
-            prompt,
+            prompt: prompt.into(),
             ..Default::default()
         }
     }
@@ -153,7 +153,7 @@ struct VariateImage {}
 /// use std::env;
 /// use openai_rs::{
 ///     Config, Client,
-///     image::{Image, GenerateImage, generate},
+///     image::{Image, ImageSize, GenerateImage, generate},
 /// };
 ///
 /// #[tokio::main]
@@ -162,7 +162,7 @@ struct VariateImage {}
 ///     let client = Client::new(&config);
 ///
 ///    let param = GenerateImage::new("Dogs playing poker.")
-///        .size(ImageSize::S256x256))
+///        .size(ImageSize::S256x256)
 ///        .n(1);
 ///
 ///    let resp = generate(client, &param).await?;
