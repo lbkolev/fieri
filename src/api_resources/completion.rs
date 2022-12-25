@@ -253,32 +253,30 @@ impl Iterator for CompletionResp {
 ///
 /// It can be used to generate structured data like `JSON`, `HTML`, `LaTeX`, code in any programming language and more.
 ///
-/// Related OpenAI Docs: [Create Completions](https://beta.openai.com/docs/api-reference/completions/create)
+/// Related OpenAI docs: [Create Completions](https://beta.openai.com/docs/api-reference/completions/create)
 ///
 /// ## Example
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     Config, Client, Models,
+///     Client, Models,
 ///     completion::{create, CompletionParam, Completion},
 /// };
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?);
-///     let client = Client::new(&config);
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
 ///     let param = CompletionParam::new(Models::Ada)
 ///         .prompt("Haskell is a programming language. Generate a complex and unintuitive 'Hello, World' example in Haskell.")
 ///         .temperature(0.5);
-///
 ///     let resp: Completion = create(&client, &param).await?;
 ///     println!("{:#?}", resp);
 ///
 ///     Ok(())
 /// }
 /// ```
-pub async fn create(client: &Client<'_>, param: &CompletionParam) -> Result<Completion> {
+pub async fn create(client: &Client, param: &CompletionParam) -> Result<Completion> {
     client.create_completion(param).await
 }
 
@@ -286,7 +284,7 @@ pub async fn create(client: &Client<'_>, param: &CompletionParam) -> Result<Comp
     client.create_completion_with_stream(param).await
 }*/
 
-impl<'a> Client<'a> {
+impl Client {
     async fn create_completion(&self, param: &CompletionParam) -> Result<Completion> {
         let resp = self
             .post::<CompletionParam, Completion>("completions", Some(param))
@@ -316,18 +314,15 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Config;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_create() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?);
-        let client = Client::new(&config);
+        let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = CompletionParam::new(Models::CurieInstructBeta).prompt(
             "R is a programming language. Generate a complex and elaborate 'Hello, World' in R.",
         );
-
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 

@@ -87,7 +87,7 @@ impl EditParam {
     }
 }
 
-/// Response from [`Create edit`](create) request.
+/// Response from [`Create Edit`](create) request.
 #[derive(Debug, Deserialize, Getters)]
 pub struct Edit {
     object: Option<String>,
@@ -105,14 +105,13 @@ pub struct Edit {
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     Config, Client, Models,
+///     Client, Models,
 ///     edit::{create, EditParam, Edit},
 /// };
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?);
-///     let client = Client::new(&config);
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
 ///     let param = EditParam::new(Models::TextDavinciEdit001, "Fix the spelling mistakes")
 ///         .input("What dey of the wek is it?");
@@ -123,11 +122,11 @@ pub struct Edit {
 ///     Ok(())
 /// }
 /// ```
-pub async fn create(client: &Client<'_>, param: &EditParam) -> Result<Edit> {
+pub async fn create(client: &Client, param: &EditParam) -> Result<Edit> {
     client.create_edit(param).await
 }
 
-impl<'a> Client<'a> {
+impl Client {
     async fn create_edit(&self, param: &EditParam) -> Result<Edit> {
         let resp = self.post::<EditParam, Edit>("edits", Some(param)).await?;
 
@@ -138,18 +137,15 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Config;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_create() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?);
-        let client = Client::new(&config);
+        let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = EditParam::new(Models::TextDavinciEdit001, "Fix the spelling mistakes")
             .input("Can u actuqli fix spilling mistikes?")
             .temperature(0.5);
-
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 

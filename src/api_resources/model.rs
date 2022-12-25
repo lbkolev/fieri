@@ -54,20 +54,18 @@ pub struct Permissions {
 /// ## Example:
 /// ```rust
 /// use std::env;
-/// use openai_rs::{ Config, Client, model::retrieve };
+/// use openai_rs::{Client, model::retrieve};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?);
-///     let client = Client::new(&config);
-///
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///     let resp = retrieve(&client, openai_rs::Models::TextBabbage001).await?;
 ///     println!("{:#?}", resp);
 ///
 ///     Ok(())
 /// }
 /// ```
-pub async fn retrieve(client: &Client<'_>, model: crate::Models) -> Result<Model> {
+pub async fn retrieve(client: &Client, model: crate::Models) -> Result<Model> {
     client.retrieve(model).await
 }
 
@@ -78,24 +76,22 @@ pub async fn retrieve(client: &Client<'_>, model: crate::Models) -> Result<Model
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use openai_rs::{Config, Client, model::list};
+/// use openai_rs::{Client, model::list};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?);
-///     let client = Client::new(&config);
-///
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///     let resp = list(&client).await?;
 ///     println!("{:#?}", resp);
 ///
 ///     Ok(())
 /// }
 /// ```
-pub async fn list(client: &Client<'_>) -> Result<Models> {
+pub async fn list(client: &Client) -> Result<Models> {
     client.list().await
 }
 
-impl<'a> Client<'a> {
+impl Client {
     async fn retrieve(&self, model: crate::Models) -> Result<Model> {
         let resp = self
             .get::<(), Model>(format!("models/{model}").as_str(), None)
@@ -114,13 +110,11 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Config;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_list() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?);
-        let client = Client::new(&config);
+        let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let resp = retrieve(&client, crate::Models::TextBabbage001).await?;
         println!("{:#?}", resp);
@@ -132,8 +126,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_retrieve() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?);
-        let client = Client::new(&config);
+        let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let resp = list(&client).await?;
         println!("{:#?}", resp);

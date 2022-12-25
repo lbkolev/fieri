@@ -77,28 +77,26 @@ type Embeddings = Vec<f32>;
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     Config, Client, Models,
+///     Client, Models,
 ///     embedding::{create, EmbeddingParam, Embedding},
 /// };
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?);
-///     let client = Client::new(&config);
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
 ///     let param = EmbeddingParam::new(Models::TextEmbeddingAda002, "Hello world!");
-///
 ///     let resp: Embedding = create(&client, &param).await?;
 ///     println!("{:?}", resp);
 ///
 ///     Ok(())
 /// }
 /// ```
-pub async fn create(client: &Client<'_>, param: &EmbeddingParam) -> Result<Embedding> {
+pub async fn create(client: &Client, param: &EmbeddingParam) -> Result<Embedding> {
     client.create_embeddings(param).await
 }
 
-impl<'a> Client<'a> {
+impl Client {
     async fn create_embeddings(&self, param: &EmbeddingParam) -> Result<Embedding> {
         let resp = self
             .post::<EmbeddingParam, Embedding>("embeddings", Some(param))
@@ -111,16 +109,13 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::Config;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_create() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?);
-        let client = Client::new(&config);
+        let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = EmbeddingParam::new(Models::TextEmbeddingAda002, "Hello world!");
-
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 

@@ -113,28 +113,26 @@ pub struct CategoryScores {
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     Config, Client,
+///     Client,
 ///     moderation::{create, ModerationParam, Moderation},
 /// };
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?);
-///     let client = Client::new(&config);
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
 ///     let param = ModerationParam::new("I want to kill them.");
-///
 ///     let resp: Moderation = create(&client, &param).await?;
 ///     println!("{:?}", resp);
 ///
 ///     Ok(())
 /// }
 /// ```
-pub async fn create(client: &Client<'_>, param: &ModerationParam) -> Result<Moderation> {
+pub async fn create(client: &Client, param: &ModerationParam) -> Result<Moderation> {
     client.create_moderation(param).await
 }
 
-impl<'a> Client<'a> {
+impl Client {
     async fn create_moderation(&self, param: &ModerationParam) -> Result<Moderation> {
         let resp = self
             .post::<ModerationParam, Moderation>("moderations", Some(param))
@@ -147,16 +145,13 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::Config;
     use std::env;
 
     #[tokio::test]
     async fn test_create_moderation() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?);
-        let client = Client::new(&config);
+        let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = ModerationParam::new("That shouldn't be flagged as flagged, even though it posseses KILL, MURDER and SUICIDE.");
-
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 

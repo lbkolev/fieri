@@ -42,9 +42,6 @@ impl Serialize for ImageSize {
     }
 }
 
-// The image generations endpoint allows you to create an original image given a text prompt. Generated images can have a size of 256x256, 512x512, or 1024x1024 pixels.
-//
-// Smaller sizes are faster to generate.
 /// Parameters for [`Generate Image`](generate) request.
 #[derive(Debug, Serialize)]
 pub struct GenerateImage {
@@ -145,6 +142,9 @@ struct EditImage {}
 struct VariateImage {}
 
 /// Generate an image from a prompt.
+/// The image generations endpoint allows you to create an original image given a text prompt. Generated images can have a size of 256x256, 512x512, or 1024x1024 pixels.
+///
+/// Smaller sizes are faster to generate.
 ///
 /// Related OpenAI docs: [Create Image](https://beta.openai.com/docs/api-reference/images/create)
 ///
@@ -152,26 +152,24 @@ struct VariateImage {}
 /// ```no_run
 /// use std::env;
 /// use openai_rs::{
-///     Config, Client,
+///     Client,
 ///     image::{Image, ImageSize, GenerateImage, generate},
 /// };
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?);
-///     let client = Client::new(&config);
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
 ///    let param = GenerateImage::new("Dogs playing poker.")
 ///        .size(ImageSize::S256x256)
 ///        .n(1);
-///
 ///    let resp = generate(client, &param).await?;
 ///    println!("{:#?}", resp);
 ///
 ///    Ok(())
 /// }
 /// ```
-pub async fn generate(client: Client<'_>, param: &GenerateImage) -> Result<Image> {
+pub async fn generate(client: Client, param: &GenerateImage) -> Result<Image> {
     client.generate_image(param).await
 }
 
@@ -182,7 +180,7 @@ pub async fn generate(client: Client<'_>, param: &GenerateImage) -> Result<Image
 ///
 /// ```
 // TODO
-pub async fn edit(client: Client<'_>, param: &GenerateImage) -> Result<Image> {
+pub async fn edit(client: Client, param: &GenerateImage) -> Result<Image> {
     client.edit_image(param).await
 }
 
@@ -193,11 +191,11 @@ pub async fn edit(client: Client<'_>, param: &GenerateImage) -> Result<Image> {
 ///
 /// ```
 // TODO
-pub async fn variation(client: Client<'_>, param: &GenerateImage) -> Result<Image> {
+pub async fn variation(client: Client, param: &GenerateImage) -> Result<Image> {
     client.variation_image(param).await
 }
 
-impl<'a> Client<'a> {
+impl Client {
     async fn generate_image(&self, param: &GenerateImage) -> Result<Image> {
         let resp = self
             .post::<GenerateImage, Image>("images/generations", Some(param))
@@ -226,18 +224,15 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Config;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_generate_image() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?);
-        let client = Client::new(&config);
+        let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = GenerateImage::new(String::from("Generate an image reflecting the year 1939."))
             .size(ImageSize::S256x256)
             .n(1);
-
         let resp = generate(client, &param).await?;
         println!("{:#?}", resp);
 

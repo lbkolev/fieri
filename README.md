@@ -11,7 +11,7 @@
 
 ## Introduction
 ### Unofficial Rust client for the OpenAI API.
-This library provides a Rust interface for interacting with the OpenAI API allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
+This library provides a Rust interface for interacting with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
 
 ## Prerequisites
 Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal. Once you've signed up, you'll be able to find your API key in the API Keys section of the developer portal.
@@ -47,4 +47,4 @@ Note that the Rust Client for OpenAI is provided as-is, and is not officially su
 Additionally, the API has usage limits that may affect your ability to use the models. You can view your current usage and limits in the [Usage](https://beta.openai.com/account/usage) section of your account.
 
 ## License
-OpenAI-rs is provided under the MIT license. See LICENSE.
+OpenAI-rs is provided under the MIT license. See [LICENSE](LICENSE).

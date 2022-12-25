@@ -1,6 +1,7 @@
 //! Configuration for the OpenAI API.
 
 use derive_getters::Getters;
+use reqwest::header::HeaderMap;
 use serde::{Serialize, Serializer};
 use url::Url;
 
@@ -11,10 +12,13 @@ pub struct Config {
 
     url: Url,
 
+    /// Headers used with each request.
+    #[getter(skip)]
+    pub headers: HeaderMap,
+
     /// For users who belong to multiple organizations, you can pass a header
     /// to specify which organization is used for an API request.
-    #[getter(skip)]
-    pub organization: Option<String>,
+    pub organization: String,
 
     #[allow(unused)]
     #[getter(skip)]
@@ -25,9 +29,10 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            url: Url::parse("https://api.openai.com/v1/").unwrap(),
             api_key: String::new(),
-            organization: None,
+            url: Url::parse("https://api.openai.com/v1/").unwrap(),
+            headers: HeaderMap::new(),
+            organization: String::new(),
             default_model: None,
         }
     }
@@ -41,8 +46,8 @@ impl Config {
         }
     }
 
-    pub fn organization<T: Into<String>>(mut self, organization: Option<T>) -> Self {
-        self.organization = organization.map(|t| t.into());
+    pub fn headers(mut self, headers: HeaderMap) -> Self {
+        self.headers = headers;
 
         self
     }
@@ -59,9 +64,7 @@ impl Config {
 
 /// All the available Models offered for usage through the API.
 ///
-/// Extracted from [Models List].
-///
-/// [Models List]: crate::api_resources::model::list
+/// Extracted from [Models List](crate::model::List).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Models {
     Ada,

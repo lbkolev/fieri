@@ -89,21 +89,17 @@ pub struct DeleteFile {
 
 /// Returns a [`list`][ListFiles] of files that belong to the user's organization.
 ///
-/// Related OpenAI Docs: [List Files](https://beta.openai.com/docs/api-reference/files/list)
+/// Related OpenAI docs: [List Files](https://beta.openai.com/docs/api-reference/files/list)
 ///
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use openai_rs::{
-///     Config, Client,
-///     file::{ListFiles, list},
-/// };
+/// use openai_rs::{Client, Config, file::{ListFiles, list}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?)
-///         .organization(Some(env::var("OPENAI_ORGANIZATION")?));
-///     let client = Client::new(&config);
+///     let client = Client::new(env::var("OPENAI_API_KEY")?)
+///         .organization(env::var("OPENAI_ORGANIZATION")?);
 ///
 ///     let resp: ListFiles = list(&client).await?;
 ///     println!("{:#?}", resp);
@@ -111,64 +107,55 @@ pub struct DeleteFile {
 ///     Ok(())
 /// }
 /// ```
-pub async fn list(client: &Client<'_>) -> Result<ListFiles> {
+pub async fn list(client: &Client) -> Result<ListFiles> {
     client.list_files().await
 }
 
 /// Upload a file that contains document(s) to be used across various endpoints/features.
 ///
-/// Related OpenAI Docs: [Upload File](https://beta.openai.com/docs/api-reference/files/upload)
+/// Related OpenAI docs: [Upload File](https://beta.openai.com/docs/api-reference/files/upload)
 ///
 /// ## Example
 /// ```no_run
 /// use std::env;
 /// use std::path::Path;
 /// use openai_rs::{
-///     Config, Client,
+///     Client,
 ///     file::{UploadFileParam, File, Purpose, upload},
 /// };
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?)
-///         .organization(Some(env::var("OPENAI_ORGANIZATION")?));
-///     let client = Client::new(&config);
+///     let client = Client::new(env::var("OPENAI_API_KEY")?)
+///         .organization(env::var("OPENAI_ORGANIZATION")?);
 ///
 ///     let param = UploadFileParam::new(
 ///         Path::new("/path/to/file.jsonl"),
 ///         Purpose::FineTune
 ///     );
-///
 ///     let resp: File = upload(&client, &param).await?;
 ///     println!("{:#?}", resp);
 ///
 ///     Ok(())
 /// }
 /// ```
-pub async fn upload<P: AsRef<Path>>(
-    client: &Client<'_>,
-    param: &UploadFileParam<P>,
-) -> Result<File> {
+pub async fn upload<P: AsRef<Path>>(client: &Client, param: &UploadFileParam<P>) -> Result<File> {
     client.upload_file(param).await
 }
 
 /// Delete a file.
 ///
-/// Related OpenAI Docs: [Delete File](https://beta.openai.com/docs/api-reference/files/delete)
+/// Related OpenAI docs: [Delete File](https://beta.openai.com/docs/api-reference/files/delete)
 ///
 /// ## Example
 /// ```no_run
 /// use std::env;
-/// use openai_rs::{
-///     Config, Client,
-///     file::{DeleteFile, delete},
-/// };
+/// use openai_rs::{Client, file::{DeleteFile, delete}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?)
-///         .organization(Some(env::var("OPENAI_ORGANIZATION")?));
-///     let client = Client::new(&config);
+///     let client = Client::new(env::var("OPENAI_API_KEY")?)
+///         .organization(env::var("OPENAI_ORGANIZATION")?);
 ///
 ///     let resp: DeleteFile = delete(&client, "file-to-delete").await?;
 ///     println!("{:#?}", resp);
@@ -176,7 +163,7 @@ pub async fn upload<P: AsRef<Path>>(
 ///     Ok(())
 /// }
 /// ```
-pub async fn delete<T: Into<String>>(client: &Client<'_>, file_id: T) -> Result<DeleteFile> {
+pub async fn delete<T: Into<String>>(client: &Client, file_id: T) -> Result<DeleteFile> {
     client.delete_file(file_id).await
 }
 
@@ -187,17 +174,12 @@ pub async fn delete<T: Into<String>>(client: &Client<'_>, file_id: T) -> Result<
 /// ## Example
 /// ```no_run
 /// use std::env;
-/// use openai_rs::{
-///     client::Client,
-///     config::Config,
-///     api_resources::file::{File, retrieve},
-/// };
+/// use openai_rs::{Client, file::{File, retrieve}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let config = Config::new(env::var("OPENAI_API_KEY")?)
-///         .organization(Some(env::var("OPENAI_ORGANIZATION")?));
-///     let client = Client::new(&config);
+///     let client = Client::new(env::var("OPENAI_API_KEY")?)
+///         .organization(env::var("OPENAI_ORGANIZATION")?);
 ///
 ///     let resp: File = retrieve(&client, "file-to-retrieve").await?;
 ///     println!("{:#?}", resp);
@@ -205,11 +187,11 @@ pub async fn delete<T: Into<String>>(client: &Client<'_>, file_id: T) -> Result<
 ///     Ok(())
 /// }
 /// ```
-pub async fn retrieve<T: Into<String>>(client: &Client<'_>, file_id: T) -> Result<File> {
+pub async fn retrieve<T: Into<String>>(client: &Client, file_id: T) -> Result<File> {
     client.retrieve_file(file_id).await
 }
 
-impl<'a> Client<'a> {
+impl Client {
     async fn list_files(&self) -> Result<ListFiles> {
         let resp = self.get::<(), ListFiles>("files", None).await?;
 
@@ -251,14 +233,12 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Config;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_list_files() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?)
-            .organization(Some(env::var("OPENAI_ORGANIZATION")?));
-        let client = Client::new(&config);
+        let client =
+            Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
 
         let resp = list(&client).await?;
         println!("{:#?}", resp);
@@ -271,15 +251,13 @@ mod tests {
     #[ignore = "requires file upload"]
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_upload_file() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?)
-            .organization(Some(env::var("OPENAI_ORGANIZATION")?));
-        let client = Client::new(&config);
+        let client =
+            Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
 
         let param: UploadFileParam<&std::path::Path> = UploadFileParam::new(
             Path::new("../../resources/file_upload_example.jsonl"),
             Purpose::FineTune,
         );
-
         let resp = upload(&client, &param).await?;
         println!("{:#?}", resp);
 
@@ -290,9 +268,8 @@ mod tests {
     #[ignore = "requires file deletion"]
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_delete_file() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?)
-            .organization(Some(env::var("OPENAI_ORGANIZATION")?));
-        let client = Client::new(&config);
+        let client =
+            Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
 
         let resp = delete(&client, "rand-file").await?;
         println!("{:#?}", resp);
@@ -305,9 +282,8 @@ mod tests {
     #[ignore = "requires a file to retrieve"]
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_retrieve_file() -> Result<()> {
-        let config = Config::new(env::var("OPENAI_API_KEY")?)
-            .organization(Some(env::var("OPENAI_ORGANIZATION")?));
-        let client = Client::new(&config);
+        let client =
+            Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
 
         let resp = retrieve(&client, "rand-file").await?;
         println!("{:#?}", resp);
