@@ -45,3 +45,6 @@ let client = Client::new(&config);
 Note that the Rust Client for OpenAI is provided as-is, and is not officially supported by OpenAI. While we will do our best to keep the library up-to-date and bug-free, we cannot guarantee that it will always work as expected.
 
 Additionally, the API has usage limits that may affect your ability to use the models. You can view your current usage and limits in the [Usage](https://beta.openai.com/account/usage) section of your account.
+
+## License
+OpenAI-rs is provided under the MIT license. See LICENSE.

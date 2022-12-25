@@ -98,14 +98,14 @@ pub async fn list(client: &Client<'_>) -> Result<Models> {
 impl<'a> Client<'a> {
     async fn retrieve(&self, model: crate::Models) -> Result<Model> {
         let resp = self
-            .get::<String, (), Model>(format!("/models/{model}"), None)
+            .get::<(), Model>(format!("models/{model}").as_str(), None)
             .await?;
 
         Ok(resp)
     }
 
     async fn list(&self) -> Result<Models> {
-        let resp = self.get::<&str, (), Models>("/models", None).await?;
+        let resp = self.get::<(), Models>("models", None).await?;
 
         Ok(resp)
     }

@@ -2,13 +2,14 @@
 
 use derive_getters::Getters;
 use serde::{Serialize, Serializer};
+use url::Url;
 
 /// The configuration needed to establish connection with OpenAI's API.
 #[derive(Debug, Clone, Getters)]
 pub struct Config {
     api_key: String,
 
-    url: String,
+    url: Url,
 
     /// For users who belong to multiple organizations, you can pass a header
     /// to specify which organization is used for an API request.
@@ -24,7 +25,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            url: "https://api.openai.com/v1".to_string(),
+            url: Url::parse("https://api.openai.com/v1/").unwrap(),
             api_key: String::new(),
             organization: None,
             default_model: None,

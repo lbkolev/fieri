@@ -10,6 +10,9 @@ pub enum Error {
     #[error("{0}")]
     FileError(#[from] std::io::Error),
 
+    #[error("{0}")]
+    UrlError(#[from] url::ParseError),
+
     #[error(
         "Missing mandatory model for request. Please use the `model` method to set the model."
     )]

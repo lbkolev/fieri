@@ -289,7 +289,7 @@ pub async fn create(client: &Client<'_>, param: &CompletionParam) -> Result<Comp
 impl<'a> Client<'a> {
     async fn create_completion(&self, param: &CompletionParam) -> Result<Completion> {
         let resp = self
-            .post::<&str, CompletionParam, Completion>("/completions", Some(param))
+            .post::<CompletionParam, Completion>("completions", Some(param))
             .await?;
 
         Ok(resp)

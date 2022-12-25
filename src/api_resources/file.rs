@@ -211,7 +211,7 @@ pub async fn retrieve<T: Into<String>>(client: &Client<'_>, file_id: T) -> Resul
 
 impl<'a> Client<'a> {
     async fn list_files(&self) -> Result<ListFiles> {
-        let resp = self.get::<&str, (), ListFiles>("/files", None).await?;
+        let resp = self.get::<(), ListFiles>("files", None).await?;
 
         Ok(resp)
     }
@@ -223,14 +223,14 @@ impl<'a> Client<'a> {
             .part("file", part)
             .text("purpose", param.purpose.to_string());
 
-        let resp = self.post_data::<&str, Form, File>("/files", form).await?;
+        let resp = self.post_data::<Form, File>("files", form).await?;
 
         Ok(resp)
     }
 
     async fn delete_file<T: Into<String>>(&self, file_id: T) -> Result<DeleteFile> {
         let resp = self
-            .delete::<&str, (), DeleteFile>(&format!("/files/{}", file_id.into()), None)
+            .delete::<(), DeleteFile>(&format!("files/{}", file_id.into()), None)
             .await?;
 
         Ok(resp)
@@ -238,7 +238,7 @@ impl<'a> Client<'a> {
 
     async fn retrieve_file<T: Into<String>>(&self, file_id: T) -> Result<File> {
         let resp = self
-            .get::<&str, (), File>(&format!("/files/{}", file_id.into()), None)
+            .get::<(), File>(&format!("files/{}", file_id.into()), None)
             .await?;
 
         Ok(resp)

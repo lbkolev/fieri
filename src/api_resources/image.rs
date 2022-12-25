@@ -200,7 +200,7 @@ pub async fn variation(client: Client<'_>, param: &GenerateImage) -> Result<Imag
 impl<'a> Client<'a> {
     async fn generate_image(&self, param: &GenerateImage) -> Result<Image> {
         let resp = self
-            .post::<&str, GenerateImage, Image>("/images/generations", Some(param))
+            .post::<GenerateImage, Image>("images/generations", Some(param))
             .await?;
 
         Ok(resp)
@@ -208,7 +208,7 @@ impl<'a> Client<'a> {
 
     async fn edit_image(&self, param: &GenerateImage) -> Result<Image> {
         let resp = self
-            .post::<&str, GenerateImage, Image>("/images/edits", Some(param))
+            .post::<GenerateImage, Image>("images/edits", Some(param))
             .await?;
 
         Ok(resp)
@@ -216,7 +216,7 @@ impl<'a> Client<'a> {
 
     async fn variation_image(&self, param: &GenerateImage) -> Result<Image> {
         let resp = self
-            .post::<&str, GenerateImage, Image>("/images/variations", Some(param))
+            .post::<GenerateImage, Image>("images/variations", Some(param))
             .await?;
 
         Ok(resp)

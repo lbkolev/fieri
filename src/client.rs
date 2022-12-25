@@ -40,72 +40,68 @@ impl<'a> Client<'a> {
         }
     }
 
-    pub async fn get<X, Y, Z>(&self, identifier: X, param: Option<&Y>) -> Result<Z>
+    pub async fn get<X, Y>(&self, identifier: &str, param: Option<&X>) -> Result<Y>
     where
-        X: Into<String> + std::fmt::Display,
-        Y: Serialize,
-        Z: DeserializeOwned,
+        X: Serialize,
+        Y: DeserializeOwned,
     {
         let resp = self
             .handler
-            .get(format!("{}{}", self.config().url(), identifier))
+            .get(self.config().url().join(identifier)?)
             .query(&param)
             .send()
             .await?
-            .json::<Z>()
+            .json::<Y>()
             .await?;
 
         Ok(resp)
     }
 
-    pub async fn post<X, Y, Z>(&self, identifier: X, param: Option<&Y>) -> Result<Z>
+    pub async fn post<X, Y>(&self, identifier: &str, param: Option<&X>) -> Result<Y>
     where
-        X: Into<String> + std::fmt::Display,
-        Y: Serialize,
-        Z: DeserializeOwned,
+        X: Serialize,
+        Y: DeserializeOwned,
     {
         let resp = self
             .handler
-            .post(format!("{}{}", self.config().url(), identifier))
+            .post(self.config().url().join(identifier)?)
             .json(&param)
             .send()
             .await?
-            .json::<Z>()
+            .json::<Y>()
             .await?;
 
         Ok(resp)
     }
 
-    pub async fn delete<X, Y, Z>(&self, identifier: X, param: Option<&Y>) -> Result<Z>
+    pub async fn delete<X, Y>(&self, identifier: &str, param: Option<&X>) -> Result<Y>
     where
-        X: Into<String> + std::fmt::Display,
-        Y: Serialize,
-        Z: DeserializeOwned,
+        X: Serialize,
+        Y: DeserializeOwned,
     {
         let resp = self
             .handler
-            .delete(format!("{}{}", self.config().url(), identifier))
+            .delete(self.config().url().join(identifier)?)
             .query(&param)
             .send()
             .await?
-            .json::<Z>()
+            .json::<Y>()
             .await?;
 
         Ok(resp)
     }
 
-    pub async fn post_data<X, Y, Z>(&self, identifier: X, param: multipart::Form) -> Result<Z>
+    pub async fn post_data<X, Y>(&self, identifier: &str, param: multipart::Form) -> Result<Y>
     where
-        X: Into<String> + std::fmt::Display,
-        Z: DeserializeOwned,
+        Y: DeserializeOwned,
     {
         let resp = self
             .handler
-            .post(format!("{}{}", self.config().url(), identifier))
+            .post(self.config().url().join(identifier)?)
             .multipart(param)
             .send()
             .await?
-            .json::<Z>()
+            .json::<Y>()
             .await?;
 
         Ok(resp)

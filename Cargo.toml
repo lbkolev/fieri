@@ -6,14 +6,16 @@ authors = [ "Lachezar Kolev <lachezarkolevgg@gmail.com>" ]
 rust-version = "1.65.0"
 description = "Unofficial Rust client for the OpenAI API."
 documentation = "https://docs.rs/openai-rs"
-readme = "./README.md"
+readme = "README.md"
 homepage = "https://docs.rs/openai-rs"
 repository = "https://github.com/lbkolev/openai-rs"
+keyword = ["openai", "rest client", "api wrapper"]
 license = "MIT"
 
 [dependencies]
 tokio           = { version = "1.23.0",  features = ["full"]  }
 reqwest         = { version = "0.11.13", features = ["json", "multipart"] }
+url             = { version = "2.3.1"   }
 serde           = { version = "1.0.151", features = ["derive"]}
 serde_json      = { version = "1.0.89"  }
 thiserror       = { version = "1.0.37"  }
