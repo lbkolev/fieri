@@ -1,5 +1,5 @@
 use derive_getters::Getters;
-use reqwest::header::HeaderMap;
+use reqwest::{header::HeaderMap, multipart};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{Config, Result};
@@ -94,11 +94,7 @@ impl<'a> Client<'a> {
         Ok(resp)
     }
 
-    pub async fn post_data<X, Y, Z>(
-        &self,
-        identifier: X,
-        param: reqwest::multipart::Form,
-    ) -> Result<Z>
+    pub async fn post_data<X, Y, Z>(&self, identifier: X, param: multipart::Form) -> Result<Z>
     where
         X: Into<String> + std::fmt::Display,
         Z: DeserializeOwned,

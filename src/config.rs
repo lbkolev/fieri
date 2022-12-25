@@ -15,8 +15,10 @@ pub struct Config {
     #[getter(skip)]
     pub organization: Option<String>,
 
+    #[allow(unused)]
     #[getter(skip)]
-    pub default_model: Option<Models>,
+    // TODO
+    default_model: Option<Models>,
 }
 
 impl Default for Config {
@@ -31,21 +33,23 @@ impl Default for Config {
 }
 
 impl Config {
-    pub fn new(api_key: String) -> Self {
+    pub fn new<T: Into<String>>(api_key: T) -> Self {
         Self {
-            api_key,
+            api_key: api_key.into(),
             ..Self::default()
         }
     }
 
-    pub fn organization(mut self, organization: Option<String>) -> Self {
-        self.organization = organization;
+    pub fn organization<T: Into<String>>(mut self, organization: Option<T>) -> Self {
+        self.organization = organization.map(|t| t.into());
 
         self
     }
 
-    /// Optional default model to use for requests.
-    pub fn default_model(mut self, model: Option<Models>) -> Self {
+    // /// Optional default model to use for requests.
+    // TODO
+    #[allow(unused)]
+    fn default_model(mut self, model: Option<Models>) -> Self {
         self.default_model = model;
 
         self

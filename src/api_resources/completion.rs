@@ -1,5 +1,15 @@
 //! Given a prompt, the model will return one or more predicted completions,
 //! and can also return the probabilities of alternative tokens at each position.
+//!
+//! The completions endpoint can be used for a wide variety of tasks. It provides a simple but powerful interface to any of the available models.
+//! You input some text as a prompt, and the model will generate a text completion that attempts to match whatever context or pattern you gave it.
+//!
+//! For example, if you give the API the prompt, "As Descartes said, I think, therefore", it will return the completion " I am" with high probability.
+//!
+//! models can do everything from generating original stories to performing complex text analysis.
+//! Because they can do so many things, you have to be explicit in describing what you want.
+//!
+//! Showing, not just telling, is often the secret to a good prompt.
 
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
@@ -10,7 +20,7 @@ use crate::{
     Client, Models, Result,
 };
 
-/// Parameters for [`create`](crate::api_resources::completion::create) completion request.
+/// Parameters for [`Create Completion`](create) request.
 #[derive(Debug, Serialize)]
 pub struct CompletionParam {
     /// The model to use for the completion request.
@@ -49,7 +59,7 @@ pub struct CompletionParam {
 
     // Whether to stream back partial progress.
     // defaults to false.
-    // For streamed progress, use [`create_with_stream`](crate::api_resources::completion::create_with_stream).
+    // For streamed progress, use [`create_with_stream`](create_with_stream).
     stream: bool,
 
     /// Include the log probabilities on the `logprobs` most likely tokens, as well the chosen tokens.
@@ -109,24 +119,21 @@ impl Default for CompletionParam {
 }
 
 impl CompletionParam {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(model: Models) -> Self {
+        Self {
+            model: Some(model),
+            ..Self::default()
+        }
     }
 
-    pub fn model(mut self, model: Option<Models>) -> Self {
-        self.model = model;
+    pub fn prompt<T: Into<String>>(mut self, prompt: T) -> Self {
+        self.prompt = prompt.into();
 
         self
     }
 
-    pub fn prompt(mut self, prompt: String) -> Self {
-        self.prompt = prompt;
-
-        self
-    }
-
-    pub fn suffix(mut self, suffix: Option<String>) -> Self {
-        self.suffix = suffix;
+    pub fn suffix<T: Into<String>>(mut self, suffix: Option<T>) -> Self {
+        self.suffix = suffix.map(|t| t.into());
 
         self
     }
@@ -175,8 +182,8 @@ impl CompletionParam {
         self
     }
 
-    pub fn stop(mut self, stop: Option<String>) -> Self {
-        self.stop = stop;
+    pub fn stop<T: Into<String>>(mut self, stop: Option<T>) -> Self {
+        self.stop = stop.map(|t| t.into());
 
         self
     }
@@ -205,16 +212,16 @@ impl CompletionParam {
         self
     }
 
-    pub fn user(mut self, user: String) -> Self {
-        self.user = user;
+    pub fn user<T: Into<String>>(mut self, user: T) -> Self {
+        self.user = user.into();
 
         self
     }
 }
 
-/// Response from [`create`](crate::api_resources::completion::create) completion reqest.
+/// Response from [`Create completion`](create) request.
 #[derive(Debug, Getters, Deserialize)]
-pub struct CompletionResp {
+pub struct Completion {
     id: Option<String>,
     object: Option<String>,
     created: Option<u64>,
@@ -223,6 +230,7 @@ pub struct CompletionResp {
     usage: Option<TokenUsage>,
     error: Option<ErrorResp>,
 }
+
 /*
 impl Iterator for CompletionResp {
     type Item = Vec<Choices>;
@@ -241,30 +249,18 @@ impl Iterator for CompletionResp {
 
 /// Creates a completion for the provided prompt and parameters.
 ///
-/// Related OpenAI docs: [Create Completions](https://beta.openai.com/docs/api-reference/completions/create)
-///
 /// The completion API is the most powerful Endpoint in the OpenAI API.
 ///
-/// It can be used to generate text, images, audio, and video.
+/// It can be used to generate structured data like `JSON`, `HTML`, `LaTeX`, code in any programming language and more.
 ///
-/// It can also be used to generate structured data like JSON, HTML, or LaTeX.
-///
-/// It can be used to generate code in any programming language.
-///
-/// It can be used to generate log messages, email replies, tweets, and more.
+/// Related OpenAI Docs: [Create Completions](https://beta.openai.com/docs/api-reference/completions/create)
 ///
 /// ## Example
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     Models,
-///     client::Client,
-///     config::Config,
-///     api_resources::completion::{
-///         create,
-///         CompletionParam,
-///         CompletionResp,
-///     }
+///     Config, Client, Models,
+///     completion::{create, CompletionParam, Completion},
 /// };
 ///
 /// #[tokio::main]
@@ -272,16 +268,17 @@ impl Iterator for CompletionResp {
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
 ///     let client = Client::new(&config);
 ///
-///     let param = CompletionParam::new()
-///         .model(Some(Models::Ada))
-///         .prompt("Generate a complex and unintuitive 'Hello, World' example in Haskell.".to_string())
+///     let param = CompletionParam::new(Models::Ada)
+///         .prompt("Haskell is a programming language. Generate a complex and unintuitive 'Hello, World' example in Haskell.")
 ///         .temperature(0.5);
-///     let resp: CompletionResp = create(&client, &param).await?;
+///
+///     let resp: Completion = create(&client, &param).await?;
 ///     println!("{:#?}", resp);
+///
 ///     Ok(())
 /// }
 /// ```
-pub async fn create(client: &Client<'_>, param: &CompletionParam) -> Result<CompletionResp> {
+pub async fn create(client: &Client<'_>, param: &CompletionParam) -> Result<Completion> {
     client.create_completion(param).await
 }
 
@@ -290,9 +287,9 @@ pub async fn create(client: &Client<'_>, param: &CompletionParam) -> Result<Comp
 }*/
 
 impl<'a> Client<'a> {
-    async fn create_completion(&self, param: &CompletionParam) -> Result<CompletionResp> {
+    async fn create_completion(&self, param: &CompletionParam) -> Result<Completion> {
         let resp = self
-            .post::<&str, CompletionParam, CompletionResp>("/completions", Some(param))
+            .post::<&str, CompletionParam, Completion>("/completions", Some(param))
             .await?;
 
         Ok(resp)
@@ -327,14 +324,15 @@ mod tests {
         let config = Config::new(env::var("OPENAI_API_KEY")?);
         let client = Client::new(&config);
 
-        let param = CompletionParam::new()
-            .model(Some(Models::CurieInstructBeta))
-            .prompt("Generate a complex and elaborate 'Hello, World' in R.".to_string());
+        let param = CompletionParam::new(Models::CurieInstructBeta).prompt(
+            "R is a programming language. Generate a complex and elaborate 'Hello, World' in R.",
+        );
 
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.error().is_none(), true);
+        assert!(resp.model().is_some());
+        assert!(resp.error().is_none());
         Ok(())
     }
 

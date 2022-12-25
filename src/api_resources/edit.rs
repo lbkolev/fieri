@@ -1,14 +1,18 @@
 //! Given a prompt and an instruction, the model will return an edited version of the prompt.
+//!
+//! The edits endpoint can be used to edit text, rather than just completing it. You provide some text and an instruction for how to modify it.
+//!
+//! This is a natural interface for translating, editing, and tweaking text. This is also useful for refactoring and working with code.
 
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     api_resources::{Choices, ErrorResp, TokenUsage},
-    Client, Error, Models, Result,
+    Client, Models, Result,
 };
 
-/// Parameters for [`create`](crate::api_resources::edit::create) edit request.
+/// Parameters for [`Create Edit`](create) request.
 #[derive(Debug, Clone, Serialize)]
 pub struct EditParam {
     /// The model to use for the edit request.
@@ -50,24 +54,16 @@ impl Default for EditParam {
 }
 
 impl EditParam {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new<T: Into<String>>(model: Models, instruction: T) -> Self {
+        Self {
+            model: Some(model),
+            instruction: instruction.into(),
+            ..Self::default()
+        }
     }
 
-    pub fn model(mut self, model: Option<Models>) -> Self {
-        self.model = model;
-
-        self
-    }
-
-    pub fn input(mut self, input: String) -> Self {
-        self.input = input;
-
-        self
-    }
-
-    pub fn instruction(mut self, instruction: String) -> Self {
-        self.instruction = instruction;
+    pub fn input<T: Into<String>>(mut self, input: T) -> Self {
+        self.input = input.into();
 
         self
     }
@@ -91,9 +87,9 @@ impl EditParam {
     }
 }
 
-/// Response from [`create`](crate::api_resources::edit::create) edit request.
-#[derive(Debug, Getters, Deserialize)]
-pub struct EditResp {
+/// Response from [`Create edit`](create) request.
+#[derive(Debug, Deserialize, Getters)]
+pub struct Edit {
     object: Option<String>,
     created: Option<u64>,
     choices: Option<Vec<Choices>>,
@@ -109,14 +105,8 @@ pub struct EditResp {
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     Models,
-///     client::Client,
-///     config::Config,
-///     api_resources::edit::{
-///         create,
-///         EditParam,
-///         EditResp,
-///     }
+///     Config, Client, Models,
+///     edit::{create, EditParam, Edit},
 /// };
 ///
 /// #[tokio::main]
@@ -124,37 +114,23 @@ pub struct EditResp {
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
 ///     let client = Client::new(&config);
 ///
-///     let param = EditParam::new()
-///         .model(Some(Models::TextDavinci001))
-///         .input("What dey of the wek is it?".to_string())
-///         .instruction("Fix the spelling mistakes".to_string());
+///     let param = EditParam::new(Models::TexDavinciEdit001, "Fix the spelling mistakes")
+///         .input("What dey of the wek is it?")
+///
 ///     let resp: EditResp = create(&client, &param).await?;
 ///     println!("{:#?}", resp);
+///
 ///     Ok(())
 /// }
 /// ```
-pub async fn create(client: &Client<'_>, param: &EditParam) -> Result<EditResp> {
+pub async fn create(client: &Client<'_>, param: &EditParam) -> Result<Edit> {
     client.create_edit(param).await
 }
 
 impl<'a> Client<'a> {
-    async fn create_edit(&self, param: &EditParam) -> Result<EditResp> {
-        if param.model.is_none() && self.config().default_model.is_none() {
-            return Err(Error::MissingModel);
-        } else if param.model.is_some() {
-            let resp = self
-                .post::<&str, EditParam, EditResp>("/edits", Some(param))
-                .await?;
-
-            return Ok(resp);
-        }
-
-        let param = &EditParam {
-            model: self.config().to_owned().default_model,
-            ..param.to_owned()
-        };
+    async fn create_edit(&self, param: &EditParam) -> Result<Edit> {
         let resp = self
-            .post::<&str, EditParam, EditResp>("/edits", Some(param))
+            .post::<&str, EditParam, Edit>("/edits", Some(param))
             .await?;
 
         Ok(resp)
@@ -164,24 +140,23 @@ impl<'a> Client<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::Config;
+    use crate::Config;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_create() -> Result<()> {
         let config = Config::new(env::var("OPENAI_API_KEY")?);
-        // .default_model(Some(Model::TextDavinci001));
         let client = Client::new(&config);
 
-        let param = EditParam::new()
-            .model(Some(Models::TextDavinciEdit001))
-            .input("Can u actuqli fix spilling mistekis?".to_string())
-            .instruction("Fix the spelling mistakes".to_string())
+        let param = EditParam::new(Models::TextDavinciEdit001, "Fix the spelling mistakes")
+            .input("Can u actuqli fix spilling mistikes?")
             .temperature(0.5);
 
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
+        assert!(resp.object().is_some());
+        assert!(resp.error().is_none());
         Ok(())
     }
 }

@@ -1,4 +1,4 @@
-# <p align="center">Unofficial Rust client for the OpenAI API</p>
+## <p align="center">Rust client for the OpenAI API</p>
 
 <p align="center">
     <a href="https://github.com/lbkolev/openai-rs/blob/master/LICENSE">
@@ -22,11 +22,11 @@
 - [x]   `/edits`
     - [x] [create](https://beta.openai.com/docs/api-reference/edits/create)
 - [ ]   `/images`
-    - [ ] [create image](https://beta.openai.com/docs/api-reference/images/create)
+    - [x] [create image](https://beta.openai.com/docs/api-reference/images/create)
     - [ ] [create image edit](https://beta.openai.com/docs/api-reference/images/create-edit)
     - [ ] [create image variation](https://beta.openai.com/docs/api-reference/images/create-variation)
 - [x]   `/embeddings`
-    - [ ] [create](https://beta.openai.com/docs/api-reference/embeddings/create)
+    - [x] [create](https://beta.openai.com/docs/api-reference/embeddings/create)
 - [ ]   `/files`
     - [x] [list](https://beta.openai.com/docs/api-reference/files/list)
     - [x] [upload](https://beta.openai.com/docs/api-reference/files/upload)

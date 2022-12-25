@@ -1,7 +1,9 @@
 //! Files are used to upload documents that can be used with features like [`Fine-tuning`](crate::api_resources::fine_tune).
 
 use derive_getters::Getters;
+use reqwest::multipart::{Form, Part};
 use serde::{Deserialize, Serialize};
+use std::fs;
 use std::path::Path;
 
 use crate::{
@@ -9,15 +11,16 @@ use crate::{
     Client, Result,
 };
 
-/// Response for [`list`](crate::api_resources::file::list) file request.
+/// Response from [`List File`](list) request.
 #[derive(Debug, Deserialize, Getters)]
-pub struct ListFilesResp {
+pub struct ListFiles {
     data: Files,
     object: Option<String>,
     token_usage: Option<TokenUsage>,
     error: Option<ErrorResp>,
 }
 
+/// Response from [`Upload File`](upload) & [`Retrieve file`][retrieve] requests.
 #[derive(Debug, Deserialize, Getters)]
 pub struct File {
     id: Option<String>,
@@ -32,6 +35,7 @@ pub struct File {
 
 type Files = Vec<File>;
 
+/// The Possible Purposes of the uploaded documents.
 #[derive(Debug, Serialize)]
 pub enum Purpose {
     FineTune,
@@ -51,47 +55,31 @@ impl std::fmt::Display for Purpose {
     }
 }
 
+/// Parameters for [`Upload File`](upload) request.
 #[derive(Debug)]
-pub struct UploadFileParam<P: AsRef<Path>> {
+pub struct UploadFileParam<P>
+where
+    P: AsRef<Path>,
+{
     /// Name of the `JSON Lines` file to be uploaded.
-    file: Option<P>,
+    file: P,
 
     /// The intended purpose of the uploaded documents.
-    purpose: Option<Purpose>,
+    purpose: Purpose,
 }
 
-impl<P: AsRef<Path>> Default for UploadFileParam<P> {
-    fn default() -> Self {
-        Self {
-            file: None,
-            purpose: None,
-        }
-    }
-}
-
-impl<P: AsRef<Path>> UploadFileParam<P> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn file(mut self, file: Option<P>) -> Self
-    where
-        P: AsRef<Path>,
-    {
-        self.file = file;
-
-        self
-    }
-
-    pub fn purpose(mut self, purpose: Option<Purpose>) -> Self {
-        self.purpose = purpose;
-
-        self
+impl<P> UploadFileParam<P>
+where
+    P: AsRef<Path>,
+{
+    pub fn new(file: P, purpose: Purpose) -> Self {
+        Self { file, purpose }
     }
 }
 
+/// Response from [`Delete File`](delete) request.
 #[derive(Debug, Deserialize, Getters)]
-pub struct DeleteFileResp {
+pub struct DeleteFile {
     id: Option<String>,
     object: Option<String>,
     deleted: Option<bool>,
@@ -99,15 +87,16 @@ pub struct DeleteFileResp {
     error: Option<ErrorResp>,
 }
 
-/// Returns a [`list`][ListFilesResp] of files that belong to the user's organization.
+/// Returns a [`list`][ListFiles] of files that belong to the user's organization.
+///
+/// Related OpenAI Docs: [List Files](https://beta.openai.com/docs/api-reference/files/list)
 ///
 /// ## Example
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     client::Client,
-///     config::Config,
-///     api_resources::file::{ListFilesResp, list},
+///     Config, Client,
+///     file::{ListFiles, list},
 /// };
 ///
 /// #[tokio::main]
@@ -116,24 +105,27 @@ pub struct DeleteFileResp {
 ///         .organization(Some(env::var("OPENAI_ORGANIZATION")?));
 ///     let client = Client::new(&config);
 ///
-///     let resp: ListFilesResp = list(&client).await?;
+///     let resp: ListFiles = list(&client).await?;
 ///     println!("{:#?}", resp);
+///
 ///     Ok(())
 /// }
 /// ```
-pub async fn list(client: &Client<'_>) -> Result<ListFilesResp> {
+pub async fn list(client: &Client<'_>) -> Result<ListFiles> {
     client.list_files().await
 }
 
 /// Upload a file that contains document(s) to be used across various endpoints/features.
 ///
+/// Related OpenAI Docs: [Upload File](https://beta.openai.com/docs/api-reference/files/upload)
+///
 /// ## Example
 /// ```no_run
 /// use std::env;
+/// use std::path::Path;
 /// use openai_rs::{
-///     client::Client,
-///     config::Config,
-///     api_resources::file::{UploadFileParam, File, Purpose, upload},
+///     Config, Client,
+///     file::{UploadFileParam, File, Purpose, upload},
 /// };
 ///
 /// #[tokio::main]
@@ -142,12 +134,14 @@ pub async fn list(client: &Client<'_>) -> Result<ListFilesResp> {
 ///         .organization(Some(env::var("OPENAI_ORGANIZATION")?));
 ///     let client = Client::new(&config);
 ///
-///     let param = UploadFileParam::new()
-///        .file(Some(std::path::Path::new("/path/to/file.jsonl")))
-///        .purpose(Some(Purpose::FineTune));
+///     let param = UploadFileParam::new(
+///         Path::new("/path/to/file.jsonl"),
+///         Purpose::FineTune
+///     );
 ///
 ///     let resp: File = upload(&client, &param).await?;
 ///     println!("{:#?}", resp);
+///
 ///     Ok(())
 /// }
 /// ```
@@ -160,13 +154,14 @@ pub async fn upload<P: AsRef<Path>>(
 
 /// Delete a file.
 ///
+/// Related OpenAI Docs: [Delete File](https://beta.openai.com/docs/api-reference/files/delete)
+///
 /// ## Example
 /// ```no_run
 /// use std::env;
 /// use openai_rs::{
-///     client::Client,
-///     config::Config,
-///     api_resources::file::{DeleteFileResp, delete},
+///     Config, Client,
+///     file::{DeleteFile, delete},
 /// };
 ///
 /// #[tokio::main]
@@ -175,16 +170,19 @@ pub async fn upload<P: AsRef<Path>>(
 ///         .organization(Some(env::var("OPENAI_ORGANIZATION")?));
 ///     let client = Client::new(&config);
 ///
-///     let resp: DeleteFileResp = delete(&client, "file-to-delete").await?;
+///     let resp: DeleteFile = delete(&client, "file-to-delete").await?;
 ///     println!("{:#?}", resp);
+///
 ///     Ok(())
 /// }
 /// ```
-pub async fn delete<T: Into<String>>(client: &Client<'_>, file_id: T) -> Result<DeleteFileResp> {
+pub async fn delete<T: Into<String>>(client: &Client<'_>, file_id: T) -> Result<DeleteFile> {
     client.delete_file(file_id).await
 }
 
 /// Returns information about a specific file.
+///
+/// Related OpenAI Docs: [Retrieve File](https://beta.openai.com/docs/api-reference/files/retrieve)
 ///
 /// ## Example
 /// ```no_run
@@ -203,6 +201,7 @@ pub async fn delete<T: Into<String>>(client: &Client<'_>, file_id: T) -> Result<
 ///
 ///     let resp: File = retrieve(&client, "file-to-retrieve").await?;
 ///     println!("{:#?}", resp);
+///
 ///     Ok(())
 /// }
 /// ```
@@ -211,29 +210,27 @@ pub async fn retrieve<T: Into<String>>(client: &Client<'_>, file_id: T) -> Resul
 }
 
 impl<'a> Client<'a> {
-    async fn list_files(&self) -> Result<ListFilesResp> {
-        let resp = self.get::<&str, (), ListFilesResp>("/files", None).await?;
+    async fn list_files(&self) -> Result<ListFiles> {
+        let resp = self.get::<&str, (), ListFiles>("/files", None).await?;
 
         Ok(resp)
     }
 
     async fn upload_file<P: AsRef<Path>>(&self, param: &UploadFileParam<P>) -> Result<File> {
-        let data = std::fs::read(param.file.as_ref().unwrap()).unwrap();
-        let part = reqwest::multipart::Part::bytes(data).file_name("tmp101");
-        let form = reqwest::multipart::Form::new()
+        let data = fs::read(param.file.as_ref())?;
+        let part = Part::bytes(data).file_name("tmp101");
+        let form = Form::new()
             .part("file", part)
-            .text("purpose", param.purpose.as_ref().unwrap().to_string());
+            .text("purpose", param.purpose.to_string());
 
-        let resp = self
-            .post_data::<&str, reqwest::multipart::Form, File>("/files", form)
-            .await?;
+        let resp = self.post_data::<&str, Form, File>("/files", form).await?;
 
         Ok(resp)
     }
 
-    async fn delete_file<T: Into<String>>(&self, file_id: T) -> Result<DeleteFileResp> {
+    async fn delete_file<T: Into<String>>(&self, file_id: T) -> Result<DeleteFile> {
         let resp = self
-            .delete::<&str, &String, DeleteFileResp>(&format!("/files/{}", file_id.into()), None)
+            .delete::<&str, (), DeleteFile>(&format!("/files/{}", file_id.into()), None)
             .await?;
 
         Ok(resp)
@@ -248,19 +245,13 @@ impl<'a> Client<'a> {
     }
 
     // TODO
-    //async fn retrieve_file_content(T: Into<String>>(&self, file_id: T) -> Result<FileContent> {
-    //    let resp = self
-    //        .get::<&str, (), FileContent>(&format!("/files/{}/content", file_id.into()), None)
-    //        .await?;
-    //
-    //    Ok(resp)
-    //}
+    //async fn retrieve_file_content(T: Into<String>>(&self, file_id: T) -> Result<FileContent> {}
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::Config;
+    use crate::Config;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
@@ -269,7 +260,7 @@ mod tests {
             .organization(Some(env::var("OPENAI_ORGANIZATION")?));
         let client = Client::new(&config);
 
-        let resp: ListFilesResp = list(&client).await?;
+        let resp = list(&client).await?;
         println!("{:#?}", resp);
 
         assert_eq!(resp.error().is_none(), true);
@@ -284,9 +275,10 @@ mod tests {
             .organization(Some(env::var("OPENAI_ORGANIZATION")?));
         let client = Client::new(&config);
 
-        let param: UploadFileParam<&std::path::Path> = UploadFileParam::new()
-            .file(Some(std::path::Path::new("../../resources/example.jsonl")))
-            .purpose(Some(Purpose::FineTune));
+        let param: UploadFileParam<&std::path::Path> = UploadFileParam::new(
+            Path::new("../../resources/file_upload_example.jsonl"),
+            Purpose::FineTune,
+        );
 
         let resp = upload(&client, &param).await?;
         println!("{:#?}", resp);
@@ -317,7 +309,7 @@ mod tests {
             .organization(Some(env::var("OPENAI_ORGANIZATION")?));
         let client = Client::new(&config);
 
-        let resp = retrieve(&client, "file-1FZQ73L5AK8UknTTT0PxWMBE").await?;
+        let resp = retrieve(&client, "rand-file").await?;
         println!("{:#?}", resp);
 
         assert_eq!(resp.error().is_some(), true);
