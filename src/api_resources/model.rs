@@ -1,19 +1,24 @@
 //! List and describe the various models available in the API.
-//!
-//! You can refer to the Models documentation to understand what models are available and the differences between them.
 
 use derive_getters::Getters;
 use serde::Deserialize;
 
-use crate::{Client, Models, Result};
+use crate::{
+    api_resources::{ErrorResp, TokenUsage},
+    Client, Result,
+};
 
-#[derive(Debug, Getters, Deserialize)]
-pub struct ModelsResponse {
-    data: Vec<ModelResponse>,
+/// Response from [List Models](list) request.
+#[derive(Debug, Deserialize, Getters)]
+pub struct Models {
+    data: Vec<Model>,
+    token_usage: Option<TokenUsage>,
+    error: Option<ErrorResp>,
 }
 
+/// Response from [Retrieve a Model](retrieve) request.
 #[derive(Debug, Deserialize, Getters)]
-pub struct ModelResponse {
+pub struct Model {
     id: String,
     object: String,
     created: u64,
@@ -21,9 +26,12 @@ pub struct ModelResponse {
     permission: Vec<Permissions>,
     root: String,
     parent: Option<String>,
+    token_usage: Option<TokenUsage>,
+    error: Option<ErrorResp>,
 }
 
-#[derive(Debug, Getters, Deserialize)]
+/// Types of permissions that can be applied to a model.
+#[derive(Debug, Deserialize, Getters)]
 pub struct Permissions {
     id: String,
     object: String,
@@ -46,24 +54,20 @@ pub struct Permissions {
 /// ## Example:
 /// ```rust
 /// use std::env;
-/// use openai_rs::{
-///     Models,
-///     config::Config,
-///     client::Client,
-///     api_resources::model::retrieve
-/// };
+/// use openai_rs::{ Config, Client, model::retrieve };
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
 ///     let client = Client::new(&config);
 ///
-///     let resp = retrieve(&client, Models::TextBabbage001).await?;
+///     let resp = retrieve(&client, openai_rs::Models::TextBabbage001).await?;
 ///     println!("{:#?}", resp);
+///
 ///     Ok(())
 /// }
 /// ```
-pub async fn retrieve(client: &Client<'_>, model: Models) -> Result<ModelResponse> {
+pub async fn retrieve(client: &Client<'_>, model: crate::Models) -> Result<Model> {
     client.retrieve(model).await
 }
 
@@ -74,11 +78,7 @@ pub async fn retrieve(client: &Client<'_>, model: Models) -> Result<ModelRespons
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use openai_rs::{
-///     config::Config,
-///     client::Client,
-///     api_resources::model::list
-/// };
+/// use openai_rs::{Config, Client, model::list};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -87,26 +87,25 @@ pub async fn retrieve(client: &Client<'_>, model: Models) -> Result<ModelRespons
 ///
 ///     let resp = list(&client).await?;
 ///     println!("{:#?}", resp);
+///
 ///     Ok(())
 /// }
 /// ```
-pub async fn list(client: &Client<'_>) -> Result<ModelsResponse> {
+pub async fn list(client: &Client<'_>) -> Result<Models> {
     client.list().await
 }
 
 impl<'a> Client<'a> {
-    async fn retrieve(&self, model: Models) -> Result<ModelResponse> {
+    async fn retrieve(&self, model: crate::Models) -> Result<Model> {
         let resp = self
-            .get::<String, (), ModelResponse>(format!("/models/{model}"), None)
+            .get::<String, (), Model>(format!("/models/{model}"), None)
             .await?;
 
         Ok(resp)
     }
 
-    async fn list(&self) -> Result<ModelsResponse> {
-        let resp = self
-            .get::<&str, (), ModelsResponse>("/models", None)
-            .await?;
+    async fn list(&self) -> Result<Models> {
+        let resp = self.get::<&str, (), Models>("/models", None).await?;
 
         Ok(resp)
     }
@@ -116,7 +115,6 @@ impl<'a> Client<'a> {
 mod tests {
     use super::*;
     use crate::Config;
-    use more_asserts as ma;
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
@@ -124,9 +122,11 @@ mod tests {
         let config = Config::new(env::var("OPENAI_API_KEY")?);
         let client = Client::new(&config);
 
-        let resp = retrieve(&client, Models::TextBabbage001).await?;
+        let resp = retrieve(&client, crate::Models::TextBabbage001).await?;
+        println!("{:#?}", resp);
 
         assert_eq!(resp.root(), "text-babbage-001");
+        assert!(resp.error().is_none());
         Ok(())
     }
 
@@ -136,8 +136,9 @@ mod tests {
         let client = Client::new(&config);
 
         let resp = list(&client).await?;
+        println!("{:#?}", resp);
 
-        ma::assert_gt!(resp.data().len(), 1);
+        assert!(resp.error().is_none());
         Ok(())
     }
 }

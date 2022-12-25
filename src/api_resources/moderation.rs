@@ -1,23 +1,25 @@
 //! Given a input text, outputs if the model classifies it as violating OpenAI's content policy.
-///!
-///! The models classifies the following categories:
-///! - Hate - Content that expresses, incites, or promotes hate based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste.
-///! - Hate/Threatening - Hateful content that also includes violence or serious harm towards the targeted group.
-///! - Self-harm - Content that promotes, encourages, or depicts acts of self-harm, such as suicide, cutting, and eating disorders.
-///! - Sexual - Content meant to arouse sexual excitement, such as the description of sexual activity, or that promotes sexual services (excluding sex education and wellness).
-///! - Sexual/minors - Sexual content that includes an individual who is under 18 years old.
-///! - Violence - Content that promotes or glorifies violence or celebrates the suffering or humiliation of others.
-///! - Violence/graphic - Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
-///!
+//!
+//! The models classifies the following categories:
+//! - Hate - Content that expresses, incites, or promotes hate based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste.
+//! - Hate/Threatening - Hateful content that also includes violence or serious harm towards the targeted group.
+//! - Self-harm - Content that promotes, encourages, or depicts acts of self-harm, such as suicide, cutting, and eating disorders.
+//! - Sexual - Content meant to arouse sexual excitement, such as the description of sexual activity, or that promotes sexual services (excluding sex education and wellness).
+//! - Sexual/minors - Sexual content that includes an individual who is under 18 years old.
+//! - Violence - Content that promotes or glorifies violence or celebrates the suffering or humiliation of others.
+//! - Violence/graphic - Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
+
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 
 use crate::{api_resources::ErrorResp, Client, Models, Result};
 
-/// Parameters for [`create`](crate::api_resources::moderation::create) moderation request.
+/// Parameters for [`Create Moderation`](create) request.
 #[derive(Debug, Clone, Serialize)]
 pub struct ModerationParam {
     /// The content moderations model to use for the request.
+    ///
+    /// The available models can be found [`here`](crate::Models).
     pub model: Option<Models>,
 
     /// The input text to classify.
@@ -34,8 +36,11 @@ impl Default for ModerationParam {
 }
 
 impl ModerationParam {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new<T: Into<String>>(input: T) -> Self {
+        Self {
+            input: input.into(),
+            ..Self::default()
+        }
     }
 
     pub fn model(mut self, model: Option<Models>) -> Self {
@@ -43,17 +48,11 @@ impl ModerationParam {
 
         self
     }
-
-    pub fn input(mut self, input: String) -> Self {
-        self.input = input;
-
-        self
-    }
 }
 
-/// Response from [`create`](crate::api_resources::moderation::create) moderation request.
+/// Response from [`Create Moderation`](create) request.
 #[derive(Debug, Clone, Deserialize, Getters)]
-pub struct ModerationResp {
+pub struct Moderation {
     id: Option<String>,
     model: Option<String>,
     results: Option<Vec<ModerationResult>>,
@@ -61,12 +60,16 @@ pub struct ModerationResp {
     flagged: Option<bool>,
 }
 
+/// The result of the content moderation request.
 #[derive(Debug, Clone, Deserialize, Getters)]
 pub struct ModerationResult {
     categories: Categories,
     category_scores: CategoryScores,
 }
 
+/// Contains a dictionary of per-category binary content policy violation flags.
+///
+/// For each category, the value is `true` if the model flags the corresponding category as violated, `false` otherwise.
 #[derive(Debug, Clone, Deserialize, Getters)]
 pub struct Categories {
     hate: bool,
@@ -82,6 +85,11 @@ pub struct Categories {
     violence_graphic: bool,
 }
 
+/// Contains a dictionary of per-category raw scores output by the model, denoting the model's confidence that the input violates the OpenAI's policy for the category.
+///
+/// The value is between 0 and 1, where higher values denote higher confidence.
+///
+/// The scores should not be interpreted as probabilities.
 #[derive(Debug, Clone, Deserialize, Getters)]
 pub struct CategoryScores {
     hate: f64,
@@ -99,19 +107,14 @@ pub struct CategoryScores {
 
 /// Classifies if text violates OpenAI's Content Policy
 ///
-/// Related OpenAI docs: [Create moderation](https://beta.openai.com/docs/api-reference/moderations/create).
+/// Related OpenAI docs: [Create Moderation](https://beta.openai.com/docs/api-reference/moderations/create).
 ///
 /// ## Example
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     client::Client,
-///     config::Config,
-///     api_resources::moderation::{
-///         create,
-///         ModerationParam,
-///         ModerationResp,
-///     }
+///     Config, Client,
+///     moderation::{create, ModerationParam, Moderation},
 /// };
 ///
 /// #[tokio::main]
@@ -119,21 +122,22 @@ pub struct CategoryScores {
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
 ///     let client = Client::new(&config);
 ///
-///     let param = ModerationParam::new()
-///         .input("I want to kill them.".to_string());
-///     let resp: ModerationResp = create(&client, &param).await?;
+///     let param = ModerationParam::new("I want to kill them.");
+///
+///     let resp: Moderation = create(&client, &param).await?;
 ///     println!("{:?}", resp);
+///
 ///     Ok(())
 /// }
 /// ```
-pub async fn create(client: &Client<'_>, param: &ModerationParam) -> Result<ModerationResp> {
+pub async fn create(client: &Client<'_>, param: &ModerationParam) -> Result<Moderation> {
     client.create_moderation(param).await
 }
 
 impl<'a> Client<'a> {
-    async fn create_moderation(&self, param: &ModerationParam) -> Result<ModerationResp> {
+    async fn create_moderation(&self, param: &ModerationParam) -> Result<Moderation> {
         let resp = self
-            .post::<&str, ModerationParam, ModerationResp>("/moderations", Some(param))
+            .post::<&str, ModerationParam, Moderation>("/moderations", Some(param))
             .await?;
 
         Ok(resp)
@@ -151,15 +155,13 @@ mod tests {
         let config = Config::new(env::var("OPENAI_API_KEY")?);
         let client = Client::new(&config);
 
-        let param = ModerationParam::new()
-            .model(Some(Models::TextModerationStable))
-            .input("That shouldn't be flagged as flagged, even though it posseses KILL, MURDER and SUICIDE.".to_string());
+        let param = ModerationParam::new("That shouldn't be flagged as flagged, even though it posseses KILL, MURDER and SUICIDE.");
 
         let resp = create(&client, &param).await?;
-
         println!("{:#?}", resp);
-        assert!(resp.error().is_none());
+
         assert!(resp.flagged().is_none());
+        assert!(resp.error().is_none());
         Ok(())
     }
 }

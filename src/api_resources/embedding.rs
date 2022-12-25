@@ -7,7 +7,6 @@
 //! - Anomaly detection (where outliers with little relatedness are identified)
 //! - Diversity measurement (where similarity distributions are analyzed)
 //! - Classification (where text strings are classified by their most similar label)
-//!
 
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
@@ -17,47 +16,40 @@ use crate::{
     Client, Models, Result,
 };
 
-/// Parameters for [`create`](crate::api_resources::embedding::create) embedding request.
-#[derive(Debug, Clone, Serialize, Default)]
+/// Parameters for [`Create Embedding`](create) request.
+#[derive(Debug, Clone, Serialize)]
 pub struct EmbeddingParam {
     /// The model to use for the embedding request.
     ///
     /// The available models can be found [`here`](crate::Models).
     pub model: Option<Models>,
 
-    /// Input text to get embeddings for, encoded as a string or array of tokens. To get embeddings for multiple inputs in a single request, pass an array of strings or array of token arrays.
+    /// Input text to get embeddings for, encoded as a string.
     ///
     /// Each input must not exceed 8192 tokens in length.
+    // TODO: To get embeddings for multiple inputs in a single request, pass an array of strings or array of token arrays.
     pub input: String,
 
     pub user: String,
 }
 
 impl EmbeddingParam {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new<T: Into<String>>(model: Models, input: T) -> Self {
+        Self {
+            model: Some(model),
+            input: input.into(),
+            user: String::new(),
+        }
     }
 
-    pub fn model(mut self, model: Option<Models>) -> Self {
-        self.model = model;
-
-        self
-    }
-
-    pub fn input(mut self, input: String) -> Self {
-        self.input = input;
-
-        self
-    }
-
-    pub fn user(mut self, user: String) -> Self {
-        self.user = user;
+    pub fn user<T: Into<String>>(mut self, user: T) -> Self {
+        self.user = user.into();
 
         self
     }
 }
 
-/// Response from [`create`](crate::api_resources::embedding::create) embedding request.
+/// Response from [`Create Embedding`](create) request.
 #[derive(Debug, Clone, Deserialize, Getters)]
 pub struct EmbeddingResp {
     object: Option<String>,
@@ -67,6 +59,7 @@ pub struct EmbeddingResp {
     error: Option<ErrorResp>,
 }
 
+/// The distance between two vectors measures their relatedness. Small distances suggest high relatedness and large distances suggest low relatedness.
 #[derive(Debug, Clone, Deserialize, Getters)]
 pub struct EmbeddingData {
     object: String,
@@ -78,20 +71,14 @@ type Embeddings = Vec<f32>;
 
 /// Creates an embedding vector representing the input text.
 ///
-/// Related OpenAI docs: [Create embeddings](https://beta.openai.com/docs/api-reference/embeddings/create).
+/// Related OpenAI docs: [Create Embeddings](https://beta.openai.com/docs/api-reference/embeddings/create).
 ///
 /// ## Example
 /// ```rust
 /// use std::env;
 /// use openai_rs::{
-///     Models,
-///     client::Client,
-///     config::Config,
-///     api_resources::embedding::{
-///         create,
-///         EmbeddingParam,
-///         EmbeddingResp,
-///     }
+///     Config, Client, Models,
+///     embedding::{create, EmbeddingParam, Embedding},
 /// };
 ///
 /// #[tokio::main]
@@ -99,11 +86,11 @@ type Embeddings = Vec<f32>;
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
 ///     let client = Client::new(&config);
 ///
-///     let param = EmbeddingParam::new()
-///         .model(Some(Models::TextEmbeddingAda002))
-///         .input("..".to_string());
-///     let resp: EmbeddingResp = create(&client, &param).await?;
+///     let param = EmbeddingParam::new(Models::TextEmbeddingAda002, "Hello world!");
+///
+///     let resp: Embedding = create(&client, &param).await?;
 ///     println!("{:?}", resp);
+///
 ///     Ok(())
 /// }
 /// ```
@@ -132,13 +119,11 @@ mod tests {
         let config = Config::new(env::var("OPENAI_API_KEY")?);
         let client = Client::new(&config);
 
-        let param = EmbeddingParam::new()
-            .model(Some(Models::TextEmbeddingAda002))
-            .input("fakdls,asdasdzxczxqs?".to_string());
+        let param = EmbeddingParam::new(Models::TextEmbeddingAda002, "Hello world!");
 
         let resp = create(&client, &param).await?;
-
         println!("{:#?}", resp);
+
         assert!(resp.error().is_none());
         Ok(())
     }
