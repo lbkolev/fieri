@@ -94,7 +94,7 @@ pub struct DeleteFile {
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use openai_rs::{Client, Config, file::{ListFiles, list}};
+/// use openai_rs::{Client, file::{ListFiles, list}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -255,7 +255,7 @@ mod tests {
             Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
 
         let param: UploadFileParam<&std::path::Path> = UploadFileParam::new(
-            Path::new("../../resources/file_upload_example.jsonl"),
+            Path::new("../../payloads/file_upload_example.jsonl"),
             Purpose::FineTune,
         );
         let resp = upload(&client, &param).await?;

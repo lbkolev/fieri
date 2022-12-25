@@ -105,7 +105,7 @@ pub struct CategoryScores {
     violence_graphic: f64,
 }
 
-/// Classifies if text violates OpenAI's Content Policy
+/// Classifies if text violates OpenAI's Content Policy.
 ///
 /// Related OpenAI docs: [Create Moderation](https://beta.openai.com/docs/api-reference/moderations/create).
 ///

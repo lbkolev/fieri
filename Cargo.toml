@@ -24,3 +24,7 @@ derive-getters  = { version = "0.2.0"   }
 [[example]]
 name = "get_models"
 path = "examples/get_models.rs"
+
+[[example]]
+name = "generate_image"
+path = "examples/generate_image.rs"

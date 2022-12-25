@@ -5,7 +5,7 @@ use reqwest::{
 };
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{Config, Result};
+use crate::{config::Config, Result};
 
 /// The Client used to interact with the OpenAI API.
 #[derive(Debug, Getters)]

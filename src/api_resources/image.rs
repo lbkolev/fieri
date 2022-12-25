@@ -123,7 +123,7 @@ pub struct Image {
     error: Option<ErrorResp>,
 }
 
-/// A link to an image.
+/// link to an image.
 #[derive(Debug, Deserialize, Getters)]
 pub struct Link {
     url: String,
@@ -142,7 +142,7 @@ struct EditImage {}
 struct VariateImage {}
 
 /// Generate an image from a prompt.
-/// The image generations endpoint allows you to create an original image given a text prompt. Generated images can have a size of 256x256, 512x512, or 1024x1024 pixels.
+/// The image generations endpoint allows you to create an original image given a text prompt. Generated images can have a size of `256x256`, `512x512`, or `1024x1024` pixels.
 ///
 /// Smaller sizes are faster to generate.
 ///
@@ -153,20 +153,20 @@ struct VariateImage {}
 /// use std::env;
 /// use openai_rs::{
 ///     Client,
-///     image::{Image, ImageSize, GenerateImage, generate},
+///     image::{ImageSize, GenerateImage, generate},
 /// };
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
-///    let param = GenerateImage::new("Dogs playing poker.")
+///     let param = GenerateImage::new("Dogs playing poker.")
 ///        .size(ImageSize::S256x256)
 ///        .n(1);
-///    let resp = generate(client, &param).await?;
-///    println!("{:#?}", resp);
+///     let resp = generate(client, &param).await?;
+///     println!("{:#?}", resp);
 ///
-///    Ok(())
+///     Ok(())
 /// }
 /// ```
 pub async fn generate(client: Client, param: &GenerateImage) -> Result<Image> {

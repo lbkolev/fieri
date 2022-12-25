@@ -1,4 +1,10 @@
-# <p align="center">OpenAI-rs</p>
+<div align="center">
+    <a href="https://github.com/lbkolev/openai-rs">
+        <img width="1250px" height="120px" src=".github/logo.png">
+    </a>
+</div>
+
+# <p align="center">openai-rs</p>
 
 <p align="center">
     <a href="https://github.com/lbkolev/openai-rs/blob/master/LICENSE">
@@ -24,12 +30,11 @@ openai_rs = "0.1"
 ```
 
 ## Usage
-To use the Rust Client for OpenAI, you'll first need to create config & client objects:
+To use the Rust Client for OpenAI, you'll first need to create a client object:
 ```rust
-use openai_rs::{Config, Client};
+use openai_rs::Client;
 
-let config = Config::new(env::var("OPENAI_API_KEY")?);
-let client = Client::new(&config);
+let client = Client::new(env::var("OPENAI_API_KEY")?);
 ```
 
 ## Examples

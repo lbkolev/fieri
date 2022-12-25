@@ -64,7 +64,7 @@ impl Config {
 
 /// All the available Models offered for usage through the API.
 ///
-/// Extracted from [Models List](crate::model::List).
+/// Extracted from [Models List](crate::model::list).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Models {
     Ada,
