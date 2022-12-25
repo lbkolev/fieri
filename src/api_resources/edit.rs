@@ -114,10 +114,10 @@ pub struct Edit {
 ///     let config = Config::new(env::var("OPENAI_API_KEY")?);
 ///     let client = Client::new(&config);
 ///
-///     let param = EditParam::new(Models::TexDavinciEdit001, "Fix the spelling mistakes")
-///         .input("What dey of the wek is it?")
+///     let param = EditParam::new(Models::TextDavinciEdit001, "Fix the spelling mistakes")
+///         .input("What dey of the wek is it?");
 ///
-///     let resp: EditResp = create(&client, &param).await?;
+///     let resp: Edit = create(&client, &param).await?;
 ///     println!("{:#?}", resp);
 ///
 ///     Ok(())

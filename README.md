@@ -1,4 +1,4 @@
-## <p align="center">Rust client for the OpenAI API</p>
+# <p align="center">Unofficial Rust client for the OpenAI API</p>
 
 <p align="center">
     <a href="https://github.com/lbkolev/openai-rs/blob/master/LICENSE">
@@ -9,37 +9,38 @@
     </a>
 </p>
 
-### Soon™️
+## <p align="center">This library provides a Rust interface for interacting with the OpenAI API <br> allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.</p>
 
-### Endpoints:
 
-- [x]   `/models`
-    - [x] [list](https://beta.openai.com/docs/api-reference/models/list)
-    - [x] [retrieve](https://beta.openai.com/docs/api-reference/models/retrieve)
-- [x]   `/completions`
-    - [x] [create](https://beta.openai.com/docs/api-reference/completions/create)
-    - [ ] [create with stream](https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream)
-- [x]   `/edits`
-    - [x] [create](https://beta.openai.com/docs/api-reference/edits/create)
-- [ ]   `/images`
-    - [x] [create image](https://beta.openai.com/docs/api-reference/images/create)
-    - [ ] [create image edit](https://beta.openai.com/docs/api-reference/images/create-edit)
-    - [ ] [create image variation](https://beta.openai.com/docs/api-reference/images/create-variation)
-- [x]   `/embeddings`
-    - [x] [create](https://beta.openai.com/docs/api-reference/embeddings/create)
-- [ ]   `/files`
-    - [x] [list](https://beta.openai.com/docs/api-reference/files/list)
-    - [x] [upload](https://beta.openai.com/docs/api-reference/files/upload)
-    - [x] [delete](https://beta.openai.com/docs/api-reference/files/delete)
-    - [x] [retrieve](https://beta.openai.com/docs/api-reference/files/retrieve)
-    - [ ] [retrieve content](https://beta.openai.com/docs/api-reference/files/retrieve-content)
-- [ ]   `/fine-tunes`
-    - [ ] [create](https://beta.openai.com/docs/api-reference/fine-tunes/create)
-    - [ ] [list](https://beta.openai.com/docs/api-reference/fine-tunes/list)
-    - [ ] [retrieve](https://beta.openai.com/docs/api-reference/fine-tunes/retrieve)
-    - [ ] [cancel](https://beta.openai.com/docs/api-reference/fine-tunes/cancel)
-    - [ ] [list events](https://beta.openai.com/docs/api-reference/fine-tunes/events)
-    - [ ] [delete](https://beta.openai.com/docs/api-reference/fine-tunes/delete-model)
-- [x]   `/moderations`
-    - [x] [create](https://beta.openai.com/docs/api-reference/moderations/create)
-- [ ]   `/engines` - *DEPRECATED*
+## Prerequisites
+Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal. Once you've signed up, you'll be able to find your API key in the API Keys section of the developer portal.
+
+## Installation
+To use the Rust Client for OpenAI in your project, add the following to your Cargo.toml file:
+```toml
+[dependencies]
+openai_rs = "0.1"
+```
+
+## Usage
+To use the Rust Client for OpenAI, you'll first need to create config & client objects:
+```rust
+use openai_rs::{Config, Client};
+
+let config = Config::new(env::var("OPENAI_API_KEY")?);
+let client = Client::new(&config);
+```
+
+## Examples
+### ...
+
+### ...
+
+
+## Documentation
+
+
+## Limitations
+Note that the Rust Client for OpenAI is provided as-is, and is not officially supported by OpenAI. While we will do our best to keep the library up-to-date and bug-free, we cannot guarantee that it will always work as expected.
+
+Additionally, the API has usage limits that may affect your ability to use the models. You can view your current usage and limits in the [Usage](https://beta.openai.com/account/usage) section of your account.
