@@ -54,12 +54,12 @@ pub struct Permissions {
 /// ## Example:
 /// ```rust
 /// use std::env;
-/// use openai_rs::{Client, model::retrieve};
+/// use fieri::{Client, model::retrieve};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
-///     let resp = retrieve(&client, openai_rs::Models::TextBabbage001).await?;
+///     let resp = retrieve(&client, fieri::Models::TextBabbage001).await?;
 ///     println!("{:#?}", resp);
 ///
 ///     Ok(())
@@ -76,7 +76,7 @@ pub async fn retrieve(client: &Client, model: crate::Models) -> Result<Model> {
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use openai_rs::{Client, model::list};
+/// use fieri::{Client, model::list};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -3,11 +3,12 @@
 use derive_getters::Getters;
 use reqwest::multipart::{Form, Part};
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 use std::fs;
 use std::path::Path;
 
 use crate::{
-    api_resources::{ErrorResp, TokenUsage},
+    api_resources::{Delete, ErrorResp, TokenUsage},
     Client, Result,
 };
 
@@ -59,7 +60,7 @@ impl std::fmt::Display for Purpose {
 #[derive(Debug)]
 pub struct UploadFileParam<P>
 where
-    P: AsRef<Path>,
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
 {
     /// Name of the `JSON Lines` file to be uploaded.
     file: P,
@@ -70,21 +71,11 @@ where
 
 impl<P> UploadFileParam<P>
 where
-    P: AsRef<Path>,
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
 {
     pub fn new(file: P, purpose: Purpose) -> Self {
         Self { file, purpose }
     }
-}
-
-/// Response from [`Delete File`](delete) request.
-#[derive(Debug, Deserialize, Getters)]
-pub struct DeleteFile {
-    id: Option<String>,
-    object: Option<String>,
-    deleted: Option<bool>,
-    token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
 }
 
 /// Returns a [`list`][ListFiles] of files that belong to the user's organization.
@@ -94,7 +85,7 @@ pub struct DeleteFile {
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use openai_rs::{Client, file::{ListFiles, list}};
+/// use fieri::{Client, file::{ListFiles, list}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -119,7 +110,7 @@ pub async fn list(client: &Client) -> Result<ListFiles> {
 /// ```no_run
 /// use std::env;
 /// use std::path::Path;
-/// use openai_rs::{
+/// use fieri::{
 ///     Client,
 ///     file::{UploadFileParam, File, Purpose, upload},
 /// };
@@ -130,7 +121,7 @@ pub async fn list(client: &Client) -> Result<ListFiles> {
 ///         .organization(env::var("OPENAI_ORGANIZATION")?);
 ///
 ///     let param = UploadFileParam::new(
-///         Path::new("/path/to/file.jsonl"),
+///         "/path/to/file.jsonl",
 ///         Purpose::FineTune
 ///     );
 ///     let resp: File = upload(&client, &param).await?;
@@ -139,7 +130,10 @@ pub async fn list(client: &Client) -> Result<ListFiles> {
 ///     Ok(())
 /// }
 /// ```
-pub async fn upload<P: AsRef<Path>>(client: &Client, param: &UploadFileParam<P>) -> Result<File> {
+pub async fn upload<P>(client: &Client, param: &UploadFileParam<P>) -> Result<File>
+where
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+{
     client.upload_file(param).await
 }
 
@@ -150,20 +144,20 @@ pub async fn upload<P: AsRef<Path>>(client: &Client, param: &UploadFileParam<P>)
 /// ## Example
 /// ```no_run
 /// use std::env;
-/// use openai_rs::{Client, file::{DeleteFile, delete}};
+/// use fieri::{Client, file::delete};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?)
 ///         .organization(env::var("OPENAI_ORGANIZATION")?);
 ///
-///     let resp: DeleteFile = delete(&client, "file-to-delete").await?;
+///     let resp = delete(&client, "file-to-delete").await?;
 ///     println!("{:#?}", resp);
 ///
 ///     Ok(())
 /// }
 /// ```
-pub async fn delete<T: Into<String>>(client: &Client, file_id: T) -> Result<DeleteFile> {
+pub async fn delete<T: Into<String>>(client: &Client, file_id: T) -> Result<Delete> {
     client.delete_file(file_id).await
 }
 
@@ -174,7 +168,7 @@ pub async fn delete<T: Into<String>>(client: &Client, file_id: T) -> Result<Dele
 /// ## Example
 /// ```no_run
 /// use std::env;
-/// use openai_rs::{Client, file::{File, retrieve}};
+/// use fieri::{Client, file::{File, retrieve}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -198,9 +192,12 @@ impl Client {
         Ok(resp)
     }
 
-    async fn upload_file<P: AsRef<Path>>(&self, param: &UploadFileParam<P>) -> Result<File> {
+    async fn upload_file<P>(&self, param: &UploadFileParam<P>) -> Result<File>
+    where
+        P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+    {
         let data = fs::read(param.file.as_ref())?;
-        let part = Part::bytes(data).file_name("tmp101");
+        let part = Part::bytes(data).file_name(param.file);
         let form = Form::new()
             .part("file", part)
             .text("purpose", param.purpose.to_string());
@@ -210,9 +207,9 @@ impl Client {
         Ok(resp)
     }
 
-    async fn delete_file<T: Into<String>>(&self, file_id: T) -> Result<DeleteFile> {
+    async fn delete_file<T: Into<String>>(&self, file_id: T) -> Result<Delete> {
         let resp = self
-            .delete::<(), DeleteFile>(&format!("files/{}", file_id.into()), None)
+            .delete::<(), Delete>(&format!("files/{}", file_id.into()), None)
             .await?;
 
         Ok(resp)
@@ -254,10 +251,7 @@ mod tests {
         let client =
             Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
 
-        let param: UploadFileParam<&std::path::Path> = UploadFileParam::new(
-            Path::new("../../payloads/file_upload_example.jsonl"),
-            Purpose::FineTune,
-        );
+        let param = UploadFileParam::new("payloads/file_upload_example.jsonl", Purpose::FineTune);
         let resp = upload(&client, &param).await?;
         println!("{:#?}", resp);
 

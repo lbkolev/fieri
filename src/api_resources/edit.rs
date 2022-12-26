@@ -104,7 +104,7 @@ pub struct Edit {
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use openai_rs::{
+/// use fieri::{
 ///     Client, Models,
 ///     edit::{create, EditParam, Edit},
 /// };

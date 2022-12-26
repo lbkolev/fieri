@@ -38,6 +38,8 @@ impl Client {
         }
     }
 
+    /// For users who belong to multiple organizations, you can pass a header
+    /// to specify which organization is used for an API request.
     pub fn organization(mut self, organization: String) -> Self {
         let mut headers = self.config.headers;
         headers.insert(

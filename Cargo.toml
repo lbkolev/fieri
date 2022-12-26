@@ -1,15 +1,16 @@
 [package]
-name = "openai-rs"
+name = "fieri"
 version = "0.1.0"
 edition = "2021"
 authors = [ "Lachezar Kolev <lachezarkolevgg@gmail.com>" ]
 rust-version = "1.65.0"
 description = "Unofficial Rust client for the OpenAI API."
-documentation = "https://docs.rs/openai-rs"
+documentation = "https://docs.rs/fieri"
 readme = "README.md"
-homepage = "https://docs.rs/openai-rs"
-repository = "https://github.com/lbkolev/openai-rs"
-keyword = ["openai", "rest client", "api wrapper"]
+homepage = "https://docs.rs/fieri"
+repository = "https://github.com/lbkolev/fieri"
+keyword = ["openai", "rest-client"]
+categories = ["api-bindings"]
 license = "MIT"
 
 [dependencies]

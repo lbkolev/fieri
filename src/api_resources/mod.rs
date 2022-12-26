@@ -17,17 +17,27 @@ pub struct ErrorResp {
 }
 
 /// Token usage information returned by responses from OpenAI API.
-#[derive(Debug, Clone, derive_getters::Getters, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Deserialize, derive_getters::Getters)]
 pub struct TokenUsage {
     prompt_tokens: Option<u32>,
     completion_tokens: Option<u32>,
     total_tokens: Option<u32>,
 }
 
-#[derive(Debug, Clone, derive_getters::Getters, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Deserialize, derive_getters::Getters)]
 pub struct Choices {
     text: Option<String>,
     index: Option<u32>,
     logprobs: Option<f32>,
     finish_reason: Option<String>,
+}
+
+/// Response from requests wishing for a resource to be deleted, like [`Delete File`](crate::file::delete) and [`Delete Fine-tune`](crate::fine_tune::delete).
+#[derive(Debug, serde::Deserialize, derive_getters::Getters)]
+pub struct Delete {
+    id: Option<String>,
+    object: Option<String>,
+    deleted: Option<bool>,
+    token_usage: Option<TokenUsage>,
+    error: Option<ErrorResp>,
 }

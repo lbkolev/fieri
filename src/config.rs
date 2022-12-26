@@ -16,8 +16,7 @@ pub struct Config {
     #[getter(skip)]
     pub headers: HeaderMap,
 
-    /// For users who belong to multiple organizations, you can pass a header
-    /// to specify which organization is used for an API request.
+    #[getter(skip)]
     pub organization: String,
 
     #[allow(unused)]
