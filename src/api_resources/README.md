@@ -1,6 +1,6 @@
 # <p align="center">Unofficial Rust client for the OpenAI API</p>
 
-## Holds all the necessary resources for direct interaction with the endpoints.
+## Holds all necessary resources for direct interaction with the endpoints.
 
 - [x]   `/models`
     - [x] [list](https://beta.openai.com/docs/api-reference/models/list)
@@ -28,7 +28,8 @@
     - [ ] [retrieve](https://beta.openai.com/docs/api-reference/fine-tunes/retrieve)
     - [ ] [cancel](https://beta.openai.com/docs/api-reference/fine-tunes/cancel)
     - [ ] [list events](https://beta.openai.com/docs/api-reference/fine-tunes/events)
-    - [ ] [delete](https://beta.openai.com/docs/api-reference/fine-tunes/delete-model)
+    - [ ] [list events with stream](https://beta.openai.com/docs/api-reference/fine-tunes/events#fine-tunes/events-stream)
+    - [x] [delete](https://beta.openai.com/docs/api-reference/fine-tunes/delete-model)
 - [x]   `/moderations`
     - [x] [create](https://beta.openai.com/docs/api-reference/moderations/create)
 - [ ]   `/engines` - *DEPRECATED*

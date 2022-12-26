@@ -1,4 +1,4 @@
-use openai_rs::{model::retrieve, Client, Models};
+use fieri::{model::retrieve, Client, Models};
 use std::env;
 
 #[tokio::main]

@@ -1,5 +1,6 @@
+//! Possible errors that can occur when interacting with the Library.
+
 #[derive(Debug, thiserror::Error)]
-/// Possible errors that can occur when interacting with the Library.
 pub enum Error {
     #[error("{0}")]
     Reqwest(#[from] reqwest::Error),

@@ -112,7 +112,7 @@ pub struct CategoryScores {
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use openai_rs::{
+/// use fieri::{
 ///     Client,
 ///     moderation::{create, ModerationParam, Moderation},
 /// };
