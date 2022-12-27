@@ -5,7 +5,7 @@
 //! use std::env;
 //! use fieri::Client;
 //!
-//! let client = Client::new(env::var("OPENAI_API_KEY")?);
+//! let client = Client::new(env::var("OPENAI_API_KEY").unwrap());
 //! ```
 //!
 //! ## Usage with a specified [Organization](https://beta.openai.com/docs/api-reference/requesting-organization)
@@ -13,8 +13,8 @@
 //! use std::env;
 //! use fieri::Client;
 //!
-//! let client = Client::new(env::var("OPENAI_API_KEY")?)
-//!     .organization(env::var("OPENAI_ORGANIZATION")?);
+//! let client = Client::new(env::var("OPENAI_API_KEY").unwrap())
+//!     .organization(env::var("OPENAI_ORGANIZATION").unwrap());
 //! ```
 
 use derive_getters::Getters;
