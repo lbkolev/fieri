@@ -16,6 +16,12 @@
     <a href="https://github.com/lbkolev/fieri/actions?query=workflow%3TESTS+branch%3Amaster">
         <img src="https://github.com/lbkolev/fieri/actions/workflows/tests.yml/badge.svg">
     </a>
+    <a href="https://crates.io/crates/fieri">
+        <img src="https://img.shields.io/crates/v/fieri.svg">
+    </a>
+    <a href="https://docs.rs/fieri">
+        <img src="https://img.shields.io/docsrs/fieri/latest">
+    </a>
 </p>
 
 > **Note**: fieri's [master](https://github.com/lbkolev/fieri) branch might
