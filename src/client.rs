@@ -1,3 +1,22 @@
+//! The Client used to establish a connection and interact with the OpenAI API.
+//!
+//! ## Usage
+//! ```no_run
+//! use std::env;
+//! use fieri::Client;
+//!
+//! let client = Client::new(env::var("OPENAI_API_KEY")?);
+//! ```
+//!
+//! ## Usage with a specified [Organization](https://beta.openai.com/docs/api-reference/requesting-organization)
+//! ```no_run
+//! use std::env;
+//! use fieri::Client;
+//!
+//! let client = Client::new(env::var("OPENAI_API_KEY")?)
+//!     .organization(env::var("OPENAI_ORGANIZATION")?);
+//! ```
+
 use derive_getters::Getters;
 use reqwest::{
     header::{HeaderMap, AUTHORIZATION},
@@ -60,7 +79,21 @@ impl Client {
                 .expect("Err creating a request handler."),
         }
     }
+    /*
+        pub async fn get_bytes(&self, identifier: &str) -> Result<&[u8]>
+        {
+            let resp = self
+                .handler
+                .get(identifier)
+                .send()
+                .await?
+                .text()
+                .await?
+                .as_bytes();
 
+            Ok(resp.clone())
+        }
+    */
     pub async fn get<X, Y>(&self, identifier: &str, param: Option<&X>) -> Result<Y>
     where
         X: Serialize,
