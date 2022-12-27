@@ -170,7 +170,7 @@ impl Image {
             for (i, link) in data.iter().enumerate() {
                 let resp = get(&link.url).await?;
 
-                let def_img_name = format!("image_{}.png", i);
+                let def_img_name = format!("image_{i}.png");
                 let fname = resp
                     .url()
                     .path_segments()
