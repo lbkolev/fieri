@@ -56,11 +56,8 @@ impl Client {
         &self,
         model: T,
     ) -> Result<Delete> {
-        let resp = self
-            .delete::<(), Delete>(format!("models/{model}").as_str(), None)
-            .await?;
-
-        Ok(resp)
+        self.delete::<(), Delete>(format!("models/{model}").as_str(), None)
+            .await
     }
 }
 

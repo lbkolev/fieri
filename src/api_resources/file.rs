@@ -187,9 +187,7 @@ pub async fn retrieve<T: Into<String>>(client: &Client, file_id: T) -> Result<Fi
 
 impl Client {
     async fn list_files(&self) -> Result<ListFiles> {
-        let resp = self.get::<(), ListFiles>("files", None).await?;
-
-        Ok(resp)
+        self.get::<(), ListFiles>("files", None).await
     }
 
     async fn upload_file<P>(&self, param: &UploadFileParam<P>) -> Result<File>
@@ -202,25 +200,17 @@ impl Client {
             .part("file", part)
             .text("purpose", param.purpose.to_string());
 
-        let resp = self.post_data::<Form, File>("files", form).await?;
-
-        Ok(resp)
+        self.post_data::<Form, File>("files", form).await
     }
 
     async fn delete_file<T: Into<String>>(&self, file_id: T) -> Result<Delete> {
-        let resp = self
-            .delete::<(), Delete>(&format!("files/{}", file_id.into()), None)
-            .await?;
-
-        Ok(resp)
+        self.delete::<(), Delete>(&format!("files/{}", file_id.into()), None)
+            .await
     }
 
     async fn retrieve_file<T: Into<String>>(&self, file_id: T) -> Result<File> {
-        let resp = self
-            .get::<(), File>(&format!("files/{}", file_id.into()), None)
-            .await?;
-
-        Ok(resp)
+        self.get::<(), File>(&format!("files/{}", file_id.into()), None)
+            .await
     }
 
     // TODO

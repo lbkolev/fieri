@@ -10,14 +10,14 @@
     <a href="https://github.com/lbkolev/fieri/blob/master/LICENSE">
         <img src="https://img.shields.io/badge/license-MIT-blue.svg">
     </a>
+    <a href="https://crates.io/crates/fieri">
+        <img src="https://img.shields.io/crates/v/fieri.svg">
+    </a>
     <a href="https://github.com/lbkolev/fieri/actions?query=workflow%3ACI+branch%3Amaster">
         <img src="https://github.com/lbkolev/fieri/actions/workflows/ci.yml/badge.svg">
     </a>
     <a href="https://github.com/lbkolev/fieri/actions?query=workflow%3TESTS+branch%3Amaster">
         <img src="https://github.com/lbkolev/fieri/actions/workflows/tests.yml/badge.svg">
-    </a>
-    <a href="https://crates.io/crates/fieri">
-        <img src="https://img.shields.io/crates/v/fieri.svg">
     </a>
     <a href="https://docs.rs/fieri">
         <img src="https://img.shields.io/docsrs/fieri/latest">
@@ -36,7 +36,7 @@ Fieri provides an asynchronous Rust interface for interacting with the OpenAI AP
 Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal. Once you've signed up, you'll be able to find your API key in the [API Keys](https://beta.openai.com/account/api-keys) section of the developer portal.
 
 ## Installation
-To use the Rust Client for OpenAI in your project, add the following to your Cargo.toml file:
+To use the Rust Client for OpenAI in your project, add the following to your `Cargo.toml` file:
 ```toml
 [dependencies]
 fieri = "0.1"

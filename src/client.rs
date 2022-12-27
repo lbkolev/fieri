@@ -79,21 +79,7 @@ impl Client {
                 .expect("Err creating a request handler."),
         }
     }
-    /*
-        pub async fn get_bytes(&self, identifier: &str) -> Result<&[u8]>
-        {
-            let resp = self
-                .handler
-                .get(identifier)
-                .send()
-                .await?
-                .text()
-                .await?
-                .as_bytes();
 
-            Ok(resp.clone())
-        }
-    */
     pub async fn get<X, Y>(&self, identifier: &str, param: Option<&X>) -> Result<Y>
     where
         X: Serialize,
