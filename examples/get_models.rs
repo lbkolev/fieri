@@ -6,6 +6,6 @@ async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
     let resp = retrieve(&client, Models::Davinci).await?;
-    println!("Resp1 {:#?}", resp);
+    println!("Resp {:#?}", resp);
     Ok(())
 }

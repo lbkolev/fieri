@@ -1,3 +1,5 @@
+//! Holds all necessary resources for direct interaction with the endpoints.
+
 pub mod completion;
 pub mod edit;
 pub mod embedding;

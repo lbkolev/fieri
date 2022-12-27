@@ -6,10 +6,17 @@
 //! - Creating variations of an existing image
 
 use derive_getters::Getters;
-use reqwest::multipart::{Form, Part};
+use reqwest::{
+    get,
+    multipart::{Form, Part},
+};
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::Path;
+use std::{
+    borrow::Cow,
+    fs,
+    io::{copy, Cursor},
+    path::Path,
+};
 
 use crate::{
     api_resources::{ErrorResp, TokenUsage},
@@ -126,6 +133,61 @@ pub struct Image {
     error: Option<ErrorResp>,
 }
 
+impl Image {
+    /// Save the image(s) to the given directory.
+    /// The images will be saved as based on the generated image id.
+    ///
+    /// For example, a generated image with url `https://oaidalleapiprodscus.blob.core.windows.net/private/org-123/user-456/img-789.png`
+    /// Will be saved with a name of `img-789.png` in the given directory.
+    /// `
+    ///
+    /// ## Example
+    /// ```rust
+    /// // Generate an image based on a prompt and save it locally.
+    /// use std::env;
+    /// use fieri::{
+    ///     Client,
+    ///     image::{ImageSize, GenerateImageParam, generate},
+    /// };
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+    ///
+    ///     let param = GenerateImageParam::new("A cat")
+    ///         .size(ImageSize::S256x256)
+    ///         .n(1);
+    ///
+    ///     let image = generate(&client, &param).await?
+    ///         .save("/tmp/").await?;
+    ///
+    ///     Ok(())
+    /// }
+    ///
+    /// ```
+    pub async fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+        if let Some(data) = &self.data {
+            for (i, link) in data.iter().enumerate() {
+                let resp = get(&link.url).await?;
+
+                let def_img_name = format!("image_{i}.png");
+                let fname = resp
+                    .url()
+                    .path_segments()
+                    .and_then(|segments| segments.last())
+                    .unwrap_or(def_img_name.as_str());
+
+                let full_path = Path::new(path.as_ref()).join(fname);
+                let mut file = fs::File::create(full_path)?;
+                let mut content = Cursor::new(resp.bytes().await?);
+                copy(&mut content, &mut file)?;
+            }
+        }
+
+        Ok(())
+    }
+}
+
 /// link to an image.
 #[derive(Debug, Deserialize, Getters)]
 pub struct Link {
@@ -135,20 +197,25 @@ pub struct Link {
 type Links = Vec<Link>;
 
 /// Parameters for [`Edit Image`](edit) request.
-// TODO
 #[allow(dead_code)]
-#[derive(Debug, Serialize)]
-pub struct EditImageParam<P: AsRef<Path> + Serialize> {
+#[derive(Debug)]
+pub struct EditImageParam<P>
+where
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+{
     image: P,
-    mask: String,
     prompt: String,
+    mask: String,
     n: u8,
     size: ImageSize,
     response_format: String,
     user: String,
 }
 
-impl<P: AsRef<Path> + Serialize> EditImageParam<P> {
+impl<P> EditImageParam<P>
+where
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+{
     pub fn new(image: P, prompt: String) -> Self {
         Self {
             image,
@@ -162,7 +229,10 @@ impl<P: AsRef<Path> + Serialize> EditImageParam<P> {
     }
 }
 
-impl<P: AsRef<Path> + Serialize> EditImageParam<P> {
+impl<P> EditImageParam<P>
+where
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+{
     pub fn mask<T: Into<String>>(mut self, mask: T) -> Self {
         self.mask = mask.into();
 
@@ -195,10 +265,61 @@ impl<P: AsRef<Path> + Serialize> EditImageParam<P> {
 }
 
 /// Parameters for [`Variate Image`](variate) request.
-// TODO
-#[allow(dead_code)]
-#[derive(Debug, Serialize, Getters)]
-pub struct VariateImageParam {}
+#[derive(Debug)]
+pub struct VariateImageParam<P>
+where
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+{
+    image: P,
+    n: u8,
+    size: ImageSize,
+    response_format: String,
+    user: String,
+}
+
+impl<P> VariateImageParam<P>
+where
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+{
+    pub fn new(image: P) -> Self {
+        Self {
+            image,
+            n: 1,
+            size: ImageSize::S1024x1024,
+            response_format: String::from("url"),
+            user: String::new(),
+        }
+    }
+}
+
+impl<P> VariateImageParam<P>
+where
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+{
+    pub fn n(mut self, n: u8) -> Self {
+        self.n = n;
+
+        self
+    }
+
+    pub fn size(mut self, size: ImageSize) -> Self {
+        self.size = size;
+
+        self
+    }
+
+    pub fn response_format<T: Into<String>>(mut self, response_format: T) -> Self {
+        self.response_format = response_format.into();
+
+        self
+    }
+
+    pub fn user<T: Into<String>>(mut self, user: T) -> Self {
+        self.user = user.into();
+
+        self
+    }
+}
 
 /// Generate an image from a prompt.
 /// The image generations endpoint allows you to create an original image given a text prompt. Generated images can have a size of `256x256`, `512x512`, or `1024x1024` pixels.
@@ -236,13 +357,26 @@ pub async fn generate(client: &Client, param: &GenerateImageParam) -> Result<Ima
 ///
 /// ## Example
 /// ```no_run
+/// use std::env;
+/// use fieri::{Client, image::{ImageSize, EditImageParam, edit}};
 ///
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///
+///     let param = EditImageParam::new("./payloads/image_tests.png", String::from("A dog playing poker."))
+///        .size(ImageSize::S256x256);
+///
+///     let resp = edit(&client, &param).await?;
+///     println!("{:#?}", resp);
+///
+///     Ok(())
+/// }
 /// ```
-// TODO
-pub async fn edit<P: AsRef<Path> + Serialize>(
-    client: &Client,
-    param: &EditImageParam<P>,
-) -> Result<Image> {
+pub async fn edit<P>(client: &Client, param: &EditImageParam<P>) -> Result<Image>
+where
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+{
     client.edit_image(param).await
 }
 
@@ -250,14 +384,29 @@ pub async fn edit<P: AsRef<Path> + Serialize>(
 ///
 /// ## Example
 /// ```no_run
+/// use std::env;
+/// use fieri::{Client, image::{ImageSize, VariateImageParam, variation}};
 ///
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///
+///     let param = VariateImageParam::new("./payloads/image_tests.png")
+///       .size(ImageSize::S512x512);
+///
+///     let resp = variation(&client, &param).await?;
+///     println!("{:#?}", resp);
+///
+///     Ok(())
+/// }
 /// ```
-// TODO
-/*
-pub async fn variation(client: &Client, param: &VariateImageParam) -> Result<Image> {
+// TODO: refactor
+pub async fn variation<P>(client: &Client, param: &VariateImageParam<P>) -> Result<Image>
+where
+    P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+{
     client.variation_image(param).await
 }
-*/
 
 impl Client {
     async fn generate_image(&self, param: &GenerateImageParam) -> Result<Image> {
@@ -268,16 +417,21 @@ impl Client {
         Ok(resp)
     }
 
-    async fn edit_image<P: AsRef<Path> + Serialize>(
-        &self,
-        param: &EditImageParam<P>,
-    ) -> Result<Image> {
-        let data = fs::read(param.image.as_ref())?;
-        let part = Part::bytes(data).file_name("tmp");
+    // TODO: refactor
+    async fn edit_image<P>(&self, param: &EditImageParam<P>) -> Result<Image>
+    where
+        P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+    {
+        let data = fs::read(param.image)?;
+        let part = Part::bytes(data).file_name(param.image);
         let form = Form::new()
             .part("image", part)
             .text("prompt", param.prompt.clone())
-            .text("n", param.n.to_string());
+            .text("mask", param.mask.clone())
+            .text("n", param.n.to_string())
+            .text("size", param.size.to_string())
+            .text("response_format", param.response_format.clone())
+            .text("user", param.user.clone());
 
         let resp = self
             .post_data::<EditImageParam<P>, Image>("images/edits", form)
@@ -286,16 +440,25 @@ impl Client {
         Ok(resp)
     }
 
-    /*
-    async fn variation_image(&self, param: &VariateImageParam) -> Result<Image> {
-        let data = fs::read(param.image.as_ref())?;
+    // TODO: refactor
+    async fn variation_image<P>(&self, param: &VariateImageParam<P>) -> Result<Image>
+    where
+        P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
+    {
+        let data = fs::read(param.image)?;
+        let part = Part::bytes(data).file_name(param.image);
+        let form = Form::new()
+            .part("image", part)
+            .text("n", param.n.to_string())
+            .text("size", param.size.to_string())
+            .text("response_format", param.response_format.clone())
+            .text("user", param.user.clone());
         let resp = self
-            .post_data::<VariateImageParam, Image>("images/variations", param)
+            .post_data::<VariateImageParam<P>, Image>("images/variations", form)
             .await?;
 
         Ok(resp)
     }
-    */
 }
 
 #[cfg(test)]
@@ -315,6 +478,8 @@ mod tests {
         println!("{:#?}", resp);
 
         assert!(resp.error().is_none());
+
+        let _ = resp.save("/tmp").await?;
         Ok(())
     }
 
@@ -323,13 +488,28 @@ mod tests {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = EditImageParam::new(
-            "payloads/edit_image_example2.png",
+            "./payloads/image_tests.png",
             String::from("Generate an image reflecting the year 1939."),
         )
         .size(ImageSize::S256x256)
         .n(2);
 
         let resp = edit(&client, &param).await?;
+        println!("{:#?}", resp);
+
+        assert!(resp.error().is_none());
+        Ok(())
+    }
+
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn test_variation_image() -> Result<()> {
+        let client = Client::new(env::var("OPENAI_API_KEY")?);
+
+        let param = VariateImageParam::new("./payloads/image_tests.png")
+            .size(ImageSize::S256x256)
+            .n(2);
+
+        let resp = variation(&client, &param).await?;
         println!("{:#?}", resp);
 
         assert!(resp.error().is_none());

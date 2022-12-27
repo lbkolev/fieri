@@ -21,13 +21,13 @@
 > **Note**: fieri's [master](https://github.com/lbkolev/fieri) branch might
 > contain breaking changes. For the most recently *released* code, look to the latest tag.
 
-## Introduction
-### Unofficial Rust client for the OpenAI API's GPT-3 & DALL·E.
+## Overview
+### Unofficial Rust client for the OpenAI's API.
 
-This library provides a Rust interface for interacting with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
+Fieri provides an asynchronous Rust interface for interacting with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
 
 ## Prerequisites
-Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal. Once you've signed up, you'll be able to find your API key in the API Keys section of the developer portal.
+Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal. Once you've signed up, you'll be able to find your API key in the [API Keys](https://beta.openai.com/account/api-keys) section of the developer portal.
 
 ## Installation
 To use the Rust Client for OpenAI in your project, add the following to your Cargo.toml file:
@@ -44,13 +44,30 @@ use fieri::Client;
 let client = Client::new(env::var("OPENAI_API_KEY")?);
 ```
 
-## Examples
-### ...
+## Example
+### Generate an image based on a prompt and save it locally.
 ```rust
-```
+use std::env;
+use fieri::{
+    Client,
+    image::{ImageSize, GenerateImageParam, generate},
+};
 
-### ...
-```rust
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = Client::new(env::var("OPENAI_API_KEY")?);
+
+    let param = GenerateImageParam::new("A bunch of cats dancing tango on the top of the highest mountain in Mars.")
+        .size(ImageSize::S1024x1024)
+        .n(1);
+
+    let image = generate(&client, &param)
+        .await?
+        .save("/tmp/")
+        .await?;
+
+    Ok(())
+}
 ```
 
 More examples can be found in the [examples/](examples) directory and the [docs](https://docs.rs/fieri).

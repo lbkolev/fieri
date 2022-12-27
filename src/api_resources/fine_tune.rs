@@ -69,6 +69,7 @@ mod tests {
     use super::*;
     use std::env;
 
+    #[ignore = "requires file deletion"]
     #[tokio::test]
     async fn test_delete_fine_tune() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
