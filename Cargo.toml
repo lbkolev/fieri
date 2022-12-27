@@ -14,8 +14,8 @@ categories = ["api-bindings"]
 license = "MIT"
 
 [dependencies]
-tokio           = { version = "1.23.0",  features = ["full"]  }
-reqwest         = { version = "0.11.13", features = ["json", "multipart", "blocking"] }
+tokio           = { version = "1.23.0",  features = ["full"]}
+reqwest         = { version = "0.11.13", features = ["json", "multipart"]}
 url             = { version = "2.3.1"   }
 serde           = { version = "1.0.151", features = ["derive"]}
 serde_json      = { version = "1.0.89"  }

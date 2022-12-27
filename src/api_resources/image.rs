@@ -139,7 +139,7 @@ impl Image {
     ///
     /// For example, a generated image with url `https://oaidalleapiprodscus.blob.core.windows.net/private/org-123/user-456/img-789.png`
     /// Will be saved with a name of `img-789.png` in the given directory.
-    /// `
+    ///
     ///
     /// ## Example
     /// ```rust
@@ -410,11 +410,8 @@ where
 
 impl Client {
     async fn generate_image(&self, param: &GenerateImageParam) -> Result<Image> {
-        let resp = self
-            .post::<GenerateImageParam, Image>("images/generations", Some(param))
-            .await?;
-
-        Ok(resp)
+        self.post::<GenerateImageParam, Image>("images/generations", Some(param))
+            .await
     }
 
     // TODO: refactor
@@ -433,11 +430,8 @@ impl Client {
             .text("response_format", param.response_format.clone())
             .text("user", param.user.clone());
 
-        let resp = self
-            .post_data::<EditImageParam<P>, Image>("images/edits", form)
-            .await?;
-
-        Ok(resp)
+        self.post_data::<EditImageParam<P>, Image>("images/edits", form)
+            .await
     }
 
     // TODO: refactor
@@ -453,11 +447,9 @@ impl Client {
             .text("size", param.size.to_string())
             .text("response_format", param.response_format.clone())
             .text("user", param.user.clone());
-        let resp = self
-            .post_data::<VariateImageParam<P>, Image>("images/variations", form)
-            .await?;
 
-        Ok(resp)
+        self.post_data::<VariateImageParam<P>, Image>("images/variations", form)
+            .await
     }
 }
 

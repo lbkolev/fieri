@@ -128,9 +128,7 @@ pub async fn create(client: &Client, param: &EditParam) -> Result<Edit> {
 
 impl Client {
     async fn create_edit(&self, param: &EditParam) -> Result<Edit> {
-        let resp = self.post::<EditParam, Edit>("edits", Some(param)).await?;
-
-        Ok(resp)
+        self.post::<EditParam, Edit>("edits", Some(param)).await
     }
 }
 

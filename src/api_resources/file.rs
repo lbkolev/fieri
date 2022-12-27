@@ -187,9 +187,7 @@ pub async fn retrieve<T: Into<String>>(client: &Client, file_id: T) -> Result<Fi
 
 impl Client {
     async fn list_files(&self) -> Result<ListFiles> {
-        let resp = self.get::<(), ListFiles>("files", None).await?;
-
-        Ok(resp)
+        self.get::<(), ListFiles>("files", None).await
     }
 
     async fn upload_file<P>(&self, param: &UploadFileParam<P>) -> Result<File>
