@@ -10,13 +10,11 @@ use std::env;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-    let param = GenerateImageParam::new(
-        "A bunch of cats dancing tango on the top of the highest mountain on Mars.",
-    )
-    .size(ImageSize::S1024x1024)
-    .n(1);
-
-    let image = generate(&client, &param).await?.save("/tmp/").await?;
+    let param = GenerateImageParam::new("Generate a simple landscape of the most beautiful part of Mars, that can preferably be used as a logo for an unrelated project.")
+       .size(ImageSize::S512x512)
+       .n(3);
+    let resp = generate(&client, &param).await?;
+    println!("{:#?}", resp);
 
     Ok(())
 }
