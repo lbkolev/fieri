@@ -44,8 +44,6 @@ fieri = "0.2"
 
 ## Basic Usage
 
-### Load a tweet and let a model decide what the sentiment is.
-
 ### Generate an image based on a prompt and save it locally.
 ```rust
 use std::env;
@@ -101,7 +99,7 @@ async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-More examples can be found in the [docs](https://docs.rs/fieri) and the [examples][examples/] directory.
+More examples can be found in the [docs](https://docs.rs/fieri) and the [examples](examples/) directory.
 
 ## Documentation
 ### [fieri Documentation](https://docs.rs/fieri/)
