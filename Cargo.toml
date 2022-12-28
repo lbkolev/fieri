@@ -29,3 +29,7 @@ path = "examples/get_models.rs"
 [[example]]
 name = "generate_image"
 path = "examples/generate_image.rs"
+
+[[example]]
+name = "generate_text"
+path = "examples/generate_text.rs"

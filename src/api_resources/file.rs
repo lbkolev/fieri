@@ -8,7 +8,7 @@ use std::fs;
 use std::path::Path;
 
 use crate::{
-    api_resources::{Delete, ErrorResp, File, Files, TokenUsage},
+    api_resources::{Delete, File, Files, RequestError, TokenUsage},
     Client, Result,
 };
 
@@ -18,7 +18,7 @@ pub struct ListFiles {
     data: Files,
     object: Option<String>,
     token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 /// The Possible Purposes of the uploaded documents.

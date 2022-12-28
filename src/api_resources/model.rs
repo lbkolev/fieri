@@ -4,7 +4,7 @@ use derive_getters::Getters;
 use serde::Deserialize;
 
 use crate::{
-    api_resources::{ErrorResp, TokenUsage},
+    api_resources::{RequestError, TokenUsage},
     Client, Result,
 };
 
@@ -13,7 +13,7 @@ use crate::{
 pub struct Models {
     data: Vec<Model>,
     token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 /// Response from [Retrieve a Model](retrieve) request.
@@ -27,7 +27,7 @@ pub struct Model {
     root: String,
     parent: Option<String>,
     token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 /// Types of permissions that can be applied to a model.

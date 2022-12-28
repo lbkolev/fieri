@@ -8,7 +8,7 @@ use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    api_resources::{Choices, ErrorResp, TokenUsage},
+    api_resources::{Choices, RequestError, TokenUsage},
     Client, Models, Result,
 };
 
@@ -94,7 +94,7 @@ pub struct Edit {
     created: Option<u64>,
     choices: Option<Vec<Choices>>,
     usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 /// Creates a new edit for the provided input, instruction, and parameters.
