@@ -430,8 +430,7 @@ impl Client {
             .text("response_format", param.response_format.clone())
             .text("user", param.user.clone());
 
-        self.post_data::<EditImageParam<P>, Image>("images/edits", form)
-            .await
+        self.post_data::<Image>("images/edits", form).await
     }
 
     // TODO: refactor
@@ -448,8 +447,7 @@ impl Client {
             .text("response_format", param.response_format.clone())
             .text("user", param.user.clone());
 
-        self.post_data::<VariateImageParam<P>, Image>("images/variations", form)
-            .await
+        self.post_data::<Image>("images/variations", form).await
     }
 }
 

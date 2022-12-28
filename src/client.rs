@@ -131,7 +131,7 @@ impl Client {
         Ok(resp)
     }
 
-    pub async fn post_data<X, Y>(&self, identifier: &str, param: multipart::Form) -> Result<Y>
+    pub async fn post_data<Y>(&self, identifier: &str, param: multipart::Form) -> Result<Y>
     where
         Y: DeserializeOwned,
     {
