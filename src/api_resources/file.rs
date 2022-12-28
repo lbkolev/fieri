@@ -186,7 +186,7 @@ impl Client {
             .part("file", part)
             .text("purpose", param.purpose.to_string());
 
-        self.post_data::<Form, File>("files", form).await
+        self.post_data::<File>("files", form).await
     }
 
     async fn delete_file<T: Into<String>>(&self, file_id: T) -> Result<Delete> {

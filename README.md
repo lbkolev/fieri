@@ -61,7 +61,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .n(1);
 
     let image = generate(&client, &param)
-        .n(1)
         .await?
         .save("/tmp/")
         .await?;
