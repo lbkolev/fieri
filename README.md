@@ -85,7 +85,7 @@ async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
     let param = CompletionParam::new(Models::Ada)
-        .prompt("Generate a plot for an absurd interstellar parody.")
+        .prompt("Once upon a time")
         .max_tokens(500)
         .temperature(0.9)
         .top_p(1.0)
