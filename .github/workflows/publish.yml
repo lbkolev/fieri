@@ -18,13 +18,12 @@ jobs:
           profile: minimal
           toolchain: nightly
           override: true
-          components: publish
+          components: publish, login
 
       - uses: actions-rs/cargo@v1
         with:
-          command: cargo login
-
+          command: login
       - uses: actions-rs/cargo@v1
         with:
-          command: cargo publish
+          command: publish
 

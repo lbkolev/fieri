@@ -364,7 +364,7 @@ pub async fn generate(client: &Client, param: &GenerateImageParam) -> Result<Ima
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
-///     let param = EditImageParam::new("./payloads/image_tests.png", String::from("A dog playing poker."))
+///     let param = EditImageParam::new("./assets/image_tests.png", String::from("A dog playing poker."))
 ///        .size(ImageSize::S256x256);
 ///
 ///     let resp = edit(&client, &param).await?;
@@ -391,7 +391,7 @@ where
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
-///     let param = VariateImageParam::new("./payloads/image_tests.png")
+///     let param = VariateImageParam::new("./assets/image_tests.png")
 ///       .size(ImageSize::S512x512);
 ///
 ///     let resp = variation(&client, &param).await?;
@@ -480,11 +480,11 @@ mod tests {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = EditImageParam::new(
-            "./payloads/image_tests.png",
+            "./assets/image_tests.png",
             String::from("Generate an image reflecting the year 1939."),
         )
         .size(ImageSize::S256x256)
-        .n(2);
+        .n(1);
 
         let resp = edit(&client, &param).await?;
         println!("{:#?}", resp);
@@ -497,7 +497,7 @@ mod tests {
     async fn test_variation_image() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-        let param = VariateImageParam::new("./payloads/image_tests.png")
+        let param = VariateImageParam::new("./assets/image_tests.png")
             .size(ImageSize::S256x256)
             .n(2);
 
