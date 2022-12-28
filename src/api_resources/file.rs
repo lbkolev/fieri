@@ -8,7 +8,7 @@ use std::fs;
 use std::path::Path;
 
 use crate::{
-    api_resources::{Delete, ErrorResp, TokenUsage},
+    api_resources::{Delete, ErrorResp, File, Files, TokenUsage},
     Client, Result,
 };
 
@@ -20,21 +20,6 @@ pub struct ListFiles {
     token_usage: Option<TokenUsage>,
     error: Option<ErrorResp>,
 }
-
-/// Response from [`Upload File`](upload) & [`Retrieve file`][retrieve] requests.
-#[derive(Debug, Deserialize, Getters)]
-pub struct File {
-    id: Option<String>,
-    object: Option<String>,
-    bytes: Option<i64>,
-    created_at: Option<i64>,
-    filename: Option<String>,
-    purpose: Option<String>,
-    token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
-}
-
-type Files = Vec<File>;
 
 /// The Possible Purposes of the uploaded documents.
 #[derive(Debug, Serialize)]
@@ -112,7 +97,8 @@ pub async fn list(client: &Client) -> Result<ListFiles> {
 /// use std::path::Path;
 /// use fieri::{
 ///     Client,
-///     file::{UploadFileParam, File, Purpose, upload},
+///     file::{UploadFileParam, Purpose, upload},
+///     api_resources::File,
 /// };
 ///
 /// #[tokio::main]
@@ -163,12 +149,12 @@ pub async fn delete<T: Into<String>>(client: &Client, file_id: T) -> Result<Dele
 
 /// Returns information about a specific file.
 ///
-/// Related OpenAI Docs: [Retrieve File](https://beta.openai.com/docs/api-reference/files/retrieve)
+/// Related OpenAI docs: [Retrieve File](https://beta.openai.com/docs/api-reference/files/retrieve)
 ///
 /// ## Example
 /// ```no_run
 /// use std::env;
-/// use fieri::{Client, file::{File, retrieve}};
+/// use fieri::{Client, file::retrieve, api_resources::File};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -230,8 +216,8 @@ mod tests {
         let resp = list(&client).await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.error().is_none(), true);
-        assert_eq!(resp.token_usage().is_none(), true);
+        assert!(resp.error().is_none());
+        assert!(resp.token_usage().is_none());
         Ok(())
     }
 
@@ -241,11 +227,11 @@ mod tests {
         let client =
             Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
 
-        let param = UploadFileParam::new("payloads/file_upload_example.jsonl", Purpose::FineTune);
+        let param = UploadFileParam::new("assets/file_upload_example.jsonl", Purpose::FineTune);
         let resp = upload(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.error().is_none(), true);
+        assert!(resp.error().is_none());
         Ok(())
     }
 
@@ -258,21 +244,21 @@ mod tests {
         let resp = delete(&client, "rand-file").await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.deleted().is_none(), true);
-        assert_eq!(resp.error().is_some(), true);
+        assert!(resp.deleted().is_none());
+        assert!(resp.error().is_some());
         Ok(())
     }
 
-    #[ignore = "requires a file to retrieve"]
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_retrieve_file() -> Result<()> {
         let client =
             Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
 
-        let resp = retrieve(&client, "rand-file").await?;
+        let resp = retrieve(&client, "file-1FZQ73L5AK8UknTTT0PxWMBE").await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.error().is_some(), true);
+        assert!(resp.id().is_some());
+        assert!(resp.error().is_none());
         Ok(())
     }
 }

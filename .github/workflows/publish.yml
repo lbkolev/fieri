@@ -18,13 +18,5 @@ jobs:
           profile: minimal
           toolchain: nightly
           override: true
-          components: publish
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: cargo login
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: cargo publish
+      - run: cargo publish --token ${CARGO_REGISTRY_TOKEN}
 

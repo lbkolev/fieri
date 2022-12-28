@@ -43,3 +43,18 @@ pub struct Delete {
     token_usage: Option<TokenUsage>,
     error: Option<ErrorResp>,
 }
+
+/// Response from endpoints like [`Upload File`](crate::file::upload), [`Retrieve file`][crate::file::retrieve] & [`Create Fine-tune`](crate::fine_tune::create) requests.
+#[derive(Debug, serde::Deserialize, derive_getters::Getters)]
+pub struct File {
+    id: Option<String>,
+    object: Option<String>,
+    bytes: Option<i64>,
+    created_at: Option<i64>,
+    filename: Option<String>,
+    purpose: Option<String>,
+    token_usage: Option<TokenUsage>,
+    error: Option<ErrorResp>,
+}
+
+type Files = Vec<File>;

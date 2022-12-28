@@ -31,11 +31,11 @@
 - [ ] [retrieve content](https://beta.openai.com/docs/api-reference/files/retrieve-content)
 
 ### `fine-tunes`
-- [ ] [create](https://beta.openai.com/docs/api-reference/fine-tunes/create)
-- [ ] [list](https://beta.openai.com/docs/api-reference/fine-tunes/list)
-- [ ] [retrieve](https://beta.openai.com/docs/api-reference/fine-tunes/retrieve)
-- [ ] [cancel](https://beta.openai.com/docs/api-reference/fine-tunes/cancel)
-- [ ] [list events](https://beta.openai.com/docs/api-reference/fine-tunes/events)
+- [x] [create](https://beta.openai.com/docs/api-reference/fine-tunes/create)
+- [x] [list](https://beta.openai.com/docs/api-reference/fine-tunes/list)
+- [x] [retrieve](https://beta.openai.com/docs/api-reference/fine-tunes/retrieve)
+- [x] [cancel](https://beta.openai.com/docs/api-reference/fine-tunes/cancel)
+- [x] [list events](https://beta.openai.com/docs/api-reference/fine-tunes/events)
 - [ ] [list events with stream](https://beta.openai.com/docs/api-reference/fine-tunes/events#fine-tunes/events-stream)
 - [x] [delete](https://beta.openai.com/docs/api-reference/fine-tunes/delete-model)
 

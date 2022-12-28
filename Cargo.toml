@@ -16,11 +16,11 @@ license = "MIT"
 [dependencies]
 tokio           = { version = "1.23.0",  features = ["full"]}
 reqwest         = { version = "0.11.13", features = ["json", "multipart"]}
-url             = { version = "2.3.1"   }
 serde           = { version = "1.0.151", features = ["derive"]}
 serde_json      = { version = "1.0.89"  }
 thiserror       = { version = "1.0.37"  }
 derive-getters  = { version = "0.2.0"   }
+url             = { version = "2.3.1"   }
 
 [[example]]
 name = "get_models"
