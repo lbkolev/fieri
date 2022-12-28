@@ -11,7 +11,7 @@ pub mod moderation;
 
 /// Possible Errors returned by responses from OpenAI API.
 #[derive(Debug, Clone, derive_getters::Getters, serde::Deserialize)]
-pub struct ErrorResp {
+pub struct RequestError {
     message: Option<String>,
     r#type: Option<String>,
     param: Option<String>,
@@ -28,23 +28,23 @@ pub struct TokenUsage {
 
 #[derive(Debug, Clone, serde::Deserialize, derive_getters::Getters)]
 pub struct Choices {
-    text: Option<String>,
+    text: String,
     index: Option<u32>,
     logprobs: Option<f32>,
     finish_reason: Option<String>,
 }
 
-/// Response from requests wishing for a resource to be deleted, like [`Delete File`](crate::file::delete) and [`Delete Fine-tune`](crate::fine_tune::delete).
+/// Information from requests wishing for a resource to be deleted, like [`Delete File`](crate::file::delete) and [`Delete Fine-tune`](crate::fine_tune::delete).
 #[derive(Debug, serde::Deserialize, derive_getters::Getters)]
 pub struct Delete {
     id: Option<String>,
     object: Option<String>,
     deleted: Option<bool>,
     token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
-/// Response from endpoints like [`Upload File`](crate::file::upload), [`Retrieve file`][crate::file::retrieve] & [`Create Fine-tune`](crate::fine_tune::create) requests.
+/// Response from endpoints like [`Upload File`](crate::file::upload), [`Retrieve file`][crate::file::retrieve] & [`Create Fine-tune`](crate::fine_tune::create).
 #[derive(Debug, serde::Deserialize, derive_getters::Getters)]
 pub struct File {
     id: Option<String>,
@@ -54,7 +54,7 @@ pub struct File {
     filename: Option<String>,
     purpose: Option<String>,
     token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 type Files = Vec<File>;

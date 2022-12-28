@@ -1,6 +1,6 @@
 [package]
 name = "fieri"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = [ "Lachezar Kolev <lachezarkolevgg@gmail.com>" ]
 rust-version = "1.65.0"
@@ -29,3 +29,7 @@ path = "examples/get_models.rs"
 [[example]]
 name = "generate_image"
 path = "examples/generate_image.rs"
+
+[[example]]
+name = "generate_text"
+path = "examples/generate_text.rs"

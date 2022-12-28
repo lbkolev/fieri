@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::{
-    api_resources::{Choices, ErrorResp, TokenUsage},
+    api_resources::{Choices, RequestError, TokenUsage},
     Client, Models, Result,
 };
 
@@ -228,7 +228,7 @@ pub struct Completion {
     model: Option<String>,
     choices: Option<Vec<Choices>>,
     usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 /*
@@ -314,7 +314,7 @@ mod tests {
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create() -> Result<()> {
+    async fn test_create_completion() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = CompletionParam::new(Models::CurieInstructBeta).prompt(

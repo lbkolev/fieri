@@ -30,27 +30,22 @@
 ## Overview
 ### Unofficial Rust client for the OpenAI's API.
 
-Fieri provides an asynchronous Rust interface for interacting with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
+fieri provides an asynchronous Rust interface for interacting with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
 
 ## Prerequisites
 Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal. Once you've signed up, you'll be able to find your API key in the [API Keys](https://beta.openai.com/account/api-keys) section of the developer portal.
 
 ## Installation
-To use the Rust Client for OpenAI in your project, add the following to your `Cargo.toml` file:
+To use the client in your project, add the following to your `Cargo.toml` file:
 ```toml
 [dependencies]
-fieri = "0.1"
+fieri = "0.2"
 ```
 
-## Usage
-To use the Rust Client for OpenAI, you'll first need to create a client object:
-```rust
-use fieri::Client;
+## Basic Usage
 
-let client = Client::new(env::var("OPENAI_API_KEY")?);
-```
+### Load a tweet and let a model decide what the sentiment is.
 
-## Example
 ### Generate an image based on a prompt and save it locally.
 ```rust
 use std::env;
@@ -63,11 +58,12 @@ use fieri::{
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-    let param = GenerateImageParam::new("A bunch of cats dancing tango on the top of the highest mountain in Mars.")
+    let param = GenerateImageParam::new("A bunch of cats dancing tango on the top of the highest mountain on Mars.")
         .size(ImageSize::S1024x1024)
         .n(1);
 
     let image = generate(&client, &param)
+        .n(1)
         .await?
         .save("/tmp/")
         .await?;
@@ -76,11 +72,40 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-More examples can be found in the [examples/](examples) directory and the [docs](https://docs.rs/fieri).
+### Generate text based on a prompt
+```rust
+use std::env;
+use fieri::{
+    Client, Models,
+    completion::{create, CompletionParam}
+};
+
+#[tokio::main]
+async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    let client = Client::new(env::var("OPENAI_API_KEY")?);
+
+    let param = CompletionParam::new(Models::Ada)
+        .prompt("Once upon a time")
+        .max_tokens(500)
+        .temperature(0.9)
+        .top_p(1.0)
+        .frequency_penalty(0.0)
+        .presence_penalty(0.0);
+
+    let resp = create(&client, &param).await?;
+
+    if let Some(text) = resp.choices() {
+        println!("Answer: {}", text[0].text());
+    }
+    Ok(())
+}
+```
+
+More examples can be found in the [docs](https://docs.rs/fieri) and the [examples][examples/] directory.
 
 ## Documentation
-### [Client Documentation](https://docs.rs/fieri/)
-### [The official OpenAI docs](https://beta.openai.com/docs/introduction/overview)
+### [fieri Documentation](https://docs.rs/fieri/)
+### [The official OpenAI documentation](https://beta.openai.com/docs/introduction/overview)
 
 ## Limitations
 Note that the Rust Client for OpenAI is provided as-is, and is not officially supported by OpenAI. While we will do our best to keep the library up-to-date and bug-free, we cannot guarantee that it will always work as expected.

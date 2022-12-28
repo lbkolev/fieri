@@ -12,7 +12,7 @@
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 
-use crate::{api_resources::ErrorResp, Client, Models, Result};
+use crate::{api_resources::RequestError, Client, Models, Result};
 
 /// Parameters for [`Create Moderation`](create) request.
 #[derive(Debug, Clone, Serialize)]
@@ -56,7 +56,7 @@ pub struct Moderation {
     id: Option<String>,
     model: Option<String>,
     results: Option<Vec<ModerationResult>>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
     flagged: Option<bool>,
 }
 

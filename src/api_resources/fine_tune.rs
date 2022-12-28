@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, path::Path};
 
 use crate::{
-    api_resources::{Delete, ErrorResp, File, Files, TokenUsage},
+    api_resources::{Delete, File, Files, RequestError, TokenUsage},
     Client, Result,
 };
 
@@ -31,7 +31,7 @@ use crate::{
 pub struct CreateFineTuneParam {
     /// The ID of an uploaded file that contains training data.
     ///
-    /// See [upload](fieri::file::upload) file for how to upload a file.
+    /// See [upload](crate::file::upload) file for how to upload a file.
     pub training_file: String,
 
     /// The ID of an uploaded file that contains validation data.
@@ -184,7 +184,7 @@ pub struct FineTune {
     updated_at: Option<u64>,
 
     token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 /// Hyper parameters for fine-tuning a model.
@@ -217,7 +217,7 @@ pub struct ListEvents {
     data: Option<Vec<Event>>,
 
     token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 #[derive(Debug, Deserialize, Getters)]
@@ -226,7 +226,7 @@ pub struct ListFineTune {
     data: Option<Vec<FineTune>>,
 
     token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 /// Creates a job that fine-tunes a specified model from a given dataset.

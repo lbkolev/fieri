@@ -19,7 +19,7 @@ use std::{
 };
 
 use crate::{
-    api_resources::{ErrorResp, TokenUsage},
+    api_resources::{RequestError, TokenUsage},
     Client, Result,
 };
 
@@ -124,13 +124,13 @@ impl GenerateImageParam {
     }
 }
 
-/// Response from [Generate](generate), [Edit](edit) & [Variation](variation) requests.
+/// Response from [Generate](generate), [Edit](edit) & [Variation](variate) requests.
 #[derive(Debug, Deserialize, Getters)]
 pub struct Image {
     created: Option<u64>,
     data: Option<Links>,
     token_usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 impl Image {
@@ -385,7 +385,7 @@ where
 /// ## Example
 /// ```no_run
 /// use std::env;
-/// use fieri::{Client, image::{ImageSize, VariateImageParam, variation}};
+/// use fieri::{Client, image::{ImageSize, VariateImageParam, variate}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -394,18 +394,18 @@ where
 ///     let param = VariateImageParam::new("./assets/image_tests.png")
 ///       .size(ImageSize::S512x512);
 ///
-///     let resp = variation(&client, &param).await?;
+///     let resp = variate(&client, &param).await?;
 ///     println!("{:#?}", resp);
 ///
 ///     Ok(())
 /// }
 /// ```
 // TODO: refactor
-pub async fn variation<P>(client: &Client, param: &VariateImageParam<P>) -> Result<Image>
+pub async fn variate<P>(client: &Client, param: &VariateImageParam<P>) -> Result<Image>
 where
     P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
 {
-    client.variation_image(param).await
+    client.variate_image(param).await
 }
 
 impl Client {
@@ -435,7 +435,7 @@ impl Client {
     }
 
     // TODO: refactor
-    async fn variation_image<P>(&self, param: &VariateImageParam<P>) -> Result<Image>
+    async fn variate_image<P>(&self, param: &VariateImageParam<P>) -> Result<Image>
     where
         P: AsRef<Path> + Into<Cow<'static, str>> + Copy,
     {
@@ -494,14 +494,14 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_variation_image() -> Result<()> {
+    async fn test_variate_image() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = VariateImageParam::new("./assets/image_tests.png")
             .size(ImageSize::S256x256)
             .n(2);
 
-        let resp = variation(&client, &param).await?;
+        let resp = variate(&client, &param).await?;
         println!("{:#?}", resp);
 
         assert!(resp.error().is_none());

@@ -12,7 +12,7 @@ use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    api_resources::{ErrorResp, TokenUsage},
+    api_resources::{RequestError, TokenUsage},
     Client, Models, Result,
 };
 
@@ -56,7 +56,7 @@ pub struct Embedding {
     data: Option<Vec<EmbeddingData>>,
     mode: Option<String>,
     usage: Option<TokenUsage>,
-    error: Option<ErrorResp>,
+    error: Option<RequestError>,
 }
 
 /// The distance between two vectors measures their relatedness. Small distances suggest high relatedness and large distances suggest low relatedness.

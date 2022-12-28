@@ -1,6 +1,6 @@
 //! A composite error type for errors that can occur while interacting with OpenAI.
 
-/// A set of errors that can occur when interacting with OpenAI.
+/// A set of errors that can occur during interaction with OpenAI.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("{0}")]

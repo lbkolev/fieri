@@ -1,3 +1,5 @@
+//! Generate 3 images using the OpenAI API's DALL-E model
+
 use fieri::{
     image::{generate, GenerateImageParam, ImageSize},
     Client,
