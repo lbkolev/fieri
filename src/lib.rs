@@ -46,9 +46,6 @@ pub use api_resources::{completion, edit, embedding, file, fine_tune, image, mod
 pub use client::Client;
 
 #[doc(inline)]
-pub use config::Models;
-
-#[doc(inline)]
 pub use error::Error;
 
 /// Result returned from each interaction with the OpenAI API.

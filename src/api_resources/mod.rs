@@ -1,5 +1,7 @@
 //! Holds all necessary resources for direct interaction with the endpoints.
 
+use std::default;
+
 pub mod completion;
 pub mod edit;
 pub mod embedding;
@@ -10,38 +12,44 @@ pub mod model;
 pub mod moderation;
 
 /// Possible Errors returned by responses from OpenAI API.
-#[derive(Debug, Clone, derive_getters::Getters, serde::Deserialize)]
+#[derive(Clone, Debug, default::Default, derive_getters::Getters, serde::Deserialize)]
+#[serde(default)]
 pub struct RequestError {
-    message: Option<String>,
-    r#type: Option<String>,
+    message: String,
+    r#type: String,
+
+    // those are most frequently returned as null from OpenAI, even in the occurence of an error.
     param: Option<String>,
     code: Option<i32>,
 }
 
 /// Token usage information returned by responses from OpenAI API.
-#[derive(Debug, Clone, serde::Deserialize, derive_getters::Getters)]
+#[derive(Clone, Debug, default::Default, derive_getters::Getters, serde::Deserialize)]
+#[serde(default)]
 pub struct TokenUsage {
-    prompt_tokens: Option<u32>,
-    completion_tokens: Option<u32>,
-    total_tokens: Option<u32>,
+    prompt_tokens: u32,
+    completion_tokens: u32,
+    total_tokens: u32,
 }
 
-#[derive(Debug, Clone, serde::Deserialize, derive_getters::Getters)]
+#[derive(Clone, Debug, default::Default, derive_getters::Getters, serde::Deserialize)]
+#[serde(default)]
 pub struct Choices {
     text: String,
-    index: Option<u32>,
+    index: u32,
     logprobs: Option<f32>,
-    finish_reason: Option<String>,
+    finish_reason: String,
 }
 
 /// Information from requests wishing for a resource to be deleted, like [`Delete File`](crate::file::delete) and [`Delete Fine-tune`](crate::fine_tune::delete).
-#[derive(Debug, serde::Deserialize, derive_getters::Getters)]
+#[derive(Debug, serde::Deserialize, derive_getters::Getters, default::Default)]
+#[serde(default)]
 pub struct Delete {
     id: Option<String>,
     object: Option<String>,
     deleted: Option<bool>,
-    token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
+    token_usage: TokenUsage,
+    error: RequestError,
 }
 
 /// Response from endpoints like [`Upload File`](crate::file::upload), [`Retrieve file`][crate::file::retrieve] & [`Create Fine-tune`](crate::fine_tune::create).

@@ -9,49 +9,38 @@
 //! - Violence - Content that promotes or glorifies violence or celebrates the suffering or humiliation of others.
 //! - Violence/graphic - Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
 
+use derive_builder::Builder;
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
-use crate::{api_resources::RequestError, Client, Models, Result};
+use crate::{api_resources::RequestError, Client, Result};
 
 /// Parameters for [`Create Moderation`](create) request.
-#[derive(Debug, Clone, Serialize)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Builder, Serialize)]
+#[builder(setter(into, strip_option), default)]
 pub struct ModerationParam {
     /// The content moderations model to use for the request.
     ///
     /// The available models can be found [`here`](crate::Models).
-    pub model: Option<Models>,
+    model: Option<String>,
 
     /// The input text to classify.
-    pub input: String,
+    input: String,
 }
 
-impl Default for ModerationParam {
-    fn default() -> Self {
+impl ModerationParamBuilder {
+    pub fn new(input: impl Into<String>) -> Self {
         Self {
-            model: Some(Models::TextModerationLatest),
-            input: String::new(),
-        }
-    }
-}
-
-impl ModerationParam {
-    pub fn new<T: Into<String>>(input: T) -> Self {
-        Self {
-            input: input.into(),
+            input: Some(input.into()),
             ..Self::default()
         }
-    }
-
-    pub fn model(mut self, model: Option<Models>) -> Self {
-        self.model = model;
-
-        self
     }
 }
 
 /// Response from [`Create Moderation`](create) request.
-#[derive(Debug, Clone, Deserialize, Getters)]
+#[derive(Clone, Debug, Deserialize, Getters)]
 pub struct Moderation {
     id: Option<String>,
     model: Option<String>,
@@ -61,7 +50,7 @@ pub struct Moderation {
 }
 
 /// The result of the content moderation request.
-#[derive(Debug, Clone, Deserialize, Getters)]
+#[derive(Clone, Debug, Deserialize, Getters)]
 pub struct ModerationResult {
     categories: Categories,
     category_scores: CategoryScores,
@@ -70,7 +59,7 @@ pub struct ModerationResult {
 /// Contains a dictionary of per-category binary content policy violation flags.
 ///
 /// For each category, the value is `true` if the model flags the corresponding category as violated, `false` otherwise.
-#[derive(Debug, Clone, Deserialize, Getters)]
+#[derive(Clone, Debug, Deserialize, Getters)]
 pub struct Categories {
     hate: bool,
     #[serde(rename = "hate/threatening")]
@@ -90,7 +79,7 @@ pub struct Categories {
 /// The value is between 0 and 1, where higher values denote higher confidence.
 ///
 /// The scores should not be interpreted as probabilities.
-#[derive(Debug, Clone, Deserialize, Getters)]
+#[derive(Clone, Debug, Deserialize, Getters)]
 pub struct CategoryScores {
     hate: f64,
     #[serde(rename = "hate/threatening")]
@@ -145,10 +134,14 @@ mod tests {
     use std::env;
 
     #[tokio::test]
-    async fn test_create_moderation() -> Result<()> {
+    async fn test_create_moderation() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-        let param = ModerationParam::new("That shouldn't be flagged as flagged, even though it posseses KILL, MURDER and SUICIDE.");
+        //let param = ModerationParam::new("That shouldn't be flagged as flagged, even though it posseses KILL, MURDER and SUICIDE.");
+        let param = ModerationParamBuilder::new("That shouldn't be flagged as flagged, even though it posseses KILL, MURDER and SUICIDE")
+            .model("ada")
+            .build()?;
+
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 

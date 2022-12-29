@@ -4,86 +4,53 @@
 //!
 //! This is a natural interface for translating, editing, and tweaking text. This is also useful for refactoring and working with code.
 
+use derive_builder::Builder;
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 use crate::{
     api_resources::{Choices, RequestError, TokenUsage},
-    Client, Models, Result,
+    Client, Result,
 };
 
 /// Parameters for [`Create Edit`](create) request.
-#[derive(Debug, Clone, Serialize)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Builder, Serialize)]
+#[builder(setter(into, strip_option), default)]
 pub struct EditParam {
     /// The model to use for the edit request.
     ///
     /// The available models can be found [`here`](crate::Models).
-    pub model: Option<Models>,
+    model: String,
 
     /// The input text to use as a starting point for the edit.
-    pub input: String,
+    input: Option<String>,
 
     /// The instruction that tells the model how to edit the prompt.
-    pub instruction: String,
+    instruction: String,
 
     /// How many edits to generate for the input and instruction.
-    pub n: u32,
+    n: Option<u32>,
 
     /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
     ///
     /// It's recommended to alter this or `top_p` but not both.
-    pub temperature: f32,
+    temperature: Option<f32>,
 
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
     ///
     /// It's recommended to alter this or `temperature` but not both.
-    pub top_p: f32,
+    top_p: Option<f32>,
 }
 
-impl Default for EditParam {
-    fn default() -> Self {
+impl EditParamBuilder {
+    pub fn new(model: impl Into<String>, instruction: impl Into<String>) -> Self {
         Self {
-            model: None,
-            input: '"'.to_string(),
-            instruction: String::new(),
-            n: 1,
-            temperature: 1.0,
-            top_p: 1.0,
-        }
-    }
-}
-
-impl EditParam {
-    pub fn new<T: Into<String>>(model: Models, instruction: T) -> Self {
-        Self {
-            model: Some(model),
-            instruction: instruction.into(),
+            model: Some(model.into()),
+            instruction: Some(instruction.into()),
             ..Self::default()
         }
-    }
-
-    pub fn input<T: Into<String>>(mut self, input: T) -> Self {
-        self.input = input.into();
-
-        self
-    }
-
-    pub fn n(mut self, n: u32) -> Self {
-        self.n = n;
-
-        self
-    }
-
-    pub fn temperature(mut self, temperature: f32) -> Self {
-        self.temperature = temperature;
-
-        self
-    }
-
-    pub fn top_p(mut self, top_p: f32) -> Self {
-        self.top_p = top_p;
-
-        self
     }
 }
 
@@ -106,7 +73,7 @@ pub struct Edit {
 /// use std::env;
 /// use fieri::{
 ///     Client, Models,
-///     edit::{create, EditParam, Edit},
+///     edit::{create, EditParamBuilder, Edit},
 /// };
 ///
 /// #[tokio::main]
@@ -138,12 +105,14 @@ mod tests {
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create() -> Result<()> {
+    async fn test_create_edit() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-        let param = EditParam::new(Models::TextDavinciEdit001, "Fix the spelling mistakes")
+        let param = EditParamBuilder::new("text-davinci-edit-001", "Fix the spelling mistakes")
             .input("Can u actuqli fix spilling mistikes?")
-            .temperature(0.5);
+            .temperature(0.5)
+            .build()?;
+
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 

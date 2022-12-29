@@ -15,8 +15,6 @@ pub enum Error {
     #[error("{0}")]
     UrlError(#[from] url::ParseError),
 
-    #[error(
-        "Missing mandatory model for request. Please use the `model` method to set the model."
-    )]
-    MissingModel,
+    #[error("{0}")]
+    FieldError(#[from] derive_builder::UninitializedFieldError),
 }

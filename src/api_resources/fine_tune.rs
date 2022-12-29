@@ -15,154 +15,78 @@
 //! Once a model has been fine-tuned, you won't need to provide examples in the prompt anymore.
 //! This saves costs and enables lower-latency requests.
 
-#![allow(unused_imports)]
-
+use derive_builder::Builder;
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, path::Path};
+use serde_with::skip_serializing_none;
 
 use crate::{
-    api_resources::{Delete, File, Files, RequestError, TokenUsage},
+    api_resources::{Delete, Files, RequestError, TokenUsage},
     Client, Result,
 };
 
 /// Parameters for [`Create Fine-tune`](create) request.
-#[derive(Debug, Serialize)]
+#[skip_serializing_none]
+#[derive(Debug, Default, Builder, Serialize)]
+#[builder(setter(into, strip_option), default)]
 pub struct CreateFineTuneParam {
     /// The ID of an uploaded file that contains training data.
     ///
     /// See [upload](crate::file::upload) file for how to upload a file.
-    pub training_file: String,
+    training_file: String,
 
     /// The ID of an uploaded file that contains validation data.
     ///
     /// If you provide this file, the data is used to generate validation metrics periodically during fine-tuning. These metrics can be viewed in the fine-tuning results file.
     /// Your train and validation data should be mutually exclusive.
     // Note: Even though it's given as "optional" in the docs, it's required in the API.
-    pub validation_file: String,
+    validation_file: Option<String>,
 
     /// The name of the base model to fine-tune. You can select one of "ada", "babbage", "curie", "davinci", or a fine-tuned model created after 2022-04-21.
-    pub model: crate::Models,
+    model: Option<String>,
 
     /// The number of epochs to train the model for. An epoch refers to one full cycle through the training dataset.
-    pub n_epochs: u32,
+    n_epochs: Option<i32>,
 
     /// The batch size to use for training. The batch size is the number of training examples used to train a single forward and backward pass.
-    pub batch_size: Option<u32>,
+    batch_size: Option<i32>,
 
     /// The learning rate multiplier to use for training. The fine-tuning learning rate is the original learning rate used for pretraining multiplied by this value.
-    pub learning_rate_multiplier: Option<f32>,
+    learning_rate_multiplier: Option<f32>,
 
     /// The weight to use for loss on the prompt tokens.
     ///
     /// This controls how much the model tries to learn to generate the prompt (as compared to the completion which always has a weight of 1.0), and can add a stabilizing effect to training when completions are short.
-    pub prompt_loss_weight: f32,
+    prompt_loss_weight: Option<f32>,
 
     /// If set, we calculate classification-specific metrics such as accuracy and F-1 score using the validation set at the end of every epoch.
-    pub compute_classification_metrics: bool,
+    compute_classification_metrics: Option<bool>,
 
     /// The number of classes in a classification task.
     ///
     /// This parameter is required for multiclass classification.
-    pub classification_n_classes: Option<u32>,
+    classification_n_classes: Option<i32>,
 
     /// The positive class in binary classification.
     ///
     /// This parameter is needed to generate precision, recall, and F1 metrics when doing binary classification.
-    pub classification_positive_class: Option<String>,
+    classification_positive_class: Option<String>,
 
     /// If this is provided, we calculate F-beta scores at the specified beta values. The F-beta score is a generalization of F-1 score. This is only used for binary classification.
     ///
     /// With a beta of 1 (i.e. the F-1 score), precision and recall are given the same weight. A larger beta score puts more weight on recall and less on precision. A smaller beta score puts more weight on precision and less on recall.
-    pub classification_betas: Option<Vec<f32>>,
+    classification_betas: Option<Vec<f32>>,
 
     /// Suffix to be added to the model's name.
-    pub suffix: String,
+    suffix: Option<String>,
 }
 
-impl CreateFineTuneParam {
-    pub fn new<X, Y>(training_file: X, validation_file: Y) -> Self
-    where
-        X: Into<String>,
-        Y: Into<String>,
-    {
+impl CreateFineTuneParamBuilder {
+    pub fn new<T: Into<String>>(training_file: T) -> Self {
         Self {
-            training_file: training_file.into(),
-            validation_file: validation_file.into(),
-            model: crate::Models::Curie,
-            n_epochs: 4,
-            batch_size: Some(1),
-            learning_rate_multiplier: None,
-            prompt_loss_weight: 0.01,
-            compute_classification_metrics: false,
-            classification_n_classes: None,
-            classification_positive_class: None,
-            classification_betas: None,
-            suffix: "".to_string(),
+            training_file: Some(training_file.into()),
+            ..Self::default()
         }
-    }
-
-    pub fn model(mut self, model: crate::Models) -> Self {
-        self.model = model;
-
-        self
-    }
-
-    pub fn n_epochs(mut self, n_epochs: u32) -> Self {
-        self.n_epochs = n_epochs;
-
-        self
-    }
-
-    pub fn batch_size(mut self, batch_size: u32) -> Self {
-        self.batch_size = Some(batch_size);
-
-        self
-    }
-
-    pub fn learning_rate_multiplier(mut self, learning_rate_multiplier: f32) -> Self {
-        self.learning_rate_multiplier = Some(learning_rate_multiplier);
-
-        self
-    }
-
-    pub fn prompt_loss_weight(mut self, prompt_loss_weight: f32) -> Self {
-        self.prompt_loss_weight = prompt_loss_weight;
-
-        self
-    }
-
-    pub fn compute_classification_metrics(mut self, compute_classification_metrics: bool) -> Self {
-        self.compute_classification_metrics = compute_classification_metrics;
-
-        self
-    }
-
-    pub fn classification_n_classes(mut self, classification_n_classes: u32) -> Self {
-        self.classification_n_classes = Some(classification_n_classes);
-
-        self
-    }
-
-    pub fn classification_positive_class<T: Into<String>>(
-        mut self,
-        classification_positive_class: T,
-    ) -> Self {
-        self.classification_positive_class = Some(classification_positive_class.into());
-
-        self
-    }
-
-    pub fn classification_betas(mut self, classification_betas: Vec<f32>) -> Self {
-        self.classification_betas = Some(classification_betas);
-
-        self
-    }
-
-    pub fn suffix<T: Into<String>>(mut self, suffix: T) -> Self {
-        self.suffix = suffix.into();
-
-        self
     }
 }
 
@@ -305,7 +229,7 @@ pub async fn list(client: &Client) -> Result<ListFineTune> {
 ///     Ok(())
 /// }
 pub async fn retrieve<T: Into<String>>(client: &Client, fine_tune_id: T) -> Result<FineTune> {
-    client.retrieve_fine_tune(fine_tune_id).await
+    client.retrieve_fine_tune(fine_tune_id.into()).await
 }
 
 /// Immediately cancel a fine-tune job.
@@ -328,7 +252,7 @@ pub async fn retrieve<T: Into<String>>(client: &Client, fine_tune_id: T) -> Resu
 /// }
 /// ```
 pub async fn cancel<T: Into<String>>(client: &Client, fine_tune_id: T) -> Result<FineTune> {
-    client.cancel_fine_tune(fine_tune_id).await
+    client.cancel_fine_tune(fine_tune_id.into()).await
 }
 
 /// Get fine-grained status updates for a fine-tune job.
@@ -351,7 +275,7 @@ pub async fn cancel<T: Into<String>>(client: &Client, fine_tune_id: T) -> Result
 /// }
 /// ```
 pub async fn list_events<T: Into<String>>(client: &Client, fine_tune_id: T) -> Result<ListEvents> {
-    client.list_fine_tune_events(fine_tune_id).await
+    client.list_fine_tune_events(fine_tune_id.into()).await
 }
 
 /// Delete a fine-tuned model. You must have the Owner role in your organization.
@@ -373,11 +297,8 @@ pub async fn list_events<T: Into<String>>(client: &Client, fine_tune_id: T) -> R
 ///     Ok(())
 /// }
 /// ```
-pub async fn delete<T: Into<String> + std::fmt::Display>(
-    client: &Client,
-    model: T,
-) -> Result<Delete> {
-    client.delete_fine_tune(model).await
+pub async fn delete<T: Into<String>>(client: &Client, model: T) -> Result<Delete> {
+    client.delete_fine_tune(model.into()).await
 }
 
 impl Client {
@@ -390,32 +311,23 @@ impl Client {
         self.get::<(), ListFineTune>("fine-tunes", None).await
     }
 
-    async fn retrieve_fine_tune<T: Into<String>>(&self, fine_tune_id: T) -> Result<FineTune> {
-        self.get::<(), FineTune>(format!("fine-tunes/{}", fine_tune_id.into()).as_str(), None)
+    async fn retrieve_fine_tune(&self, fine_tune_id: String) -> Result<FineTune> {
+        self.get::<(), FineTune>(&format!("fine-tunes/{fine_tune_id}"), None)
             .await
     }
 
-    async fn cancel_fine_tune<T: Into<String>>(&self, fine_tune_id: T) -> Result<FineTune> {
-        self.post::<(), FineTune>(
-            format!("fine-tunes/{}/cancel", fine_tune_id.into()).as_str(),
-            None,
-        )
-        .await
+    async fn cancel_fine_tune(&self, fine_tune_id: String) -> Result<FineTune> {
+        self.post::<(), FineTune>(&format!("fine-tunes/{fine_tune_id}/cancel"), None)
+            .await
     }
 
-    async fn list_fine_tune_events<T: Into<String>>(&self, fine_tune_id: T) -> Result<ListEvents> {
-        self.get::<(), ListEvents>(
-            format!("fine-tunes/{}/events", fine_tune_id.into()).as_str(),
-            None,
-        )
-        .await
+    async fn list_fine_tune_events(&self, fine_tune_id: String) -> Result<ListEvents> {
+        self.get::<(), ListEvents>(&format!("fine-tunes/{fine_tune_id}/events"), None)
+            .await
     }
 
-    async fn delete_fine_tune<T: Into<String> + std::fmt::Display>(
-        &self,
-        model: T,
-    ) -> Result<Delete> {
-        self.delete::<(), Delete>(format!("models/{model}").as_str(), None)
+    async fn delete_fine_tune(&self, model: String) -> Result<Delete> {
+        self.delete::<(), Delete>(&format!("models/{model}"), None)
             .await
     }
 }
@@ -426,22 +338,21 @@ mod tests {
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create_fine_tune() -> Result<()> {
+    async fn test_create_fine_tune() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-        let param = CreateFineTuneParam::new(
-            "file-mN8td2DLg8bHQh0K7Bla7x7Z",
-            "file-1FZQ73L5AK8UknTTT0PxWMBE",
-        )
-        .n_epochs(1)
-        .batch_size(1)
-        .learning_rate_multiplier(1.0)
-        .prompt_loss_weight(1.0)
-        .compute_classification_metrics(true)
-        .classification_n_classes(1)
-        .classification_positive_class("positive")
-        .classification_betas(vec![1.0, 1.0])
-        .suffix(" ");
+        let param = CreateFineTuneParamBuilder::new("file-mN8td2DLg8bHQh0K7Bla7x7Z")
+            .validation_file("file-1FZQ73L5AK8UknTTT0PxWMBE")
+            .n_epochs(1)
+            .batch_size(1)
+            .learning_rate_multiplier(1.0)
+            .prompt_loss_weight(1.0)
+            .compute_classification_metrics(true)
+            .classification_n_classes(1)
+            .classification_positive_class("positive")
+            .classification_betas(vec![1.0, 1.0])
+            .suffix(" ")
+            .build()?;
 
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
@@ -504,7 +415,7 @@ mod tests {
         println!("{:#?}", resp);
 
         assert!(resp.deleted().is_some());
-        assert!(resp.error().is_some());
+        //assert!(resp.error().is_some());
         Ok(())
     }
 }

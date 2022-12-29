@@ -65,8 +65,8 @@ pub struct Permissions {
 ///     Ok(())
 /// }
 /// ```
-pub async fn retrieve(client: &Client, model: crate::Models) -> Result<Model> {
-    client.retrieve(model).await
+pub async fn retrieve(client: &Client, model: impl Into<String>) -> Result<Model> {
+    client.retrieve(model.into()).await
 }
 
 /// Lists the currently available models, and provides basic information about each one.
@@ -92,8 +92,8 @@ pub async fn list(client: &Client) -> Result<Models> {
 }
 
 impl Client {
-    async fn retrieve(&self, model: crate::Models) -> Result<Model> {
-        self.get::<(), Model>(format!("models/{model}").as_str(), None)
+    async fn retrieve(&self, model: String) -> Result<Model> {
+        self.get::<(), Model>(&format!("models/{model}"), None)
             .await
     }
 
@@ -111,7 +111,7 @@ mod tests {
     async fn test_list() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-        let resp = retrieve(&client, crate::Models::TextBabbage001).await?;
+        let resp = retrieve(&client, "text-babbage-001").await?;
         println!("{:#?}", resp);
 
         assert_eq!(resp.root(), "text-babbage-001");
