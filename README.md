@@ -39,7 +39,7 @@ Before you can use the Rust Client for OpenAI, you'll need to sign up for an API
 To use the client in your project, add the following to your `Cargo.toml` file:
 ```toml
 [dependencies]
-fieri = "0.2"
+fieri = "0.3"
 ```
 
 ## Basic Usage

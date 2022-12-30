@@ -1,9 +1,9 @@
 [package]
 name = "fieri"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = [ "Lachezar Kolev <lachezarkolevgg@gmail.com>" ]
-rust-version = "1.65.0"
+rust-version = "1.66.0"
 description = "Unofficial Rust client for the OpenAI API."
 documentation = "https://docs.rs/fieri"
 readme = "README.md"
