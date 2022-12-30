@@ -1,9 +1,9 @@
 [package]
 name = "fieri"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = [ "Lachezar Kolev <lachezarkolevgg@gmail.com>" ]
-rust-version = "1.65.0"
+rust-version = "1.66.0"
 description = "Unofficial Rust client for the OpenAI API."
 documentation = "https://docs.rs/fieri"
 readme = "README.md"
@@ -17,10 +17,13 @@ license = "MIT"
 tokio           = { version = "1.23.0",  features = ["full"]}
 reqwest         = { version = "0.11.13", features = ["json", "multipart"]}
 serde           = { version = "1.0.151", features = ["derive"]}
-serde_json      = { version = "1.0.89"  }
-thiserror       = { version = "1.0.37"  }
-derive-getters  = { version = "0.2.0"   }
-url             = { version = "2.3.1"   }
+serde_json      = { version = "1.0.89"}
+serde_with      = { version = "2.1.0"}
+serde_derive    = { version = "1.0.152"}
+thiserror       = { version = "1.0.37"}
+derive-getters  = { version = "0.2.0"}
+url             = { version = "2.3.1"}
+derive_builder  = { version = "0.12.0"}
 
 [[example]]
 name = "get_models"

@@ -39,7 +39,7 @@ Before you can use the Rust Client for OpenAI, you'll need to sign up for an API
 To use the client in your project, add the following to your `Cargo.toml` file:
 ```toml
 [dependencies]
-fieri = "0.2"
+fieri = "0.3"
 ```
 
 ## Basic Usage
@@ -49,18 +49,19 @@ fieri = "0.2"
 use std::env;
 use fieri::{
     Client,
-    image::{ImageSize, GenerateImageParam, generate},
+    image::{ImageSize, GenerateImageParamBuilder, generate},
 };
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-    let param = GenerateImageParam::new("A bunch of cats dancing tango on the top of the highest mountain on Mars.")
+    let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on the top of the highest mountain on Mars.")
         .size(ImageSize::S1024x1024)
-        .n(1);
+        .n(1)
+        .build()?;
 
-    let image = generate(&client, &param)
+    let _ = generate(&client, &param)
         .await?
         .save("/tmp/")
         .await?;
@@ -72,27 +73,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Generate text based on a prompt
 ```rust
 use std::env;
-use fieri::{
-    Client, Models,
-    completion::{create, CompletionParam}
-};
+use fieri::{Client, completion::{CompletionParamBuilder, create}};
 
 #[tokio::main]
 async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-    let param = CompletionParam::new(Models::Ada)
-        .prompt("Once upon a time")
+    let param = CompletionParamBuilder::new("ada")
+        .prompt("Generate a plot for an absurd interstellar parody.")
         .max_tokens(500)
         .temperature(0.9)
         .top_p(1.0)
         .frequency_penalty(0.0)
-        .presence_penalty(0.0);
+        .presence_penalty(0.0)
+        .build()?;
 
     let resp = create(&client, &param).await?;
 
-    if let Some(text) = resp.choices() {
-        println!("Answer: {}", text[0].text());
+    if resp.error().is_none() {
+        println!("Generated text: {}", resp.choices().first().unwrap().text());
     }
     Ok(())
 }

@@ -9,15 +9,18 @@ use crate::{
 };
 
 /// Response from [List Models](list) request.
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct Models {
     data: Vec<Model>,
+
     token_usage: Option<TokenUsage>,
     error: Option<RequestError>,
 }
 
 /// Response from [Retrieve a Model](retrieve) request.
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct Model {
     id: String,
     object: String,
@@ -31,7 +34,8 @@ pub struct Model {
 }
 
 /// Types of permissions that can be applied to a model.
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct Permissions {
     id: String,
     object: String,
@@ -59,14 +63,14 @@ pub struct Permissions {
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
-///     let resp = retrieve(&client, fieri::Models::TextBabbage001).await?;
+///     let resp = retrieve(&client, "text-babbage-001").await?;
 ///     println!("{:#?}", resp);
 ///
 ///     Ok(())
 /// }
 /// ```
-pub async fn retrieve(client: &Client, model: crate::Models) -> Result<Model> {
-    client.retrieve(model).await
+pub async fn retrieve(client: &Client, model: impl Into<String>) -> Result<Model> {
+    client.retrieve(model.into()).await
 }
 
 /// Lists the currently available models, and provides basic information about each one.
@@ -92,8 +96,8 @@ pub async fn list(client: &Client) -> Result<Models> {
 }
 
 impl Client {
-    async fn retrieve(&self, model: crate::Models) -> Result<Model> {
-        self.get::<(), Model>(format!("models/{model}").as_str(), None)
+    async fn retrieve(&self, model: String) -> Result<Model> {
+        self.get::<(), Model>(&format!("models/{model}"), None)
             .await
     }
 
@@ -111,10 +115,11 @@ mod tests {
     async fn test_list() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-        let resp = retrieve(&client, crate::Models::TextBabbage001).await?;
+        let resp = retrieve(&client, "text-babbage-001").await?;
         println!("{:#?}", resp);
 
         assert_eq!(resp.root(), "text-babbage-001");
+        assert!(resp.token_usage().is_none());
         assert!(resp.error().is_none());
         Ok(())
     }
@@ -126,6 +131,8 @@ mod tests {
         let resp = list(&client).await?;
         println!("{:#?}", resp);
 
+        assert!(!resp.data().is_empty());
+        assert!(resp.token_usage().is_none());
         assert!(resp.error().is_none());
         Ok(())
     }
