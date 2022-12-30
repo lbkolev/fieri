@@ -17,18 +17,16 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::{
-    api_resources::{RequestError, TokenUsage},
+    api_resources::{Choices, RequestError, TokenUsage},
     Client, Result,
 };
 
 /// Parameters for [`Create Completion`](create) request.
 #[skip_serializing_none]
-#[derive(Debug, Default, Builder, Serialize)]
-#[builder(setter(into, strip_option), default)]
+#[derive(Builder, Debug, Default, Serialize)]
+#[builder(default, setter(into, strip_option))]
 pub struct CompletionParam {
     /// The model to use for the completion request.
-    ///
-    /// The available models can be found [`here`](crate::Models).
     model: String,
 
     /// The prompt(s) to generate completions for.
@@ -41,7 +39,7 @@ pub struct CompletionParam {
     ///
     /// The token count of your prompt plus `max_tokens` cannot exceed the model's context length.
     /// Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
-    max_tokens: Option<u16>,
+    max_tokens: Option<i32>,
 
     /// Higher values means the model will take more risks.
     ///
@@ -108,13 +106,14 @@ impl CompletionParamBuilder {
 #[derive(Debug, Default, Deserialize, Getters)]
 #[serde(default)]
 pub struct Completion {
-    id: Option<String>,
-    object: Option<String>,
-    created: Option<u64>,
-    model: Option<String>,
-    choices: Option<serde_json::Value>,
-    usage: TokenUsage,
-    error: RequestError,
+    id: String,
+    object: String,
+    created: u64,
+    model: String,
+    choices: Vec<Choices>,
+
+    usage: Option<TokenUsage>,
+    error: Option<RequestError>,
 }
 
 /// Creates a completion for the provided prompt and parameters.
@@ -128,19 +127,17 @@ pub struct Completion {
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use fieri::{
-///     Client,
-///     completion::{create, CompletionParamBuilder},
-/// };
+/// use fieri::{Client, completion::{create, CompletionParamBuilder}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
-///     let param = CompletionParamBuilder::new()
-///         .model("davinci")
+///     let param = CompletionParamBuilder::new("ada")
 ///         .prompt("Haskell is a programming language. Generate a poem about Messi and World Cup 2022.")
-///         .temperature(0.5);
+///         .temperature(0.5)
+///         .build()?;
+///
 ///     let resp = create(&client, &param).await?;
 ///     println!("{:#?}", resp);
 ///
@@ -164,7 +161,7 @@ mod tests {
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create_completion() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    async fn test_create_completion() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = CompletionParamBuilder::default()
@@ -175,8 +172,8 @@ mod tests {
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        //assert!(resp.model().is_some());
-        //assert!(resp.error().message().is_none());
+        assert_eq!(resp.model(), "ada");
+        assert!(resp.error().is_none());
         Ok(())
     }
 }

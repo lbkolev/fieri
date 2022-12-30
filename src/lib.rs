@@ -12,16 +12,17 @@
 //! use std::env;
 //! use fieri::{
 //!     Client,
-//!     image::{ImageSize, GenerateImageParam, generate},
+//!     image::{ImageSize, GenerateImageParamBuilder, generate},
 //! };
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     let client = Client::new(env::var("OPENAI_API_KEY")?);
 //!
-//!     let param = GenerateImageParam::new("A bunch of cats dancing tango on the top of the highest mountain in Mars.")
+//!     let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on the top of the highest mountain in Mars.")
 //!         .size(ImageSize::S256x256)
-//!         .n(1);
+//!         .n(1)
+//!         .build()?;
 //!
 //!     let image = generate(&client, &param)
 //!         .await?
@@ -32,7 +33,7 @@
 //! }
 //! ```
 
-#![deny(warnings)]
+// #![deny(warnings)]
 
 pub mod api_resources;
 pub mod client;

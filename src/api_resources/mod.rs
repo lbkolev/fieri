@@ -1,7 +1,5 @@
 //! Holds all necessary resources for direct interaction with the endpoints.
 
-use std::default;
-
 pub mod completion;
 pub mod edit;
 pub mod embedding;
@@ -11,8 +9,8 @@ pub mod image;
 pub mod model;
 pub mod moderation;
 
-/// Possible Errors returned by responses from OpenAI API.
-#[derive(Clone, Debug, default::Default, derive_getters::Getters, serde::Deserialize)]
+/// Possible Errors returned by responses from OpenAI.
+#[derive(Clone, Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
 #[serde(default)]
 pub struct RequestError {
     message: String,
@@ -23,8 +21,8 @@ pub struct RequestError {
     code: Option<i32>,
 }
 
-/// Token usage information returned by responses from OpenAI API.
-#[derive(Clone, Debug, default::Default, derive_getters::Getters, serde::Deserialize)]
+/// Tokens used by the requested action from OpenAI.
+#[derive(Clone, Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
 #[serde(default)]
 pub struct TokenUsage {
     prompt_tokens: u32,
@@ -32,35 +30,40 @@ pub struct TokenUsage {
     total_tokens: u32,
 }
 
-#[derive(Clone, Debug, default::Default, derive_getters::Getters, serde::Deserialize)]
+#[derive(Clone, Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
 #[serde(default)]
 pub struct Choices {
     text: String,
     index: u32,
-    logprobs: Option<f32>,
     finish_reason: String,
+
+    logprobs: Option<f32>,
 }
 
 /// Information from requests wishing for a resource to be deleted, like [`Delete File`](crate::file::delete) and [`Delete Fine-tune`](crate::fine_tune::delete).
-#[derive(Debug, serde::Deserialize, derive_getters::Getters, default::Default)]
+#[derive(Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
 #[serde(default)]
 pub struct Delete {
-    id: Option<String>,
-    object: Option<String>,
-    deleted: Option<bool>,
-    token_usage: TokenUsage,
-    error: RequestError,
+    id: String,
+    object: String,
+    deleted: bool,
+
+    token_usage: Option<TokenUsage>,
+    error: Option<RequestError>,
 }
 
 /// Response from endpoints like [`Upload File`](crate::file::upload), [`Retrieve file`][crate::file::retrieve] & [`Create Fine-tune`](crate::fine_tune::create).
-#[derive(Debug, serde::Deserialize, derive_getters::Getters)]
+#[derive(Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
+#[serde(default)]
 pub struct File {
-    id: Option<String>,
-    object: Option<String>,
-    bytes: Option<i64>,
-    created_at: Option<i64>,
-    filename: Option<String>,
-    purpose: Option<String>,
+    id: String,
+    object: String,
+    bytes: i64,
+    created_at: i64,
+    filename: String,
+    purpose: String,
+    status: String,
+
     token_usage: Option<TokenUsage>,
     error: Option<RequestError>,
 }

@@ -27,8 +27,8 @@ use crate::{
 
 /// Parameters for [`Create Fine-tune`](create) request.
 #[skip_serializing_none]
-#[derive(Debug, Default, Builder, Serialize)]
-#[builder(setter(into, strip_option), default)]
+#[derive(Builder, Debug, Default, Serialize)]
+#[builder(default, setter(into, strip_option))]
 pub struct CreateFineTuneParam {
     /// The ID of an uploaded file that contains training data.
     ///
@@ -82,7 +82,7 @@ pub struct CreateFineTuneParam {
 }
 
 impl CreateFineTuneParamBuilder {
-    pub fn new<T: Into<String>>(training_file: T) -> Self {
+    pub fn new(training_file: impl Into<String>) -> Self {
         Self {
             training_file: Some(training_file.into()),
             ..Self::default()
@@ -91,41 +91,44 @@ impl CreateFineTuneParamBuilder {
 }
 
 /// Response from [`Create Fine-Tune`][create] request.
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct FineTune {
-    id: Option<String>,
-    object: Option<String>,
-    model: Option<String>,
-    created_at: Option<u64>,
-    events: Option<Events>,
-    fine_tuned_model: Option<String>,
-    hyperparams: Option<HyperParams>,
-    organization_id: Option<String>,
-    result_files: Option<Files>,
-    validation_files: Option<Files>,
-    training_files: Option<Files>,
-    status: Option<String>,
-    updated_at: Option<u64>,
+    id: String,
+    object: String,
+    model: String,
+    created_at: u64,
+    events: Events,
+
+    hyperparams: HyperParams,
+    organization_id: String,
+    result_files: Files,
+    validation_files: Files,
+    training_files: Files,
+    status: String,
+    updated_at: u64,
 
     token_usage: Option<TokenUsage>,
     error: Option<RequestError>,
 }
 
 /// Hyper parameters for fine-tuning a model.
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct HyperParams {
     n_epochs: u32,
     batch_size: u32,
     learning_rate_multiplier: f32,
     prompt_loss_weight: f32,
-    compute_classification_metrics: Option<bool>,
-    classification_n_classes: Option<u32>,
-    classification_positive_class: Option<String>,
-    classification_betas: Option<Vec<f32>>,
+    compute_classification_metrics: bool,
+    classification_n_classes: u32,
+    classification_positive_class: String,
+    classification_betas: Vec<f32>,
 }
 
 /// Events occuring on Fine-tunes
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct Event {
     object: String,
     created_at: u64,
@@ -135,19 +138,21 @@ pub struct Event {
 
 type Events = Vec<Event>;
 
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct ListEvents {
-    object: Option<String>,
-    data: Option<Vec<Event>>,
+    object: String,
+    data: Vec<Event>,
 
     token_usage: Option<TokenUsage>,
     error: Option<RequestError>,
 }
 
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct ListFineTune {
-    object: Option<String>,
-    data: Option<Vec<FineTune>>,
+    object: String,
+    data: Vec<FineTune>,
 
     token_usage: Option<TokenUsage>,
     error: Option<RequestError>,
@@ -160,22 +165,24 @@ pub struct ListFineTune {
 /// ## Example
 /// ```no_run
 /// use std::env;
-/// use fieri::{Client, fine_tune::{create, CreateFineTuneParam}};
+/// use fieri::{Client, fine_tune::{create, CreateFineTuneParamBuilder}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
-///     let param = CreateFineTuneParam::new("training_file", "validation_file")
-///     .model(fieri::Models::Curie)
-///     .n_epochs(4)
-///     .batch_size(1)
-///     .learning_rate_multiplier(1.0)
-///     .prompt_loss_weight(0.01)
-///     .compute_classification_metrics(false)
-///     .classification_n_classes(2)
-///     .classification_positive_class("positive")
-///     .classification_betas(vec![0.5, 0.5])
-///     .suffix("suffix");
+///     let param = CreateFineTuneParamBuilder::new("training_file")
+///         .validation_file("validation_file")
+///         .model("curie")
+///         .n_epochs(4)
+///         .batch_size(1)
+///         .learning_rate_multiplier(1.0)
+///         .prompt_loss_weight(0.01)
+///         .compute_classification_metrics(false)
+///         .classification_n_classes(2)
+///         .classification_positive_class("positive")
+///         .classification_betas(vec![0.5, 0.5])
+///         .suffix("suffix")
+///         .build()?;
 ///
 ///     let resp = create(&client, &param).await?;
 ///     println!("{:#?}", resp);
@@ -228,7 +235,7 @@ pub async fn list(client: &Client) -> Result<ListFineTune> {
 ///
 ///     Ok(())
 /// }
-pub async fn retrieve<T: Into<String>>(client: &Client, fine_tune_id: T) -> Result<FineTune> {
+pub async fn retrieve(client: &Client, fine_tune_id: impl Into<String>) -> Result<FineTune> {
     client.retrieve_fine_tune(fine_tune_id.into()).await
 }
 
@@ -251,7 +258,7 @@ pub async fn retrieve<T: Into<String>>(client: &Client, fine_tune_id: T) -> Resu
 ///     Ok(())
 /// }
 /// ```
-pub async fn cancel<T: Into<String>>(client: &Client, fine_tune_id: T) -> Result<FineTune> {
+pub async fn cancel(client: &Client, fine_tune_id: impl Into<String>) -> Result<FineTune> {
     client.cancel_fine_tune(fine_tune_id.into()).await
 }
 
@@ -274,7 +281,7 @@ pub async fn cancel<T: Into<String>>(client: &Client, fine_tune_id: T) -> Result
 ///     Ok(())
 /// }
 /// ```
-pub async fn list_events<T: Into<String>>(client: &Client, fine_tune_id: T) -> Result<ListEvents> {
+pub async fn list_events(client: &Client, fine_tune_id: impl Into<String>) -> Result<ListEvents> {
     client.list_fine_tune_events(fine_tune_id.into()).await
 }
 
@@ -338,7 +345,7 @@ mod tests {
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create_fine_tune() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    async fn test_create_fine_tune() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = CreateFineTuneParamBuilder::new("file-mN8td2DLg8bHQh0K7Bla7x7Z")
@@ -357,6 +364,8 @@ mod tests {
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
+        assert_eq!(resp.object(), "fine-tune");
+        assert!(resp.token_usage().is_none());
         assert!(resp.error().is_none());
         Ok(())
     }
@@ -368,6 +377,7 @@ mod tests {
         let resp = list(&client).await?;
         println!("{:#?}", resp);
 
+        assert!(resp.token_usage().is_none());
         assert!(resp.error().is_none());
         Ok(())
     }
@@ -379,6 +389,7 @@ mod tests {
         let resp = retrieve(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
         println!("{:#?}", resp);
 
+        assert!(resp.token_usage().is_none());
         assert!(resp.error().is_none());
         Ok(())
     }
@@ -390,6 +401,7 @@ mod tests {
         let resp = list_events(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
         println!("{:#?}", resp);
 
+        assert!(resp.token_usage().is_none());
         assert!(resp.error().is_none());
         Ok(())
     }
@@ -402,6 +414,7 @@ mod tests {
         let resp = cancel(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
         println!("{:#?}", resp);
 
+        assert!(resp.token_usage().is_none());
         assert!(resp.error().is_none());
         Ok(())
     }
@@ -414,8 +427,8 @@ mod tests {
         let resp = delete(&client, "model-to-delete").await?;
         println!("{:#?}", resp);
 
-        assert!(resp.deleted().is_some());
-        //assert!(resp.error().is_some());
+        assert!(resp.deleted());
+        assert!(resp.error().is_some());
         Ok(())
     }
 }

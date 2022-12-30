@@ -14,16 +14,17 @@ use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::{api_resources::RequestError, Client, Result};
+use crate::{
+    api_resources::{RequestError, TokenUsage},
+    Client, Result,
+};
 
 /// Parameters for [`Create Moderation`](create) request.
 #[skip_serializing_none]
-#[derive(Debug, Default, Builder, Serialize)]
-#[builder(setter(into, strip_option), default)]
+#[derive(Builder, Debug, Default, Serialize)]
+#[builder(default, setter(into, strip_option))]
 pub struct ModerationParam {
     /// The content moderations model to use for the request.
-    ///
-    /// The available models can be found [`here`](crate::Models).
     model: Option<String>,
 
     /// The input text to classify.
@@ -40,17 +41,21 @@ impl ModerationParamBuilder {
 }
 
 /// Response from [`Create Moderation`](create) request.
-#[derive(Clone, Debug, Deserialize, Getters)]
+#[derive(Clone, Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct Moderation {
-    id: Option<String>,
-    model: Option<String>,
-    results: Option<Vec<ModerationResult>>,
+    id: String,
+    model: String,
+    flagged: bool,
+    results: Vec<ModerationResult>,
+
+    token_usage: Option<TokenUsage>,
     error: Option<RequestError>,
-    flagged: Option<bool>,
 }
 
 /// The result of the content moderation request.
-#[derive(Clone, Debug, Deserialize, Getters)]
+#[derive(Clone, Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct ModerationResult {
     categories: Categories,
     category_scores: CategoryScores,
@@ -59,7 +64,8 @@ pub struct ModerationResult {
 /// Contains a dictionary of per-category binary content policy violation flags.
 ///
 /// For each category, the value is `true` if the model flags the corresponding category as violated, `false` otherwise.
-#[derive(Clone, Debug, Deserialize, Getters)]
+#[derive(Clone, Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct Categories {
     hate: bool,
     #[serde(rename = "hate/threatening")]
@@ -79,7 +85,8 @@ pub struct Categories {
 /// The value is between 0 and 1, where higher values denote higher confidence.
 ///
 /// The scores should not be interpreted as probabilities.
-#[derive(Clone, Debug, Deserialize, Getters)]
+#[derive(Clone, Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct CategoryScores {
     hate: f64,
     #[serde(rename = "hate/threatening")]
@@ -101,17 +108,17 @@ pub struct CategoryScores {
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use fieri::{
-///     Client,
-///     moderation::{create, ModerationParam, Moderation},
-/// };
+/// use fieri::{Client, moderation::{ModerationParamBuilder, create}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
-///     let param = ModerationParam::new("I want to kill them.");
-///     let resp: Moderation = create(&client, &param).await?;
+///     let param = ModerationParamBuilder::new("I want to kill them.")
+///         .model("text-moderation-stable")
+///         .build()?;
+///
+///     let resp = create(&client, &param).await?;
 ///     println!("{:?}", resp);
 ///
 ///     Ok(())
@@ -134,18 +141,18 @@ mod tests {
     use std::env;
 
     #[tokio::test]
-    async fn test_create_moderation() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    async fn test_create_moderation() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-        //let param = ModerationParam::new("That shouldn't be flagged as flagged, even though it posseses KILL, MURDER and SUICIDE.");
         let param = ModerationParamBuilder::new("That shouldn't be flagged as flagged, even though it posseses KILL, MURDER and SUICIDE")
-            .model("ada")
+            .model("text-moderation-stable")
             .build()?;
 
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert!(resp.flagged().is_none());
+        assert!(!resp.flagged());
+        assert!(resp.token_usage().is_none());
         assert!(resp.error().is_none());
         Ok(())
     }

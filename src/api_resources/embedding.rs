@@ -20,12 +20,10 @@ use crate::{
 
 /// Parameters for [`Create Embedding`](create) request.
 #[skip_serializing_none]
-#[derive(Debug, Default, Serialize, Builder)]
-#[builder(setter(into, strip_option), default)]
+#[derive(Builder, Debug, Default, Serialize)]
+#[builder(default, setter(into, strip_option))]
 pub struct EmbeddingParam {
     /// The model to use for the embedding request.
-    ///
-    /// The available models can be found [`here`](crate::Models).
     model: String,
 
     /// Input text to get embeddings for, encoded as a string.
@@ -33,15 +31,12 @@ pub struct EmbeddingParam {
     /// Each input must not exceed 8192 tokens in length.
     input: String,
 
+    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
     user: Option<String>,
 }
 
 impl EmbeddingParamBuilder {
-    pub fn new<X, Y>(model: X, input: Y) -> Self
-    where
-        X: Into<String>,
-        Y: Into<String>,
-    {
+    pub fn new(model: impl Into<String>, input: impl Into<String>) -> Self {
         Self {
             model: Some(model.into()),
             input: Some(input.into()),
@@ -51,18 +46,19 @@ impl EmbeddingParamBuilder {
 }
 
 /// Response from [`Create Embedding`](create) request.
-#[derive(Debug, Default, Clone, Deserialize, Getters)]
+#[derive(Clone, Debug, Default, Deserialize, Getters)]
 #[serde(default)]
 pub struct Embedding {
-    object: Option<String>,
-    data: Option<Vec<EmbeddingData>>,
-    mode: Option<String>,
+    object: String,
+    data: Vec<EmbeddingData>,
+    mode: String,
+
     usage: Option<TokenUsage>,
     error: Option<RequestError>,
 }
 
 /// The distance between two vectors measures their relatedness. Small distances suggest high relatedness and large distances suggest low relatedness.
-#[derive(Debug, Clone, Deserialize, Getters)]
+#[derive(Clone, Debug, Deserialize, Getters)]
 pub struct EmbeddingData {
     object: String,
     embedding: Embeddings,
@@ -78,17 +74,17 @@ type Embeddings = Vec<f32>;
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use fieri::{
-///     Client, Models,
-///     embedding::{create, EmbeddingParam, Embedding},
-/// };
+/// use fieri::{Client, embedding::{create, EmbeddingParamBuilder}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
-///     let param = EmbeddingParam::new(Models::TextEmbeddingAda002, "Hello world!");
-///     let resp: Embedding = create(&client, &param).await?;
+///     let param = EmbeddingParamBuilder::new("text-embedding-ada-002", "Hello world!")
+///         .user("/user/")
+///         .build()?;
+///
+///     let resp = create(&client, &param).await?;
 ///     println!("{:?}", resp);
 ///
 ///     Ok(())
@@ -111,24 +107,21 @@ mod tests {
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    async fn test_create() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-        let param = EmbeddingParamBuilder::new("text-embedding-ada-002", "Hello world!")
+        let param = EmbeddingParamBuilder::default()
+            .model("text-embedding-ada-002")
+            .input("Hello world!")
             .user("rand-user")
             .build()?;
 
-        /*
-        let param = EmbeddingParamBuilder::default()
-            .model(Models::TextEmbeddingAda002)
-            .input("Hello world!")
-            .user("user-?")
-            .build()?;
-        */
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        //assert!(resp.error().is_none());
+        assert!(resp.error().is_none());
+        assert!(resp.usage().is_some());
+        assert!(resp.mode().is_empty());
         Ok(())
     }
 }

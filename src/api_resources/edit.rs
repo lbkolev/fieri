@@ -16,19 +16,17 @@ use crate::{
 
 /// Parameters for [`Create Edit`](create) request.
 #[skip_serializing_none]
-#[derive(Debug, Default, Builder, Serialize)]
-#[builder(setter(into, strip_option), default)]
+#[derive(Builder, Debug, Default, Serialize)]
+#[builder(default, setter(into, strip_option))]
 pub struct EditParam {
     /// The model to use for the edit request.
-    ///
-    /// The available models can be found [`here`](crate::Models).
     model: String,
-
-    /// The input text to use as a starting point for the edit.
-    input: Option<String>,
 
     /// The instruction that tells the model how to edit the prompt.
     instruction: String,
+
+    /// The input text to use as a starting point for the edit.
+    input: Option<String>,
 
     /// How many edits to generate for the input and instruction.
     n: Option<u32>,
@@ -55,11 +53,13 @@ impl EditParamBuilder {
 }
 
 /// Response from [`Create Edit`](create) request.
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters)]
+#[serde(default)]
 pub struct Edit {
-    object: Option<String>,
-    created: Option<u64>,
-    choices: Option<Vec<Choices>>,
+    object: String,
+    created: u64,
+    choices: Vec<Choices>,
+
     usage: Option<TokenUsage>,
     error: Option<RequestError>,
 }
@@ -71,19 +71,18 @@ pub struct Edit {
 /// ## Example
 /// ```rust
 /// use std::env;
-/// use fieri::{
-///     Client, Models,
-///     edit::{create, EditParamBuilder, Edit},
-/// };
+/// use fieri::{Client, edit::{create, EditParamBuilder}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
-///     let param = EditParam::new(Models::TextDavinciEdit001, "Fix the spelling mistakes")
-///         .input("What dey of the wek is it?");
+///     let param = EditParamBuilder::new("text-davinci-edit-001", "Fix the spelling mistakes")
+///         .input("What dey of the wek is it?")
+///         .temperature(0.5)
+///         .build()?;
 ///
-///     let resp: Edit = create(&client, &param).await?;
+///     let resp = create(&client, &param).await?;
 ///     println!("{:#?}", resp);
 ///
 ///     Ok(())
@@ -105,19 +104,21 @@ mod tests {
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create_edit() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    async fn test_create_edit() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let param = EditParamBuilder::new("text-davinci-edit-001", "Fix the spelling mistakes")
-            .input("Can u actuqli fix spilling mistikes?")
+            .input("What dey of the wek is it?")
             .temperature(0.5)
             .build()?;
 
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert!(resp.object().is_some());
+        assert_eq!(resp.object(), "edit");
+        assert!(resp.usage().is_some());
         assert!(resp.error().is_none());
+
         Ok(())
     }
 }

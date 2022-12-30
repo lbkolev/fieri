@@ -17,4 +17,19 @@ pub enum Error {
 
     #[error("{0}")]
     FieldError(#[from] derive_builder::UninitializedFieldError),
+
+    #[error("Invalid values were provided")]
+    CompletionParamBuilderError(#[from] crate::completion::CompletionParamBuilderError),
+
+    #[error("Invalid values were provided")]
+    EditParamBuilderError(#[from] crate::edit::EditParamBuilderError),
+
+    #[error("Invalid values were provided")]
+    EmbeddingParamBuilderError(#[from] crate::embedding::EmbeddingParamBuilderError),
+
+    #[error("Invalid values were provided")]
+    FineTuneParamBuilderError(#[from] crate::fine_tune::CreateFineTuneParamBuilderError),
+
+    #[error("Invalid values were provided")]
+    ModerationParamBuilderError(#[from] crate::moderation::ModerationParamBuilderError),
 }
