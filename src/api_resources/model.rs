@@ -3,24 +3,18 @@
 use derive_getters::Getters;
 use serde::Deserialize;
 
-use crate::{
-    api_resources::{RequestError, TokenUsage},
-    Client, Result,
-};
+use crate::{api_resources::TokenUsage, Client, Result};
 
 /// Response from [List Models](list) request.
 #[derive(Debug, Default, Deserialize, Getters)]
-#[serde(default)]
 pub struct Models {
     data: Vec<Model>,
 
     token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 /// Response from [Retrieve a Model](retrieve) request.
 #[derive(Debug, Default, Deserialize, Getters)]
-#[serde(default)]
 pub struct Model {
     id: String,
     object: String,
@@ -29,13 +23,12 @@ pub struct Model {
     permission: Vec<Permissions>,
     root: String,
     parent: Option<String>,
+
     token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 /// Types of permissions that can be applied to a model.
 #[derive(Debug, Default, Deserialize, Getters)]
-#[serde(default)]
 pub struct Permissions {
     id: String,
     object: String,
@@ -112,7 +105,7 @@ mod tests {
     use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_list() -> Result<()> {
+    async fn test_model_list() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let resp = retrieve(&client, "text-babbage-001").await?;
@@ -120,12 +113,11 @@ mod tests {
 
         assert_eq!(resp.root(), "text-babbage-001");
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_retrieve() -> Result<()> {
+    async fn test_model_retrieve() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
         let resp = list(&client).await?;
@@ -133,7 +125,6 @@ mod tests {
 
         assert!(!resp.data().is_empty());
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 }

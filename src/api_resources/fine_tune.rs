@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::{
-    api_resources::{Delete, Files, RequestError, TokenUsage},
+    api_resources::{Delete, Files, TokenUsage},
     Client, Result,
 };
 
@@ -109,7 +109,6 @@ pub struct FineTune {
     updated_at: u64,
 
     token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 /// Hyper parameters for fine-tuning a model.
@@ -145,7 +144,6 @@ pub struct ListEvents {
     data: Vec<Event>,
 
     token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 #[derive(Debug, Default, Deserialize, Getters)]
@@ -155,7 +153,6 @@ pub struct ListFineTune {
     data: Vec<FineTune>,
 
     token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 /// Creates a job that fine-tunes a specified model from a given dataset.
@@ -366,7 +363,6 @@ mod tests {
 
         assert_eq!(resp.object(), "fine-tune");
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 
@@ -378,7 +374,6 @@ mod tests {
         println!("{:#?}", resp);
 
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 
@@ -390,7 +385,6 @@ mod tests {
         println!("{:#?}", resp);
 
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 
@@ -402,7 +396,6 @@ mod tests {
         println!("{:#?}", resp);
 
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 
@@ -415,7 +408,6 @@ mod tests {
         println!("{:#?}", resp);
 
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 
@@ -428,7 +420,6 @@ mod tests {
         println!("{:#?}", resp);
 
         assert!(resp.deleted());
-        assert!(resp.error().is_some());
         Ok(())
     }
 }

@@ -14,10 +14,7 @@ use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::{
-    api_resources::{RequestError, TokenUsage},
-    Client, Result,
-};
+use crate::{api_resources::TokenUsage, Client, Result};
 
 /// Parameters for [`Create Moderation`](create) request.
 #[skip_serializing_none]
@@ -50,7 +47,6 @@ pub struct Moderation {
     results: Vec<ModerationResult>,
 
     token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 /// The result of the content moderation request.
@@ -153,7 +149,6 @@ mod tests {
 
         assert!(!resp.flagged());
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 }

@@ -22,8 +22,8 @@ serde_with      = { version = "2.1.0"}
 serde_derive    = { version = "1.0.152"}
 thiserror       = { version = "1.0.37"}
 derive-getters  = { version = "0.2.0"}
-url             = { version = "2.3.1"}
 derive_builder  = { version = "0.12.0"}
+url             = { version = "2.3.1"}
 
 [[example]]
 name = "get_models"

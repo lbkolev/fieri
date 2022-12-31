@@ -13,10 +13,7 @@ use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::{
-    api_resources::{RequestError, TokenUsage},
-    Client, Result,
-};
+use crate::{api_resources::TokenUsage, Client, Result};
 
 /// Parameters for [`Create Embedding`](create) request.
 #[skip_serializing_none]
@@ -54,7 +51,6 @@ pub struct Embedding {
     mode: String,
 
     usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 /// The distance between two vectors measures their relatedness. Small distances suggest high relatedness and large distances suggest low relatedness.
@@ -119,7 +115,6 @@ mod tests {
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert!(resp.error().is_none());
         assert!(resp.usage().is_some());
         assert!(resp.mode().is_empty());
         Ok(())
