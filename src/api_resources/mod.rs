@@ -9,18 +9,6 @@ pub mod image;
 pub mod model;
 pub mod moderation;
 
-/// Possible Errors returned by responses from OpenAI.
-#[derive(Clone, Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
-#[serde(default)]
-pub struct RequestError {
-    message: String,
-    r#type: String,
-
-    // those are most frequently returned as null from OpenAI, even in the occurence of an error.
-    param: Option<String>,
-    code: Option<i32>,
-}
-
 /// Tokens used by the requested action from OpenAI.
 #[derive(Clone, Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
 #[serde(default)]
@@ -49,7 +37,6 @@ pub struct Delete {
     deleted: bool,
 
     token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 /// Response from endpoints like [`Upload File`](crate::file::upload), [`Retrieve file`][crate::file::retrieve] & [`Create Fine-tune`](crate::fine_tune::create).
@@ -65,7 +52,6 @@ pub struct File {
     status: String,
 
     token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 type Files = Vec<File>;

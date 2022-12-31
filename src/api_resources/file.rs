@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, fs, path::Path};
 
 use crate::{
-    api_resources::{Delete, File, Files, RequestError, TokenUsage},
+    api_resources::{Delete, File, Files, TokenUsage},
     Client, Result,
 };
 
@@ -18,7 +18,6 @@ pub struct ListFiles {
     object: String,
 
     token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 /// The Possible Purposes of the uploaded documents.
@@ -186,7 +185,6 @@ mod tests {
 
         assert_eq!(resp.object(), "list");
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 
@@ -206,7 +204,6 @@ mod tests {
 
         assert_eq!(resp.object(), "file");
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 
@@ -220,7 +217,6 @@ mod tests {
 
         assert_eq!(resp.deleted, false);
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_some());
         Ok(())
     }
 
@@ -234,7 +230,6 @@ mod tests {
 
         assert_eq!(resp.object(), "file");
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 }

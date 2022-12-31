@@ -33,7 +33,7 @@
 //! }
 //! ```
 
-// #![deny(warnings)]
+#![deny(warnings)]
 
 pub mod api_resources;
 pub mod client;
@@ -50,4 +50,4 @@ pub use client::Client;
 pub use error::Error;
 
 /// Result returned from each interaction with the OpenAI API.
-type Result<T> = std::result::Result<T, error::Error>;
+type Result<T> = std::result::Result<T, Error>;

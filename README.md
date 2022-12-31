@@ -48,12 +48,12 @@ fieri = "0.3"
 ```rust
 use std::env;
 use fieri::{
-    Client,
+    Client, Error,
     image::{ImageSize, GenerateImageParamBuilder, generate},
 };
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Error> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
     let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on the top of the highest mountain on Mars.")
@@ -61,22 +61,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .n(1)
         .build()?;
 
-    let _ = generate(&client, &param)
+    generate(&client, &param)
         .await?
         .save("/tmp/")
         .await?;
 
     Ok(())
 }
+}
 ```
 
 ### Generate text based on a prompt
 ```rust
 use std::env;
-use fieri::{Client, completion::{CompletionParamBuilder, create}};
+use fieri::{
+    Client, Error,
+    completion::{CompletionParamBuilder, create}
+};
 
 #[tokio::main]
-async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
+async fn main() -> std::result::Result<(), Error> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
     let param = CompletionParamBuilder::new("ada")
@@ -89,15 +93,18 @@ async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
         .build()?;
 
     let resp = create(&client, &param).await?;
+    println!("Generated text: {:#?}", resp);
 
-    if resp.error().is_none() {
-        println!("Generated text: {}", resp.choices().first().unwrap().text());
-    }
     Ok(())
 }
 ```
 
 More examples can be found in the [docs](https://docs.rs/fieri) and the [examples](examples/) directory.
+
+To check out any example, export your `OPENAI_API_KEY` as environment variable and execute:
+```bash
+cargo run --example=<name>
+```
 
 ## Documentation
 ### [fieri Documentation](https://docs.rs/fieri/)

@@ -1,13 +1,13 @@
-//! Generate text using the OpenAI API
+//! Generate text
 
 use fieri::{
     completion::{create, CompletionParamBuilder},
-    Client,
+    Client, Error,
 };
 use std::env;
 
 #[tokio::main]
-async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
+async fn main() -> std::result::Result<(), Error> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
     let param = CompletionParamBuilder::new("ada")
@@ -20,9 +20,7 @@ async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
         .build()?;
 
     let resp = create(&client, &param).await?;
+    println!("Generated text: {:#?}", resp);
 
-    if resp.error().is_none() {
-        println!("Generated text: {}", resp.choices().first().unwrap().text());
-    }
     Ok(())
 }

@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::{
-    api_resources::{Choices, RequestError, TokenUsage},
+    api_resources::{Choices, TokenUsage},
     Client, Result,
 };
 
@@ -61,7 +61,6 @@ pub struct Edit {
     choices: Vec<Choices>,
 
     usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 /// Creates a new edit for the provided input, instruction, and parameters.
@@ -117,8 +116,6 @@ mod tests {
 
         assert_eq!(resp.object(), "edit");
         assert!(resp.usage().is_some());
-        assert!(resp.error().is_none());
-
         Ok(())
     }
 }

@@ -17,14 +17,28 @@
 //!     .organization(env::var("OPENAI_ORGANIZATION").unwrap());
 //! ```
 
+use std::fmt::Debug;
+
 use derive_getters::Getters;
 use reqwest::{
     header::{HeaderMap, AUTHORIZATION},
     multipart,
 };
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use crate::{config::Config, Result};
+use crate::{
+    config::Config,
+    error::{Error, RequestError},
+    Result,
+};
+
+// Response returned by each interaction with OpenAI, either an error or a valid generic.
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+enum Response<T> {
+    Invalid(RequestError),
+    Valid(T),
+}
 
 /// The Client used to interact with the OpenAI API.
 #[derive(Debug, Getters)]
@@ -91,10 +105,14 @@ impl Client {
             .query(&param)
             .send()
             .await?
-            .json::<Y>()
+            .json::<Response<Y>>()
             .await?;
+        //println!("{:?}", resp);
 
-        Ok(resp)
+        match resp {
+            Response::Invalid(resp) => Err(Error::APIError(resp)),
+            Response::Valid(resp) => Ok(resp),
+        }
     }
 
     pub async fn post<X, Y>(&self, identifier: &str, param: Option<&X>) -> Result<Y>
@@ -108,10 +126,13 @@ impl Client {
             .json(&param)
             .send()
             .await?
-            .json::<Y>()
+            .json::<Response<Y>>()
             .await?;
 
-        Ok(resp)
+        match resp {
+            Response::Invalid(resp) => Err(Error::APIError(resp)),
+            Response::Valid(resp) => Ok(resp),
+        }
     }
 
     pub async fn delete<X, Y>(&self, identifier: &str, param: Option<&X>) -> Result<Y>
@@ -125,10 +146,13 @@ impl Client {
             .query(&param)
             .send()
             .await?
-            .json::<Y>()
+            .json::<Response<Y>>()
             .await?;
 
-        Ok(resp)
+        match resp {
+            Response::Invalid(resp) => Err(Error::APIError(resp)),
+            Response::Valid(resp) => Ok(resp),
+        }
     }
 
     pub async fn post_data<Y>(&self, identifier: &str, data: multipart::Form) -> Result<Y>
@@ -141,10 +165,13 @@ impl Client {
             .multipart(data)
             .send()
             .await?
-            .json::<Y>()
+            .json::<Response<Y>>()
             .await?;
 
-        Ok(resp)
+        match resp {
+            Response::Invalid(resp) => Err(Error::APIError(resp)),
+            Response::Valid(resp) => Ok(resp),
+        }
     }
 }
 

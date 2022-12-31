@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use crate::{
-    api_resources::{Choices, RequestError, TokenUsage},
+    api_resources::{Choices, TokenUsage},
     Client, Result,
 };
 
@@ -113,7 +113,6 @@ pub struct Completion {
     choices: Vec<Choices>,
 
     usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 /// Creates a completion for the provided prompt and parameters.
@@ -173,7 +172,6 @@ mod tests {
         println!("{:#?}", resp);
 
         assert_eq!(resp.model(), "ada");
-        assert!(resp.error().is_none());
         Ok(())
     }
 }

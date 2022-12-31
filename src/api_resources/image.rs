@@ -20,10 +20,7 @@ use std::{
     path::Path,
 };
 
-use crate::{
-    api_resources::{RequestError, TokenUsage},
-    Client, Result,
-};
+use crate::{api_resources::TokenUsage, Client, Result};
 
 /// The size of the generated images.
 ///
@@ -88,7 +85,6 @@ pub struct Image {
     created: Option<u64>,
     data: Option<Links>,
     token_usage: Option<TokenUsage>,
-    error: Option<RequestError>,
 }
 
 impl Image {
@@ -368,8 +364,6 @@ mod tests {
         println!("{:#?}", resp);
 
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
-
         Ok(())
     }
 
@@ -387,7 +381,6 @@ mod tests {
         println!("{:#?}", resp);
 
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 
@@ -405,7 +398,6 @@ mod tests {
         println!("{:#?}", resp);
 
         assert!(resp.token_usage().is_none());
-        assert!(resp.error().is_none());
         Ok(())
     }
 }
