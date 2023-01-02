@@ -6,6 +6,8 @@
 //! Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal.
 //! Once you've signed up, you'll be able to find your API key in the API Keys section of the developer portal.
 //!
+//! Each request requires a Client, initialized with your API key.
+//!
 //! ## Example
 //! ```rust
 //! // Generate an image based on a prompt and save it locally.
@@ -33,7 +35,7 @@
 //! }
 //! ```
 
-#![deny(warnings)]
+#![deny(missing_debug_implementations, rust_2018_idioms)]
 
 pub mod api_resources;
 pub mod client;

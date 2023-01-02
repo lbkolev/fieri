@@ -41,7 +41,7 @@ enum Response<T> {
 }
 
 /// The Client used to interact with the OpenAI API.
-#[derive(Debug, Getters)]
+#[derive(Clone, Debug, Getters)]
 pub struct Client {
     /// Configuration needed to authorize against the API.
     config: Config,
@@ -176,4 +176,22 @@ impl Client {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::*;
+
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn test_client() -> Result<()> {
+        let client = Client::new(std::env::var("OPENAI_API_KEY")?);
+
+        assert!(client.config().headers.get(AUTHORIZATION).is_some());
+        assert!(client.config().headers.get("OpenAI-Organization").is_none());
+
+        let client = Client::new(std::env::var("OPENAI_API_KEY")?)
+            .organization(std::env::var("OPENAI_ORGANIZATION")?);
+
+        assert!(client.config().headers.get(AUTHORIZATION).is_some());
+        assert!(client.config().headers.get("OpenAI-Organization").is_some());
+
+        Ok(())
+    }
+}

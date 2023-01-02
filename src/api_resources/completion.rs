@@ -23,7 +23,7 @@ use crate::{
 
 /// Parameters for [`Create Completion`](create) request.
 #[skip_serializing_none]
-#[derive(Builder, Debug, Default, Serialize)]
+#[derive(Builder, Debug, Default, Deserialize, Serialize)]
 #[builder(default, setter(into, strip_option))]
 pub struct CompletionParam {
     /// The model to use for the completion request.
@@ -61,6 +61,7 @@ pub struct CompletionParam {
     // Whether to stream back partial progress.
     //
     // For streamed progress, use [`create_with_stream`](create_with_stream).
+    #[builder(setter(skip))]
     stream: Option<bool>,
 
     /// Include the log probabilities on the `logprobs` most likely tokens, as well the chosen tokens.
@@ -103,7 +104,7 @@ impl CompletionParamBuilder {
 }
 
 /// Response from [`Create completion`](create) request.
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct Completion {
     id: String,

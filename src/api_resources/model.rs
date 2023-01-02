@@ -1,12 +1,12 @@
 //! List and describe the various models available in the API.
 
 use derive_getters::Getters;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{api_resources::TokenUsage, Client, Result};
 
 /// Response from [List Models](list) request.
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters, Serialize)]
 pub struct Models {
     data: Vec<Model>,
 
@@ -14,7 +14,7 @@ pub struct Models {
 }
 
 /// Response from [Retrieve a Model](retrieve) request.
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters, Serialize)]
 pub struct Model {
     id: String,
     object: String,
@@ -28,7 +28,7 @@ pub struct Model {
 }
 
 /// Types of permissions that can be applied to a model.
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters, Serialize)]
 pub struct Permissions {
     id: String,
     object: String,

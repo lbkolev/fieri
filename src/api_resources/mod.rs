@@ -10,7 +10,14 @@ pub mod model;
 pub mod moderation;
 
 /// Tokens used by the requested action from OpenAI.
-#[derive(Clone, Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
+#[derive(
+    Clone,
+    Debug,
+    std::default::Default,
+    serde::Deserialize,
+    derive_getters::Getters,
+    serde::Serialize,
+)]
 #[serde(default)]
 pub struct TokenUsage {
     prompt_tokens: u32,
@@ -18,7 +25,14 @@ pub struct TokenUsage {
     total_tokens: u32,
 }
 
-#[derive(Clone, Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
+#[derive(
+    Clone,
+    Debug,
+    std::default::Default,
+    serde::Deserialize,
+    derive_getters::Getters,
+    serde::Serialize,
+)]
 #[serde(default)]
 pub struct Choices {
     text: String,
@@ -29,7 +43,9 @@ pub struct Choices {
 }
 
 /// Information from requests wishing for a resource to be deleted, like [`Delete File`](crate::file::delete) and [`Delete Fine-tune`](crate::fine_tune::delete).
-#[derive(Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
+#[derive(
+    Debug, std::default::Default, serde::Deserialize, derive_getters::Getters, serde::Serialize,
+)]
 #[serde(default)]
 pub struct Delete {
     id: String,
@@ -40,7 +56,9 @@ pub struct Delete {
 }
 
 /// Response from endpoints like [`Upload File`](crate::file::upload), [`Retrieve file`][crate::file::retrieve] & [`Create Fine-tune`](crate::fine_tune::create).
-#[derive(Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
+#[derive(
+    Debug, std::default::Default, serde::Deserialize, derive_getters::Getters, serde::Serialize,
+)]
 #[serde(default)]
 pub struct File {
     id: String,

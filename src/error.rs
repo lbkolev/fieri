@@ -3,7 +3,6 @@
 /// A set of errors that can occur during interaction with OpenAI.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    /// Errors that occur given invalid values.
     #[error("{}, {}", .0.error.r#type, .0.error.message)]
     APIError(RequestError),
 
