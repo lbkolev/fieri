@@ -18,7 +18,7 @@ use crate::{api_resources::TokenUsage, Client, Result};
 
 /// Parameters for [`Create Moderation`](create) request.
 #[skip_serializing_none]
-#[derive(Builder, Debug, Default, Serialize)]
+#[derive(Builder, Debug, Default, Deserialize, Serialize)]
 #[builder(default, setter(into, strip_option))]
 pub struct ModerationParam {
     /// The content moderations model to use for the request.
@@ -38,7 +38,7 @@ impl ModerationParamBuilder {
 }
 
 /// Response from [`Create Moderation`](create) request.
-#[derive(Clone, Debug, Default, Deserialize, Getters)]
+#[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct Moderation {
     id: String,
@@ -50,7 +50,7 @@ pub struct Moderation {
 }
 
 /// The result of the content moderation request.
-#[derive(Clone, Debug, Default, Deserialize, Getters)]
+#[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct ModerationResult {
     categories: Categories,
@@ -60,7 +60,7 @@ pub struct ModerationResult {
 /// Contains a dictionary of per-category binary content policy violation flags.
 ///
 /// For each category, the value is `true` if the model flags the corresponding category as violated, `false` otherwise.
-#[derive(Clone, Debug, Default, Deserialize, Getters)]
+#[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct Categories {
     hate: bool,
@@ -81,7 +81,7 @@ pub struct Categories {
 /// The value is between 0 and 1, where higher values denote higher confidence.
 ///
 /// The scores should not be interpreted as probabilities.
-#[derive(Clone, Debug, Default, Deserialize, Getters)]
+#[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct CategoryScores {
     hate: f64,

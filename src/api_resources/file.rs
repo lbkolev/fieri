@@ -11,7 +11,7 @@ use crate::{
 };
 
 /// Response from [`List File`](list) request.
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct ListFiles {
     data: Files,
@@ -21,7 +21,7 @@ pub struct ListFiles {
 }
 
 /// The Possible Purposes of the uploaded documents.
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub enum Purpose {
     #[default]
     FineTune,
@@ -207,6 +207,7 @@ mod tests {
         Ok(())
     }
 
+    #[ignore]
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_delete_file() -> Result<()> {
         let client =

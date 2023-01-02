@@ -17,7 +17,7 @@ use crate::{api_resources::TokenUsage, Client, Result};
 
 /// Parameters for [`Create Embedding`](create) request.
 #[skip_serializing_none]
-#[derive(Builder, Debug, Default, Serialize)]
+#[derive(Builder, Debug, Default, Deserialize, Serialize)]
 #[builder(default, setter(into, strip_option))]
 pub struct EmbeddingParam {
     /// The model to use for the embedding request.
@@ -43,7 +43,7 @@ impl EmbeddingParamBuilder {
 }
 
 /// Response from [`Create Embedding`](create) request.
-#[derive(Clone, Debug, Default, Deserialize, Getters)]
+#[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct Embedding {
     object: String,
@@ -54,7 +54,7 @@ pub struct Embedding {
 }
 
 /// The distance between two vectors measures their relatedness. Small distances suggest high relatedness and large distances suggest low relatedness.
-#[derive(Clone, Debug, Deserialize, Getters)]
+#[derive(Clone, Debug, Deserialize, Getters, Serialize)]
 pub struct EmbeddingData {
     object: String,
     embedding: Embeddings,

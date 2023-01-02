@@ -25,7 +25,7 @@ use crate::{api_resources::TokenUsage, Client, Result};
 /// The size of the generated images.
 ///
 /// Must be one of 256x256, 512x512, or 1024x1024.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize)]
 pub enum ImageSize {
     S256x256,
     S512x512,
@@ -54,7 +54,7 @@ impl Serialize for ImageSize {
 
 /// Parameters for [`Generate Image`](generate) request.
 #[skip_serializing_none]
-#[derive(Builder, Debug, Default, Serialize)]
+#[derive(Builder, Debug, Default, Deserialize, Serialize)]
 #[builder(default, setter(into, strip_option))]
 pub struct GenerateImageParam {
     /// A text description of the desired image(s). The maximum length is 1000 characters.
@@ -80,7 +80,7 @@ impl GenerateImageParamBuilder {
 }
 
 /// Response from [Generate](generate), [Edit](edit) & [Variation](variate) requests.
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Deserialize, Getters, Serialize)]
 pub struct Image {
     created: Option<u64>,
     data: Option<Links>,
@@ -143,7 +143,7 @@ impl Image {
 }
 
 /// link to an image.
-#[derive(Debug, Deserialize, Getters)]
+#[derive(Debug, Deserialize, Getters, Serialize)]
 pub struct Link {
     url: String,
 }
@@ -152,8 +152,8 @@ type Links = Vec<Link>;
 
 /// Parameters for [`Edit Image`](edit) request.
 #[skip_serializing_none]
-#[derive(Debug, Builder, Serialize)]
-#[builder(setter(into, strip_option), default)]
+#[derive(Builder, Debug, Deserialize, Serialize)]
+#[builder(default, setter(into, strip_option))]
 pub struct EditImageParam {
     /// A text description of the desired image(s). The maximum length is 1000 characters.
     prompt: String,
@@ -190,7 +190,7 @@ impl EditImageParamBuilder {
 
 /// Parameters for [`Variate Image`](variate) request.
 #[skip_serializing_none]
-#[derive(Builder, Debug, Serialize)]
+#[derive(Builder, Debug, Deserialize, Serialize)]
 #[builder(default, setter(into, strip_option))]
 pub struct VariateImageParam {
     /// The number of images to generate. Must be between 1 and 10.

@@ -27,7 +27,7 @@ use crate::{
 
 /// Parameters for [`Create Fine-tune`](create) request.
 #[skip_serializing_none]
-#[derive(Builder, Debug, Default, Serialize)]
+#[derive(Builder, Debug, Default, Deserialize, Serialize)]
 #[builder(default, setter(into, strip_option))]
 pub struct CreateFineTuneParam {
     /// The ID of an uploaded file that contains training data.
@@ -91,7 +91,7 @@ impl CreateFineTuneParamBuilder {
 }
 
 /// Response from [`Create Fine-Tune`][create] request.
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct FineTune {
     id: String,
@@ -112,7 +112,7 @@ pub struct FineTune {
 }
 
 /// Hyper parameters for fine-tuning a model.
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct HyperParams {
     n_epochs: u32,
@@ -126,7 +126,7 @@ pub struct HyperParams {
 }
 
 /// Events occuring on Fine-tunes
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct Event {
     object: String,
@@ -137,7 +137,7 @@ pub struct Event {
 
 type Events = Vec<Event>;
 
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct ListEvents {
     object: String,
@@ -146,7 +146,7 @@ pub struct ListEvents {
     token_usage: Option<TokenUsage>,
 }
 
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize, Getters, Serialize)]
 #[serde(default)]
 pub struct ListFineTune {
     object: String,
