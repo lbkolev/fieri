@@ -57,7 +57,7 @@ pub struct ModerationResult {
     category_scores: CategoryScores,
 }
 
-/// Contains a dictionary of per-category binary content policy violation flags.
+/// Contains a per-category binary content policy violation flags.
 ///
 /// For each category, the value is `true` if the model flags the corresponding category as violated, `false` otherwise.
 #[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
@@ -76,7 +76,7 @@ pub struct Categories {
     violence_graphic: bool,
 }
 
-/// Contains a dictionary of per-category raw scores output by the model, denoting the model's confidence that the input violates the OpenAI's policy for the category.
+/// Contains a per-category raw scores output by the model, denoting the model's confidence that the input violates the OpenAI's policy for the category.
 ///
 /// The value is between 0 and 1, where higher values denote higher confidence.
 ///

@@ -33,43 +33,43 @@
 fieri provides an asynchronous Rust interface for interacting with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
 
 ### Features
-#### `models`
-- [x] [list](https://beta.openai.com/docs/api-reference/models/list)
-- [x] [retrieve](https://beta.openai.com/docs/api-reference/models/retrieve)
+`models`
+- [x] [list](https://docs.rs/fieri/latest/fieri/model/fn.list.html)
+- [x] [retrieve](https://docs.rs/fieri/latest/fieri/model/fn.retrieve.html)
 
-#### `completions`
-- [x] [create](https://beta.openai.com/docs/api-reference/completions/create)
-- [ ] [create with stream](https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream)
+`completions`
+- [x] [create](https://docs.rs/fieri/latest/fieri/completion/fn.create.html)
+- [ ] create with stream
 
-#### `edits`
-- [x] [create](https://beta.openai.com/docs/api-reference/edits/create)
+`edits`
+- [x] [create](https://docs.rs/fieri/latest/fieri/edit/fn.create.html)
 
-#### `images`
-- [x] [create image](https://beta.openai.com/docs/api-reference/images/create)
-- [x] [create image edit](https://beta.openai.com/docs/api-reference/images/create-edit)
-- [x] [create image variation](https://beta.openai.com/docs/api-reference/images/create-variation)
+`images`
+- [x] [create image](https://docs.rs/fieri/latest/fieri/image/fn.generate.html)
+- [x] [create image edit](https://docs.rs/fieri/latest/fieri/image/fn.edit.html)
+- [x] [create image variation](https://docs.rs/fieri/latest/fieri/image/fn.variate.html)
 
-#### `embeddings`
-- [x] [create](https://beta.openai.com/docs/api-reference/embeddings/create)
+`embeddings`
+- [x] [create](https://docs.rs/fieri/latest/fieri/embedding/fn.create.html)
 
-#### `files`
-- [x] [list](https://beta.openai.com/docs/api-reference/files/list)
-- [x] [upload](https://beta.openai.com/docs/api-reference/files/upload)
-- [x] [delete](https://beta.openai.com/docs/api-reference/files/delete)
-- [x] [retrieve](https://beta.openai.com/docs/api-reference/files/retrieve)
-- [ ] [retrieve content](https://beta.openai.com/docs/api-reference/files/retrieve-content)
+`files`
+- [x] [list](https://docs.rs/fieri/latest/fieri/file/fn.list.html)
+- [x] [upload](https://docs.rs/fieri/latest/fieri/file/fn.upload.html)
+- [x] [delete](https://docs.rs/fieri/latest/fieri/file/fn.delete.html)
+- [x] [retrieve](https://docs.rs/fieri/latest/fieri/file/fn.retrieve.html)
+- [ ] retrieve content
 
-#### `fine-tunes`
-- [x] [create](https://beta.openai.com/docs/api-reference/fine-tunes/create)
-- [x] [list](https://beta.openai.com/docs/api-reference/fine-tunes/list)
-- [x] [retrieve](https://beta.openai.com/docs/api-reference/fine-tunes/retrieve)
-- [x] [cancel](https://beta.openai.com/docs/api-reference/fine-tunes/cancel)
-- [x] [list events](https://beta.openai.com/docs/api-reference/fine-tunes/events)
-- [ ] [list events with stream](https://beta.openai.com/docs/api-reference/fine-tunes/events#fine-tunes/events-stream)
-- [x] [delete](https://beta.openai.com/docs/api-reference/fine-tunes/delete-model)
+`fine-tunes`
+- [x] [create](https://docs.rs/fieri/latest/fieri/fine_tune/fn.create.html)
+- [x] [list](https://docs.rs/fieri/latest/fieri/fine_tune/fn.list.html)
+- [x] [retrieve](https://docs.rs/fieri/latest/fieri/fine_tune/fn.retrieve.html)
+- [x] [cancel](https://docs.rs/fieri/latest/fieri/fine_tune/fn.cancel.html)
+- [x] [list events](https://docs.rs/fieri/latest/fieri/fine_tune/fn.list_events.html)
+- [ ] list events with stream
+- [x] [delete](https://docs.rs/fieri/latest/fieri/fine_tune/fn.delete.html)
 
-#### `moderations`
-- [x] [create](https://beta.openai.com/docs/api-reference/moderations/create)
+`moderations`
+- [x] [create](https://docs.rs/fieri/latest/fieri/moderation/fn.create.html)
 
 #### `/engines` - *DEPRECATED*
 
