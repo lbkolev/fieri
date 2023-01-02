@@ -32,6 +32,47 @@
 
 fieri provides an asynchronous Rust interface for interacting with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
 
+### Features
+#### `models`
+- [x] [list](https://beta.openai.com/docs/api-reference/models/list)
+- [x] [retrieve](https://beta.openai.com/docs/api-reference/models/retrieve)
+
+#### `completions`
+- [x] [create](https://beta.openai.com/docs/api-reference/completions/create)
+- [ ] [create with stream](https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream)
+
+#### `edits`
+- [x] [create](https://beta.openai.com/docs/api-reference/edits/create)
+
+#### `images`
+- [x] [create image](https://beta.openai.com/docs/api-reference/images/create)
+- [x] [create image edit](https://beta.openai.com/docs/api-reference/images/create-edit)
+- [x] [create image variation](https://beta.openai.com/docs/api-reference/images/create-variation)
+
+#### `embeddings`
+- [x] [create](https://beta.openai.com/docs/api-reference/embeddings/create)
+
+#### `files`
+- [x] [list](https://beta.openai.com/docs/api-reference/files/list)
+- [x] [upload](https://beta.openai.com/docs/api-reference/files/upload)
+- [x] [delete](https://beta.openai.com/docs/api-reference/files/delete)
+- [x] [retrieve](https://beta.openai.com/docs/api-reference/files/retrieve)
+- [ ] [retrieve content](https://beta.openai.com/docs/api-reference/files/retrieve-content)
+
+#### `fine-tunes`
+- [x] [create](https://beta.openai.com/docs/api-reference/fine-tunes/create)
+- [x] [list](https://beta.openai.com/docs/api-reference/fine-tunes/list)
+- [x] [retrieve](https://beta.openai.com/docs/api-reference/fine-tunes/retrieve)
+- [x] [cancel](https://beta.openai.com/docs/api-reference/fine-tunes/cancel)
+- [x] [list events](https://beta.openai.com/docs/api-reference/fine-tunes/events)
+- [ ] [list events with stream](https://beta.openai.com/docs/api-reference/fine-tunes/events#fine-tunes/events-stream)
+- [x] [delete](https://beta.openai.com/docs/api-reference/fine-tunes/delete-model)
+
+#### `moderations`
+- [x] [create](https://beta.openai.com/docs/api-reference/moderations/create)
+
+#### `/engines` - *DEPRECATED*
+
 ## Prerequisites
 Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal. Once you've signed up, you'll be able to find your API key in the [API Keys](https://beta.openai.com/account/api-keys) section of the developer portal.
 
@@ -99,12 +140,7 @@ async fn main() -> std::result::Result<(), Error> {
 }
 ```
 
-More examples can be found in the [docs](https://docs.rs/fieri) and the [examples](examples/) directory.
-
-To check out any example, export your `OPENAI_API_KEY` as environment variable and execute:
-```bash
-cargo run --example=<name>
-```
+Examples for each implemented endpoint can be found in the [docs](https://docs.rs/fieri).
 
 ## Documentation
 ### [fieri Documentation](https://docs.rs/fieri/)
