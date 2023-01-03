@@ -7,10 +7,10 @@ assignees: ''
 ---
 
 **Version**
-List the version of the `openai-rs` crate you are using. The easiest way to get
+List the version of the `fieri` crate you are using. The easiest way to get
 this information is using `cargo tree` subcommand:
 
-`cargo tree | grep openai-rs`
+`cargo tree | grep fieri`
 
 **Description**
 Enter your issue details here.
