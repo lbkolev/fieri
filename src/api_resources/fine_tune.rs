@@ -296,7 +296,7 @@ pub async fn list_events(client: &Client, fine_tune_id: impl Into<String>) -> Re
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
 ///
-///     let resp = list_events_with_stream(&client, "ft-123").await?;
+///     let mut resp = list_events_with_stream(&client, "ft-123").await?;
 ///
 ///     while let Some(chunk) = resp.chunk().await? {
 ///         println!("{:#?}", chunk);
