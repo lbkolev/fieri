@@ -301,6 +301,8 @@ pub async fn list_events(client: &Client, fine_tune_id: impl Into<String>) -> Re
 ///     while let Some(chunk) = resp.chunk().await? {
 ///         println!("{:#?}", chunk);
 ///     }
+///
+///     Ok(())
 /// }
 pub async fn list_events_with_stream(
     client: &Client,
