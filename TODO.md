@@ -31,7 +31,7 @@
 - [x] [retrieve](https://docs.rs/fieri/latest/fieri/fine_tune/fn.retrieve.html)
 - [x] [cancel](https://docs.rs/fieri/latest/fieri/fine_tune/fn.cancel.html)
 - [x] [list events](https://docs.rs/fieri/latest/fieri/fine_tune/fn.list_events.html)
-- [ ] list events with stream
+- [ ] [list events with stream](https://docs.rs/fieri/latest/fieri/fine_tune/fn.list_events_with_stream.html)
 - [x] [delete](https://docs.rs/fieri/latest/fieri/fine_tune/fn.delete.html)
 
 `moderations`
