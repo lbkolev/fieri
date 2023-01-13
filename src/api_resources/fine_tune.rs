@@ -18,6 +18,7 @@
 use derive_builder::Builder;
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use serde_with::skip_serializing_none;
 
 use crate::{
@@ -282,6 +283,34 @@ pub async fn list_events(client: &Client, fine_tune_id: impl Into<String>) -> Re
     client.list_fine_tune_events(fine_tune_id.into()).await
 }
 
+/// Get a stream of fine-grained status updates for a fine-tune job.
+///
+/// Related OpenAI docs: [List Fine-tune Events](https://beta.openai.com/docs/api-reference/fine-tunes/events#fine-tunes/events-stream)
+///
+/// ## Example
+/// ```no_run
+/// use std::env;
+/// use fieri::{Client, fine_tune::list_events_with_stream};
+///
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///
+///     let resp = list_events_with_stream(&client, "ft-123").await?;
+///
+///     while let Some(chunk) = resp.chunk().await? {
+///         println!("{:#?}", chunk);
+///     }
+/// }
+pub async fn list_events_with_stream(
+    client: &Client,
+    fine_tune_id: impl Into<String>,
+) -> Result<reqwest::Response> {
+    client
+        .list_fine_tune_events_with_stream(fine_tune_id.into())
+        .await
+}
+
 /// Delete a fine-tuned model. You must have the Owner role in your organization.
 ///
 /// Related OpenAI docs: [Delete Fine-tuned model](https://beta.openai.com/docs/api-reference/fine-tunes/delete-model)
@@ -328,6 +357,17 @@ impl Client {
     async fn list_fine_tune_events(&self, fine_tune_id: String) -> Result<ListEvents> {
         self.get::<(), ListEvents>(&format!("fine-tunes/{fine_tune_id}/events"), None)
             .await
+    }
+
+    async fn list_fine_tune_events_with_stream(
+        &self,
+        fine_tune_id: String,
+    ) -> Result<reqwest::Response> {
+        self.get_stream::<serde_json::Value>(
+            &format!("fine-tunes/{fine_tune_id}/events"),
+            Some(&json!({"stream": true})),
+        )
+        .await
     }
 
     async fn delete_fine_tune(&self, model: String) -> Result<Delete> {
@@ -388,6 +428,18 @@ mod tests {
         Ok(())
     }
 
+    #[ignore]
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn test_cancel_fine_tune() -> Result<()> {
+        let client = Client::new(env::var("OPENAI_API_KEY")?);
+
+        let resp = cancel(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
+        println!("{:#?}", resp);
+
+        assert!(resp.token_usage().is_none());
+        Ok(())
+    }
+
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_list_fine_tune_events() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
@@ -399,15 +451,19 @@ mod tests {
         Ok(())
     }
 
-    #[ignore]
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_cancel_fine_tune() -> Result<()> {
+    async fn test_list_fine_tune_events_with_stream() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-        let resp = cancel(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
-        println!("{:#?}", resp);
+        let mut resp = list_events_with_stream(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
+        let mut times = 0;
 
-        assert!(resp.token_usage().is_none());
+        while let Some(chunk) = resp.chunk().await? {
+            println!("{:#?}", chunk);
+            times += 1;
+        }
+
+        assert_eq!(times > 1, true);
         Ok(())
     }
 

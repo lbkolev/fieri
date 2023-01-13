@@ -68,7 +68,6 @@ async fn main() -> Result<(), Error> {
 
     Ok(())
 }
-}
 ```
 
 ### Generate text based on a prompt
@@ -94,6 +93,31 @@ async fn main() -> std::result::Result<(), Error> {
 
     let resp = create(&client, &param).await?;
     println!("Generated text: {:#?}", resp);
+
+    Ok(())
+}
+```
+
+### Generate and stream back text based on a prompt
+```rust
+use std::env;
+use fieri::{Client, completion::{create_with_stream, CompletionParamBuilder}};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = Client::new(env::var("OPENAI_API_KEY")?);
+
+    let param = CompletionParamBuilder::new("ada")
+        .prompt("unnecessarily lo")
+        .temperature(0.5)
+        .build()?;
+
+    let mut resp = create_with_stream(&client, &param).await?;
+
+    while let Some(chunk) = resp.chunk().await? {
+        let val = String::from_utf8(chunk.to_vec())?;
+        println!("{}", val);
+    }
 
     Ok(())
 }

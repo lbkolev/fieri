@@ -8,28 +8,82 @@
 //!
 //! Each request requires a Client, initialized with your API key.
 //!
-//! ## Example
+//! ## Examples
+//!
+//! ### Generate an image based on a prompt and save it locally.
 //! ```rust
-//! // Generate an image based on a prompt and save it locally.
 //! use std::env;
 //! use fieri::{
-//!     Client,
+//!     Client, Error,
 //!     image::{ImageSize, GenerateImageParamBuilder, generate},
 //! };
+//!
+//! #[tokio::main]
+//! async fn main() -> Result<(), Error> {
+//!     let client = Client::new(env::var("OPENAI_API_KEY")?);
+//!
+//!     let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on the top of the highest mountain on Mars.")
+//!         .size(ImageSize::S1024x1024)
+//!         .n(1)
+//!         .build()?;
+//!
+//!     generate(&client, &param)
+//!         .await?
+//!         .save("/tmp/")
+//!         .await?;
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ### Generate text based on a prompt
+//! ```rust
+//! use std::env;
+//! use fieri::{
+//!     Client, Error,
+//!     completion::{CompletionParamBuilder, create}
+//! };
+//!
+//! #[tokio::main]
+//! async fn main() -> std::result::Result<(), Error> {
+//!     let client = Client::new(env::var("OPENAI_API_KEY")?);
+//!
+//!     let param = CompletionParamBuilder::new("ada")
+//!         .prompt("Generate a plot for an absurd interstellar parody.")
+//!         .max_tokens(500)
+//!         .temperature(0.9)
+//!         .top_p(1.0)
+//!         .frequency_penalty(0.0)
+//!         .presence_penalty(0.0)
+//!         .build()?;
+//!
+//!     let resp = create(&client, &param).await?;
+//!     println!("Generated text: {:#?}", resp);
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ### Generate and stream back text based on a prompt
+//! ```rust
+//! use std::env;
+//! use fieri::{Client, completion::{create_with_stream, CompletionParamBuilder}};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     let client = Client::new(env::var("OPENAI_API_KEY")?);
 //!
-//!     let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on the top of the highest mountain in Mars.")
-//!         .size(ImageSize::S256x256)
-//!         .n(1)
+//!     let param = CompletionParamBuilder::new("ada")
+//!         .prompt("unnecessarily lo")
+//!         .temperature(0.5)
 //!         .build()?;
 //!
-//!     let image = generate(&client, &param)
-//!         .await?
-//!         .save("/tmp/")
-//!         .await?;
+//!     let mut resp = create_with_stream(&client, &param).await?;
+//!
+//!     while let Some(chunk) = resp.chunk().await? {
+//!         let val = String::from_utf8(chunk.to_vec())?;
+//!         println!("{}", val);
+//!     }
 //!
 //!     Ok(())
 //! }
