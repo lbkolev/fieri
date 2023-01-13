@@ -5,7 +5,7 @@
 
 `completions`
 - [x] [create](https://docs.rs/fieri/latest/fieri/completion/fn.create.html)
-- [ ] create with stream
+- [x] [create with stream](https://docs.rs/fieri/latest/fieri/completion/fn.create_with_stream.html)
 
 `edits`
 - [x] [create](https://docs.rs/fieri/latest/fieri/edit/fn.create.html)

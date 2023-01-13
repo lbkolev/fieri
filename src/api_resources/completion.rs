@@ -23,7 +23,7 @@ use crate::{
 
 /// Parameters for [`Create Completion`](create) request.
 #[skip_serializing_none]
-#[derive(Builder, Debug, Default, Deserialize, Serialize)]
+#[derive(Builder, Clone, Debug, Default, Deserialize, Serialize)]
 #[builder(default, setter(into, strip_option))]
 pub struct CompletionParam {
     /// The model to use for the completion request.
@@ -148,10 +148,54 @@ pub async fn create(client: &Client, param: &CompletionParam) -> Result<Completi
     client.create_completion(param).await
 }
 
+/// Creates a completion stream for the provided prompt and parameters.
+///
+/// Related OpenAI docs: [Create Completions](https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream)
+///
+/// ## Example
+/// ```rust
+/// use std::env;
+/// use fieri::{Client, completion::{create_with_stream, CompletionParamBuilder}};
+///
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///
+///     let param = CompletionParamBuilder::new("ada")
+///         .prompt("Haskell is a programming language. Generate a poem about Messi and World Cup 2022.")
+///         .temperature(0.5)
+///         .build()?;
+///
+///     let mut resp = create_with_stream(&client, &param).await?;
+///
+///     while let Some(chunk) = resp.chunk().await? {
+///         let val = String::from_utf8(chunk.to_vec())?;
+///         println!("{}", val);
+///     }
+///
+///     Ok(())
+/// }
+pub async fn create_with_stream(
+    client: &Client,
+    param: &CompletionParam,
+) -> Result<reqwest::Response> {
+    let mut param = param.clone();
+    param.stream = Some(true);
+
+    client.create_completion_with_stream(&param).await
+}
+
 impl Client {
     async fn create_completion(&self, param: &CompletionParam) -> Result<Completion> {
         self.post::<CompletionParam, Completion>("completions", Some(param))
             .await
+    }
+
+    async fn create_completion_with_stream(
+        &self,
+        param: &CompletionParam,
+    ) -> Result<reqwest::Response> {
+        self.post_stream("completions", Some(param)).await
     }
 }
 
@@ -173,6 +217,35 @@ mod tests {
         println!("{:#?}", resp);
 
         assert_eq!(resp.model(), "ada");
+        Ok(())
+    }
+
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+    async fn test_create_completion_with_stream(
+    ) -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let client = Client::new(env::var("OPENAI_API_KEY")?);
+
+        let param = CompletionParamBuilder::default()
+            .model("ada")
+            .prompt("Haskell is a programming language. Generate a complex and unintuitive 'Hello, World' example in Haskell.")
+            .build()?;
+
+        let mut resp = create_with_stream(&client, &param).await?;
+        let mut times = 0;
+
+        while let Some(_) = resp.chunk().await? {
+            //let v = serde_json::from_slice::<Choices>(&chunk)?;
+            //let r#str = String::from_utf8(chunk.to_vec())?;
+            //let v = r#str.parse::<Choices>()?;
+            //println!("{:?}", r#str);
+            //let val = String::from_utf8(chunk[0..chunk.len() - 2].to_vec())?;
+            //if chunk.to_vec() == b"data: [DONE]\n\n" {
+            //    break;
+            //}
+            times += 1;
+        }
+
+        assert_eq!(times > 1, true);
         Ok(())
     }
 }

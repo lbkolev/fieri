@@ -107,12 +107,29 @@ impl Client {
             .await?
             .json::<Response<Y>>()
             .await?;
-        //println!("{:?}", resp);
 
         match resp {
             Response::Invalid(resp) => Err(Error::APIError(resp)),
             Response::Valid(resp) => Ok(resp),
         }
+    }
+
+    pub async fn get_stream<X>(
+        &self,
+        identifier: &str,
+        param: Option<&X>,
+    ) -> Result<reqwest::Response>
+    where
+        X: Serialize,
+    {
+        let resp = self
+            .handler
+            .get(self.config().url().join(identifier)?)
+            .query(&param)
+            .send()
+            .await?;
+
+        Ok(resp)
     }
 
     pub async fn post<X, Y>(&self, identifier: &str, param: Option<&X>) -> Result<Y>
@@ -135,15 +152,32 @@ impl Client {
         }
     }
 
-    pub async fn delete<X, Y>(&self, identifier: &str, param: Option<&X>) -> Result<Y>
+    pub async fn post_stream<X>(
+        &self,
+        identifier: &str,
+        param: Option<&X>,
+    ) -> Result<reqwest::Response>
     where
         X: Serialize,
+    {
+        let resp = self
+            .handler
+            .post(self.config().url().join(identifier)?)
+            .json(&param)
+            .send()
+            .await?;
+
+        Ok(resp)
+    }
+
+    pub async fn post_data<Y>(&self, identifier: &str, data: multipart::Form) -> Result<Y>
+    where
         Y: DeserializeOwned,
     {
         let resp = self
             .handler
-            .delete(self.config().url().join(identifier)?)
-            .query(&param)
+            .post(self.config().url().join(identifier)?)
+            .multipart(data)
             .send()
             .await?
             .json::<Response<Y>>()
@@ -155,14 +189,15 @@ impl Client {
         }
     }
 
-    pub async fn post_data<Y>(&self, identifier: &str, data: multipart::Form) -> Result<Y>
+    pub async fn delete<X, Y>(&self, identifier: &str, param: Option<&X>) -> Result<Y>
     where
+        X: Serialize,
         Y: DeserializeOwned,
     {
         let resp = self
             .handler
-            .post(self.config().url().join(identifier)?)
-            .multipart(data)
+            .delete(self.config().url().join(identifier)?)
+            .query(&param)
             .send()
             .await?
             .json::<Response<Y>>()
