@@ -33,12 +33,10 @@ pub struct TokenUsage {
     derive_getters::Getters,
     serde::Serialize,
 )]
-#[serde(default)]
 pub struct Choices {
-    text: String,
-    index: u32,
-    finish_reason: String,
-
+    text: Option<String>,
+    index: Option<u32>,
+    finish_reason: Option<String>,
     logprobs: Option<f32>,
 }
 

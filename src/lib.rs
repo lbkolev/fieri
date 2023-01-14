@@ -66,8 +66,11 @@
 //!
 //! ### Generate and stream back text based on a prompt
 //! ```rust
+//! use fieri::{
+//!     completion::{create_with_stream, CompletionParamBuilder, Completion},
+//!     Client,
+//! };
 //! use std::env;
-//! use fieri::{Client, completion::{create_with_stream, CompletionParamBuilder}};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -81,10 +84,18 @@
 //!     let mut resp = create_with_stream(&client, &param).await?;
 //!
 //!     while let Some(chunk) = resp.chunk().await? {
-//!         let val = String::from_utf8(chunk.to_vec())?;
-//!         println!("{}", val);
-//!     }
+//!         if chunk.to_vec() == b"data: [DONE]\n\n" {
+//!             break;
+//!         }
 //!
+//!         let v: Completion = serde_json::from_slice(&chunk[5..chunk.len() - 2])?;
+//!
+//!         if let Some(choice) = v.choices().first() {
+//!             if let Some(text) = choice.text() {
+//!                 println!("{}", text);
+//!             }
+//!         }
+//!     }
 //!     Ok(())
 //! }
 //! ```
