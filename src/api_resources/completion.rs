@@ -234,15 +234,7 @@ mod tests {
         let mut times = 0;
 
         while let Some(_) = resp.chunk().await? {
-            //let v = serde_json::from_slice::<Choices>(&chunk)?;
-            //let r#str = String::from_utf8(chunk.to_vec())?;
-            //let v = r#str.parse::<Choices>()?;
-            //println!("{:?}", r#str);
-            //let val = String::from_utf8(chunk[0..chunk.len() - 2].to_vec())?;
-            //if chunk.to_vec() == b"data: [DONE]\n\n" {
-            //    break;
-            //}
-            times += 1;
+            times += 1
         }
 
         assert_eq!(times > 1, true);
