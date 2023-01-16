@@ -1,7 +1,9 @@
 on:
   push:
+    branches:
+      - master
     tags:
-      - '*'
+      - 'v*'
 
 name: Publish
 jobs:

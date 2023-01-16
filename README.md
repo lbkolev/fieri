@@ -28,7 +28,7 @@
 > contain breaking changes. For the most recently *released* code, look to the latest tag.
 
 ## Overview
-### Unofficial Rust client for the OpenAI's API.
+### Unofficial Rust client for the OpenAI API.
 
 fieri provides an asynchronous Rust interface for interacting with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
 
@@ -44,42 +44,16 @@ fieri = "0.5"
 
 ## Basic Usage
 
-### Generate an image based on a prompt and save it locally.
+### Generate text based on a prompt
 ```rust
-use std::env;
 use fieri::{
+    completion::{create, CompletionParamBuilder},
     Client, Error,
-    image::{ImageSize, GenerateImageParamBuilder, generate},
 };
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let client = Client::new(env::var("OPENAI_API_KEY")?);
-
-    let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on the top of the highest mountain on Mars.")
-        .size(ImageSize::S1024x1024)
-        .n(1)
-        .build()?;
-
-    generate(&client, &param)
-        .await?
-        .save("/tmp/")
-        .await?;
-
-    Ok(())
-}
-```
-
-### Generate text based on a prompt
-```rust
-use std::env;
-use fieri::{
-    Client, Error,
-    completion::{CompletionParamBuilder, create}
-};
-
-#[tokio::main]
-async fn main() -> std::result::Result<(), Error> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
     let param = CompletionParamBuilder::new("ada")
@@ -101,13 +75,13 @@ async fn main() -> std::result::Result<(), Error> {
 ### Generate and stream back text based on a prompt
 ```rust
 use fieri::{
-    completion::{create_with_stream, CompletionParamBuilder, Completion},
-    Client,
+    completion::{create_with_stream, Completion, CompletionParamBuilder},
+    Client, Error,
 };
 use std::env;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Error> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
     let param = CompletionParamBuilder::new("ada")
@@ -122,23 +96,41 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             break;
         }
 
-        let v: Completion = serde_json::from_slice(&chunk[5..chunk.len() - 2])?;
-
-        if let Some(choice) = v.choices().first() {
-            if let Some(text) = choice.text() {
-                println!("{}", text);
-            }
-        }
+        let v: Completion = serde_json::from_slice(&chunk[5..])?;
+        v.choices().iter().for_each(|c| println!("{:?}", c.text()));
     }
+
     Ok(())
 }
 ```
 
-Examples for each implemented endpoint can be found in the [docs](https://docs.rs/fieri).
+### Generate an image based on a prompt and save it locally.
+```rust
+use fieri::{
+    image::{ImageSize, GenerateImageParamBuilder, generate},
+    Client, Error,
+};
+use std::env;
 
-## Documentation
-### [fieri Documentation](https://docs.rs/fieri/)
-### [The official OpenAI documentation](https://beta.openai.com/docs/introduction/overview)
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+    let client = Client::new(env::var("OPENAI_API_KEY")?);
+
+    let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on top of the highest mountain on Mars.")
+        .size(ImageSize::S1024x1024)
+        .n(1)
+        .build()?;
+
+    generate(&client, &param)
+        .await?
+        .save("/tmp/")
+        .await?;
+
+    Ok(())
+}
+```
+
+Examples for each endpoint can be found in the [docs](https://docs.rs/fieri).
 
 ## Limitations
 Note that the Rust Client for OpenAI is provided as-is, and is not officially supported by OpenAI. While we will do our best to keep the library up-to-date and bug-free, we cannot guarantee that it will always work as expected.

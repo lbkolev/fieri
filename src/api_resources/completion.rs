@@ -15,6 +15,7 @@ use derive_builder::Builder;
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use std::cell::Cell;
 
 use crate::{
     api_resources::{Choices, TokenUsage},
@@ -62,7 +63,7 @@ pub struct CompletionParam {
     //
     // For streamed progress, use [`create_with_stream`](create_with_stream).
     #[builder(setter(skip))]
-    stream: Option<bool>,
+    stream: Cell<bool>,
 
     /// Include the log probabilities on the `logprobs` most likely tokens, as well the chosen tokens.
     logprobs: Option<f32>,
@@ -179,8 +180,7 @@ pub async fn create_with_stream(
     client: &Client,
     param: &CompletionParam,
 ) -> Result<reqwest::Response> {
-    let mut param = param.clone();
-    param.stream = Some(true);
+    param.stream.set(true);
 
     client.create_completion_with_stream(&param).await
 }
@@ -233,7 +233,8 @@ mod tests {
         let mut resp = create_with_stream(&client, &param).await?;
         let mut times = 0;
 
-        while let Some(_) = resp.chunk().await? {
+        while let Some(chunk) = resp.chunk().await? {
+            println!("{:#?}", chunk);
             times += 1
         }
 

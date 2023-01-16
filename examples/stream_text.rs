@@ -2,12 +2,12 @@
 
 use fieri::{
     completion::{create_with_stream, Completion, CompletionParamBuilder},
-    Client,
+    Client, Error,
 };
 use std::env;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Error> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
     let param = CompletionParamBuilder::new("ada")
@@ -22,13 +22,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             break;
         }
 
-        let v: Completion = serde_json::from_slice(&chunk[5..chunk.len() - 2])?;
-
-        if let Some(choice) = v.choices().first() {
-            if let Some(text) = choice.text() {
-                println!("{}", text);
-            }
-        }
+        let v: Completion = serde_json::from_slice(&chunk[5..])?;
+        v.choices().iter().for_each(|c| println!("{:?}", c.text()));
     }
+
     Ok(())
 }

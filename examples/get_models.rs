@@ -1,8 +1,8 @@
-use fieri::{model::retrieve, Client};
+use fieri::{model::retrieve, Client, Error};
 use std::env;
 
 #[tokio::main]
-async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Error> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
     let resp = retrieve(&client, "davinci").await?;

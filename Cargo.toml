@@ -36,3 +36,7 @@ path = "examples/generate_image.rs"
 [[example]]
 name = "generate_text"
 path = "examples/generate_text.rs"
+
+[[example]]
+name = "stream_text"
+path = "examples/stream_text.rs"

@@ -7,7 +7,7 @@ use fieri::{
 use std::env;
 
 #[tokio::main]
-async fn main() -> std::result::Result<(), Error> {
+async fn main() -> Result<(), Error> {
     let client = Client::new(env::var("OPENAI_API_KEY")?);
 
     let param = CompletionParamBuilder::new("ada")

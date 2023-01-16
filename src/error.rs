@@ -45,13 +45,12 @@ pub enum Error {
 
 /// Possible Errors returned by responses from OpenAI.
 #[derive(Clone, Debug, serde::Deserialize)]
-#[serde(rename(deserialize = "error"))]
 pub struct RequestError {
-    pub error: RequestErrorValues,
+    pub error: ErrorMessage,
 }
 
 #[derive(Clone, Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
-pub struct RequestErrorValues {
+pub struct ErrorMessage {
     pub message: String,
     pub r#type: String,
 

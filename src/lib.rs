@@ -10,44 +10,18 @@
 //!
 //! ## Examples
 //!
-//! ### Generate an image based on a prompt and save it locally.
+//! ### Generate text based on a prompt
 //! ```rust
-//! use std::env;
 //! use fieri::{
+//!     completion::{create, CompletionParamBuilder},
 //!     Client, Error,
-//!     image::{ImageSize, GenerateImageParamBuilder, generate},
 //! };
-//!
+//! use std::env;
+//! 
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {
 //!     let client = Client::new(env::var("OPENAI_API_KEY")?);
-//!
-//!     let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on the top of the highest mountain on Mars.")
-//!         .size(ImageSize::S1024x1024)
-//!         .n(1)
-//!         .build()?;
-//!
-//!     generate(&client, &param)
-//!         .await?
-//!         .save("/tmp/")
-//!         .await?;
-//!
-//!     Ok(())
-//! }
-//! ```
-//!
-//! ### Generate text based on a prompt
-//! ```rust
-//! use std::env;
-//! use fieri::{
-//!     Client, Error,
-//!     completion::{CompletionParamBuilder, create}
-//! };
-//!
-//! #[tokio::main]
-//! async fn main() -> std::result::Result<(), Error> {
-//!     let client = Client::new(env::var("OPENAI_API_KEY")?);
-//!
+//! 
 //!     let param = CompletionParamBuilder::new("ada")
 //!         .prompt("Generate a plot for an absurd interstellar parody.")
 //!         .max_tokens(500)
@@ -56,46 +30,68 @@
 //!         .frequency_penalty(0.0)
 //!         .presence_penalty(0.0)
 //!         .build()?;
-//!
+//! 
 //!     let resp = create(&client, &param).await?;
 //!     println!("Generated text: {:#?}", resp);
-//!
+//! 
 //!     Ok(())
 //! }
 //! ```
-//!
+//! 
 //! ### Generate and stream back text based on a prompt
 //! ```rust
 //! use fieri::{
-//!     completion::{create_with_stream, CompletionParamBuilder, Completion},
-//!     Client,
+//!     completion::{create_with_stream, Completion, CompletionParamBuilder},
+//!     Client, Error,
 //! };
 //! use std::env;
-//!
+//! 
 //! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! async fn main() -> Result<(), Error> {
 //!     let client = Client::new(env::var("OPENAI_API_KEY")?);
-//!
+//! 
 //!     let param = CompletionParamBuilder::new("ada")
 //!         .prompt("unnecessarily lo")
 //!         .temperature(0.5)
 //!         .build()?;
-//!
+//! 
 //!     let mut resp = create_with_stream(&client, &param).await?;
-//!
+//! 
 //!     while let Some(chunk) = resp.chunk().await? {
 //!         if chunk.to_vec() == b"data: [DONE]\n\n" {
 //!             break;
 //!         }
-//!
-//!         let v: Completion = serde_json::from_slice(&chunk[5..chunk.len() - 2])?;
-//!
-//!         if let Some(choice) = v.choices().first() {
-//!             if let Some(text) = choice.text() {
-//!                 println!("{}", text);
-//!             }
-//!         }
+//! 
+//!         let v: Completion = serde_json::from_slice(&chunk[5..])?;
+//!         v.choices().iter().for_each(|c| println!("{:?}", c.text()));
 //!     }
+//! 
+//!     Ok(())
+//! }
+//! ```
+//! 
+//! ### Generate an image based on a prompt and save it locally.
+//! ```rust
+//! use fieri::{
+//!     image::{ImageSize, GenerateImageParamBuilder, generate},
+//!     Client, Error,
+//! };
+//! use std::env;
+//! 
+//! #[tokio::main]
+//! async fn main() -> Result<(), Error> {
+//!     let client = Client::new(env::var("OPENAI_API_KEY")?);
+//! 
+//!     let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on top of the highest mountain on Mars.")
+//!         .size(ImageSize::S1024x1024)
+//!         .n(1)
+//!         .build()?;
+//! 
+//!     generate(&client, &param)
+//!         .await?
+//!         .save("/tmp/")
+//!         .await?;
+//! 
 //!     Ok(())
 //! }
 //! ```
@@ -117,4 +113,4 @@ pub use client::Client;
 pub use error::Error;
 
 /// Result returned from each interaction with the OpenAI API.
-type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
