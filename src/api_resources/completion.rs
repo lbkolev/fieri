@@ -12,7 +12,6 @@
 //! Showing, not just telling, is often the secret to a good prompt.
 
 use derive_builder::Builder;
-use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::cell::Cell;
@@ -105,16 +104,16 @@ impl CompletionParamBuilder {
 }
 
 /// Response from [`Create completion`](create) request.
-#[derive(Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Completion {
-    id: String,
-    object: String,
-    created: u64,
-    model: String,
-    choices: Vec<Choices>,
+    pub id: String,
+    pub object: String,
+    pub created: u64,
+    pub model: String,
+    pub choices: Vec<Choices>,
 
-    usage: Option<TokenUsage>,
+    pub usage: Option<TokenUsage>,
 }
 
 /// Creates a completion for the provided prompt and parameters.
@@ -216,7 +215,7 @@ mod tests {
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.model(), "ada");
+        assert_eq!(resp.model, "ada");
         Ok(())
     }
 

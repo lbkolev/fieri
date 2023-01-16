@@ -23,7 +23,7 @@ async fn main() -> Result<(), Error> {
         }
 
         let v: Completion = serde_json::from_slice(&chunk[5..])?;
-        v.choices().iter().for_each(|c| println!("{:?}", c.text()));
+        v.choices.iter().for_each(|c| println!("{:?}", c.text));
     }
 
     Ok(())

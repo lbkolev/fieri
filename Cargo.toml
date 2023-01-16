@@ -21,7 +21,6 @@ serde_json      = { version = "1.0.91"}
 serde_with      = { version = "2.2.0"}
 serde_derive    = { version = "1.0.152"}
 thiserror       = { version = "1.0.38"}
-derive-getters  = { version = "0.2.0"}
 derive_builder  = { version = "0.12.0"}
 url             = { version = "2.3.1"}
 

@@ -19,7 +19,6 @@
 
 use std::fmt::Debug;
 
-use derive_getters::Getters;
 use reqwest::{
     header::{HeaderMap, AUTHORIZATION},
     multipart,
@@ -41,7 +40,7 @@ enum Response<T> {
 }
 
 /// The Client used to interact with the OpenAI API.
-#[derive(Clone, Debug, Getters)]
+#[derive(Clone, Debug)]
 pub struct Client {
     /// Configuration needed to authorize against the API.
     config: Config,
@@ -101,7 +100,7 @@ impl Client {
     {
         let resp = self
             .handler
-            .get(self.config().url().join(identifier)?)
+            .get(self.config.url.join(identifier)?)
             .query(&param)
             .send()
             .await?
@@ -124,7 +123,7 @@ impl Client {
     {
         let resp = self
             .handler
-            .get(self.config().url().join(identifier)?)
+            .get(self.config.url.join(identifier)?)
             .query(&param)
             .send()
             .await?;
@@ -139,7 +138,7 @@ impl Client {
     {
         let resp = self
             .handler
-            .post(self.config().url().join(identifier)?)
+            .post(self.config.url.join(identifier)?)
             .json(&param)
             .send()
             .await?
@@ -162,7 +161,7 @@ impl Client {
     {
         let resp = self
             .handler
-            .post(self.config().url().join(identifier)?)
+            .post(self.config.url.join(identifier)?)
             .json(&param)
             .send()
             .await?;
@@ -176,7 +175,7 @@ impl Client {
     {
         let resp = self
             .handler
-            .post(self.config().url().join(identifier)?)
+            .post(self.config.url.join(identifier)?)
             .multipart(data)
             .send()
             .await?
@@ -196,7 +195,7 @@ impl Client {
     {
         let resp = self
             .handler
-            .delete(self.config().url().join(identifier)?)
+            .delete(self.config.url.join(identifier)?)
             .query(&param)
             .send()
             .await?
@@ -218,14 +217,14 @@ mod tests {
     async fn test_client() -> Result<()> {
         let client = Client::new(std::env::var("OPENAI_API_KEY")?);
 
-        assert!(client.config().headers.get(AUTHORIZATION).is_some());
-        assert!(client.config().headers.get("OpenAI-Organization").is_none());
+        assert!(client.config.headers.get(AUTHORIZATION).is_some());
+        assert!(client.config.headers.get("OpenAI-Organization").is_none());
 
         let client = Client::new(std::env::var("OPENAI_API_KEY")?)
             .organization(std::env::var("OPENAI_ORGANIZATION")?);
 
-        assert!(client.config().headers.get(AUTHORIZATION).is_some());
-        assert!(client.config().headers.get("OpenAI-Organization").is_some());
+        assert!(client.config.headers.get(AUTHORIZATION).is_some());
+        assert!(client.config.headers.get("OpenAI-Organization").is_some());
 
         Ok(())
     }

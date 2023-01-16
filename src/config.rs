@@ -1,23 +1,20 @@
 //! Configuration for the OpenAI API.
 
-use derive_getters::Getters;
 use reqwest::header::HeaderMap;
 use url::Url;
 
 const DEFAULT_URL: &str = "https://api.openai.com/v1/";
 
 /// The configuration needed to establish connection with OpenAI's API.
-#[derive(Debug, Clone, Getters)]
+#[derive(Debug, Clone)]
 pub struct Config {
-    api_key: String,
+    pub api_key: String,
 
-    url: Url,
+    pub url: Url,
 
     /// Headers used with each request.
-    #[getter(skip)]
     pub headers: HeaderMap,
 
-    #[getter(skip)]
     pub organization: String,
 }
 

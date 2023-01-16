@@ -5,7 +5,6 @@
 //! This is a natural interface for translating, editing, and tweaking text. This is also useful for refactoring and working with code.
 
 use derive_builder::Builder;
-use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -53,14 +52,14 @@ impl EditParamBuilder {
 }
 
 /// Response from [`Create Edit`](create) request.
-#[derive(Debug, Default, Deserialize, Getters)]
+#[derive(Debug, Default, Deserialize)]
 #[serde(default)]
 pub struct Edit {
-    object: String,
-    created: u64,
-    choices: Vec<Choices>,
+    pub object: String,
+    pub created: u64,
+    pub choices: Vec<Choices>,
 
-    usage: Option<TokenUsage>,
+    pub usage: Option<TokenUsage>,
 }
 
 /// Creates a new edit for the provided input, instruction, and parameters.
@@ -114,8 +113,8 @@ mod tests {
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.object(), "edit");
-        assert!(resp.usage().is_some());
+        assert_eq!(resp.object, "edit");
+        assert!(resp.usage.is_some());
         Ok(())
     }
 }

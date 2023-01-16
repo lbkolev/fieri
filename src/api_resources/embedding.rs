@@ -9,7 +9,6 @@
 //! - Classification (where text strings are classified by their most similar label)
 
 use derive_builder::Builder;
-use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -43,22 +42,22 @@ impl EmbeddingParamBuilder {
 }
 
 /// Response from [`Create Embedding`](create) request.
-#[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Embedding {
-    object: String,
-    data: Vec<EmbeddingData>,
-    mode: String,
+    pub object: String,
+    pub data: Vec<EmbeddingData>,
+    pub mode: String,
 
-    usage: Option<TokenUsage>,
+    pub usage: Option<TokenUsage>,
 }
 
 /// The distance between two vectors measures their relatedness. Small distances suggest high relatedness and large distances suggest low relatedness.
-#[derive(Clone, Debug, Deserialize, Getters, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct EmbeddingData {
-    object: String,
-    embedding: Embeddings,
-    index: u64,
+    pub object: String,
+    pub embedding: Embeddings,
+    pub index: u64,
 }
 
 type Embeddings = Vec<f32>;
@@ -115,8 +114,8 @@ mod tests {
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert!(resp.usage().is_some());
-        assert!(resp.mode().is_empty());
+        assert!(resp.usage.is_some());
+        assert!(resp.mode.is_empty());
         Ok(())
     }
 }
