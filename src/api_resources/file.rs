@@ -1,6 +1,5 @@
 //! Files are used to upload documents that can be used with features like [`Fine-tuning`](crate::api_resources::fine_tune).
 
-use derive_getters::Getters;
 use reqwest::multipart::{Form, Part};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, fs, path::Path};
@@ -11,13 +10,13 @@ use crate::{
 };
 
 /// Response from [`List File`](list) request.
-#[derive(Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct ListFiles {
-    data: Files,
-    object: String,
+    pub data: Files,
+    pub object: String,
 
-    token_usage: Option<TokenUsage>,
+    pub token_usage: Option<TokenUsage>,
 }
 
 /// The Possible Purposes of the uploaded documents.
@@ -183,8 +182,8 @@ mod tests {
         let resp = list(&client).await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.object(), "list");
-        assert!(resp.token_usage().is_none());
+        assert_eq!(resp.object, "list");
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -202,8 +201,8 @@ mod tests {
         .await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.object(), "file");
-        assert!(resp.token_usage().is_none());
+        assert_eq!(resp.object, "file");
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -217,7 +216,7 @@ mod tests {
         println!("{:#?}", resp);
 
         assert_eq!(resp.deleted, false);
-        assert!(resp.token_usage().is_none());
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -229,8 +228,8 @@ mod tests {
         let resp = retrieve(&client, "file-1FZQ73L5AK8UknTTT0PxWMBE").await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.object(), "file");
-        assert!(resp.token_usage().is_none());
+        assert_eq!(resp.object, "file");
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 }

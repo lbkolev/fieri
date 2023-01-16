@@ -1,47 +1,46 @@
 //! List and describe the various models available in the API.
 
-use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 
 use crate::{api_resources::TokenUsage, Client, Result};
 
 /// Response from [List Models](list) request.
-#[derive(Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Models {
-    data: Vec<Model>,
+    pub data: Vec<Model>,
 
-    token_usage: Option<TokenUsage>,
+    pub token_usage: Option<TokenUsage>,
 }
 
 /// Response from [Retrieve a Model](retrieve) request.
-#[derive(Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Model {
-    id: String,
-    object: String,
-    created: u64,
-    owned_by: String,
-    permission: Vec<Permissions>,
-    root: String,
-    parent: Option<String>,
+    pub id: String,
+    pub object: String,
+    pub created: u64,
+    pub owned_by: String,
+    pub permission: Vec<Permissions>,
+    pub root: String,
+    pub parent: Option<String>,
 
-    token_usage: Option<TokenUsage>,
+    pub token_usage: Option<TokenUsage>,
 }
 
 /// Types of permissions that can be applied to a model.
-#[derive(Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Permissions {
-    id: String,
-    object: String,
-    created: u64,
-    allow_create_engine: bool,
-    allow_sampling: bool,
-    allow_logprobs: bool,
-    allow_search_indices: bool,
-    allow_view: bool,
-    allow_fine_tuning: bool,
-    organization: String,
-    group: Option<String>,
-    is_blocking: bool,
+    pub id: String,
+    pub object: String,
+    pub created: u64,
+    pub allow_create_engine: bool,
+    pub allow_sampling: bool,
+    pub allow_logprobs: bool,
+    pub allow_search_indices: bool,
+    pub allow_view: bool,
+    pub allow_fine_tuning: bool,
+    pub organization: String,
+    pub group: Option<String>,
+    pub is_blocking: bool,
 }
 
 /// Retrieves a model instance, providing basic information about the model such as the owner and permissioning.
@@ -111,8 +110,8 @@ mod tests {
         let resp = retrieve(&client, "text-babbage-001").await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.root(), "text-babbage-001");
-        assert!(resp.token_usage().is_none());
+        assert_eq!(resp.root, "text-babbage-001");
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -123,8 +122,8 @@ mod tests {
         let resp = list(&client).await?;
         println!("{:#?}", resp);
 
-        assert!(!resp.data().is_empty());
-        assert!(resp.token_usage().is_none());
+        assert!(!resp.data.is_empty());
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 }

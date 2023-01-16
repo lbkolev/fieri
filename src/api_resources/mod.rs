@@ -10,64 +10,46 @@ pub mod model;
 pub mod moderation;
 
 /// Tokens used by the requested action from OpenAI.
-#[derive(
-    Clone,
-    Debug,
-    std::default::Default,
-    serde::Deserialize,
-    derive_getters::Getters,
-    serde::Serialize,
-)]
+#[derive(Clone, Debug, std::default::Default, serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct TokenUsage {
-    prompt_tokens: u32,
-    completion_tokens: u32,
-    total_tokens: u32,
+    pub prompt_tokens: u32,
+    pub completion_tokens: u32,
+    pub total_tokens: u32,
 }
 
-#[derive(
-    Clone,
-    Debug,
-    std::default::Default,
-    serde::Deserialize,
-    derive_getters::Getters,
-    serde::Serialize,
-)]
+#[derive(Clone, Debug, std::default::Default, serde::Deserialize, serde::Serialize)]
 pub struct Choices {
-    text: Option<String>,
-    index: Option<u32>,
-    finish_reason: Option<String>,
-    logprobs: Option<f32>,
+    pub text: Option<String>,
+    pub index: Option<u32>,
+    pub finish_reason: Option<String>,
+    pub logprobs: Option<f32>,
 }
 
 /// Information from requests wishing for a resource to be deleted, like [`Delete File`](crate::file::delete) and [`Delete Fine-tune`](crate::fine_tune::delete).
-#[derive(
-    Debug, std::default::Default, serde::Deserialize, derive_getters::Getters, serde::Serialize,
-)]
+#[derive(Debug, std::default::Default, serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct Delete {
-    id: String,
-    object: String,
-    deleted: bool,
+    pub id: String,
+    pub object: String,
+    pub deleted: bool,
 
-    token_usage: Option<TokenUsage>,
+    pub token_usage: Option<TokenUsage>,
 }
 
 /// Response from endpoints like [`Upload File`](crate::file::upload), [`Retrieve file`][crate::file::retrieve] & [`Create Fine-tune`](crate::fine_tune::create).
-#[derive(
-    Debug, std::default::Default, serde::Deserialize, derive_getters::Getters, serde::Serialize,
-)]
+#[derive(Debug, std::default::Default, serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct File {
-    id: String,
-    object: String,
-    bytes: i64,
-    created_at: i64,
-    filename: String,
-    purpose: String,
-    status: String,
+    pub id: String,
+    pub object: String,
+    pub bytes: i64,
+    pub created_at: i64,
+    pub filename: String,
+    pub purpose: String,
+    pub status: String,
 
-    token_usage: Option<TokenUsage>,
+    pub token_usage: Option<TokenUsage>,
 }
 
 type Files = Vec<File>;

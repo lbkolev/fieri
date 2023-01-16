@@ -10,7 +10,6 @@
 //! - Violence/graphic - Violent content that depicts death, violence, or serious physical injury in extreme graphic detail.
 
 use derive_builder::Builder;
-use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
@@ -38,42 +37,42 @@ impl ModerationParamBuilder {
 }
 
 /// Response from [`Create Moderation`](create) request.
-#[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Moderation {
-    id: String,
-    model: String,
-    flagged: bool,
-    results: Vec<ModerationResult>,
+    pub id: String,
+    pub model: String,
+    pub flagged: bool,
+    pub results: Vec<ModerationResult>,
 
-    token_usage: Option<TokenUsage>,
+    pub token_usage: Option<TokenUsage>,
 }
 
 /// The result of the content moderation request.
-#[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct ModerationResult {
-    categories: Categories,
-    category_scores: CategoryScores,
+    pub categories: Categories,
+    pub category_scores: CategoryScores,
 }
 
 /// Contains a per-category binary content policy violation flags.
 ///
 /// For each category, the value is `true` if the model flags the corresponding category as violated, `false` otherwise.
-#[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Categories {
-    hate: bool,
+    pub hate: bool,
     #[serde(rename = "hate/threatening")]
-    hate_threatening: bool,
+    pub hate_threatening: bool,
     #[serde(rename = "self-harm")]
-    self_harm: bool,
-    sexual: bool,
+    pub self_harm: bool,
+    pub sexual: bool,
     #[serde(rename = "sexual/minors")]
-    sexual_minors: bool,
-    violence: bool,
+    pub sexual_minors: bool,
+    pub violence: bool,
     #[serde(rename = "violence/graphic")]
-    violence_graphic: bool,
+    pub violence_graphic: bool,
 }
 
 /// Contains a per-category raw scores output by the model, denoting the model's confidence that the input violates the OpenAI's policy for the category.
@@ -81,20 +80,20 @@ pub struct Categories {
 /// The value is between 0 and 1, where higher values denote higher confidence.
 ///
 /// The scores should not be interpreted as probabilities.
-#[derive(Clone, Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct CategoryScores {
-    hate: f64,
+    pub hate: f64,
     #[serde(rename = "hate/threatening")]
-    hate_threatening: f64,
+    pub hate_threatening: f64,
     #[serde(rename = "self-harm")]
-    self_harm: f64,
-    sexual: f64,
+    pub self_harm: f64,
+    pub sexual: f64,
     #[serde(rename = "sexual/minors")]
-    sexual_minors: f64,
-    violence: f64,
+    pub sexual_minors: f64,
+    pub violence: f64,
     #[serde(rename = "violence/graphic")]
-    violence_graphic: f64,
+    pub violence_graphic: f64,
 }
 
 /// Classifies if text violates OpenAI's Content Policy.
@@ -147,8 +146,8 @@ mod tests {
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert!(!resp.flagged());
-        assert!(resp.token_usage().is_none());
+        assert!(!resp.flagged);
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 }

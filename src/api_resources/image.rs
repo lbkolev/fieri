@@ -6,7 +6,6 @@
 //! - Creating variations of an existing image
 
 use derive_builder::Builder;
-use derive_getters::Getters;
 use reqwest::{
     get,
     multipart::{Form, Part},
@@ -80,11 +79,11 @@ impl GenerateImageParamBuilder {
 }
 
 /// Response from [Generate](generate), [Edit](edit) & [Variation](variate) requests.
-#[derive(Debug, Deserialize, Getters, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Image {
-    created: Option<u64>,
-    data: Option<Links>,
-    token_usage: Option<TokenUsage>,
+    pub created: Option<u64>,
+    pub data: Option<Links>,
+    pub token_usage: Option<TokenUsage>,
 }
 
 impl Image {
@@ -143,9 +142,9 @@ impl Image {
 }
 
 /// link to an image.
-#[derive(Debug, Deserialize, Getters, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Link {
-    url: String,
+    pub url: String,
 }
 
 type Links = Vec<Link>;
@@ -363,7 +362,7 @@ mod tests {
         let resp = generate(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert!(resp.token_usage().is_none());
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -380,7 +379,7 @@ mod tests {
         let resp = edit(&client, "assets/image_tests.png", &param).await?;
         println!("{:#?}", resp);
 
-        assert!(resp.token_usage().is_none());
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -397,7 +396,7 @@ mod tests {
         let resp = variate(&client, "./assets/image_tests.png", &param).await?;
         println!("{:#?}", resp);
 
-        assert!(resp.token_usage().is_none());
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 }

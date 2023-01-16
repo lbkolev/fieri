@@ -49,7 +49,7 @@ pub struct RequestError {
     pub error: ErrorMessage,
 }
 
-#[derive(Clone, Debug, std::default::Default, serde::Deserialize, derive_getters::Getters)]
+#[derive(Clone, Debug, std::default::Default, serde::Deserialize)]
 pub struct ErrorMessage {
     pub message: String,
     pub r#type: String,

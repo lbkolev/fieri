@@ -16,7 +16,6 @@
 //! This saves costs and enables lower-latency requests.
 
 use derive_builder::Builder;
-use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_with::skip_serializing_none;
@@ -92,68 +91,68 @@ impl CreateFineTuneParamBuilder {
 }
 
 /// Response from [`Create Fine-Tune`][create] request.
-#[derive(Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct FineTune {
-    id: String,
-    object: String,
-    model: String,
-    created_at: u64,
-    events: Events,
+    pub id: String,
+    pub object: String,
+    pub model: String,
+    pub created_at: u64,
+    pub events: Events,
 
-    hyperparams: HyperParams,
-    organization_id: String,
-    result_files: Files,
-    validation_files: Files,
-    training_files: Files,
-    status: String,
-    updated_at: u64,
+    pub hyperparams: HyperParams,
+    pub organization_id: String,
+    pub result_files: Files,
+    pub validation_files: Files,
+    pub training_files: Files,
+    pub status: String,
+    pub updated_at: u64,
 
-    token_usage: Option<TokenUsage>,
+    pub token_usage: Option<TokenUsage>,
 }
 
 /// Hyper parameters for fine-tuning a model.
-#[derive(Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct HyperParams {
-    n_epochs: u32,
-    batch_size: u32,
-    learning_rate_multiplier: f32,
-    prompt_loss_weight: f32,
-    compute_classification_metrics: bool,
-    classification_n_classes: u32,
-    classification_positive_class: String,
-    classification_betas: Vec<f32>,
+    pub n_epochs: u32,
+    pub batch_size: u32,
+    pub learning_rate_multiplier: f32,
+    pub prompt_loss_weight: f32,
+    pub compute_classification_metrics: bool,
+    pub classification_n_classes: u32,
+    pub classification_positive_class: String,
+    pub classification_betas: Vec<f32>,
 }
 
 /// Events occuring on Fine-tunes
-#[derive(Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Event {
-    object: String,
-    created_at: u64,
-    level: String,
-    message: String,
+    pub object: String,
+    pub created_at: u64,
+    pub level: String,
+    pub message: String,
 }
 
 type Events = Vec<Event>;
 
-#[derive(Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct ListEvents {
-    object: String,
-    data: Vec<Event>,
+    pub object: String,
+    pub data: Vec<Event>,
 
-    token_usage: Option<TokenUsage>,
+    pub token_usage: Option<TokenUsage>,
 }
 
-#[derive(Debug, Default, Deserialize, Getters, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct ListFineTune {
-    object: String,
-    data: Vec<FineTune>,
+    pub object: String,
+    pub data: Vec<FineTune>,
 
-    token_usage: Option<TokenUsage>,
+    pub token_usage: Option<TokenUsage>,
 }
 
 /// Creates a job that fine-tunes a specified model from a given dataset.
@@ -403,8 +402,8 @@ mod tests {
         let resp = create(&client, &param).await?;
         println!("{:#?}", resp);
 
-        assert_eq!(resp.object(), "fine-tune");
-        assert!(resp.token_usage().is_none());
+        assert_eq!(resp.object, "fine-tune");
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -415,7 +414,7 @@ mod tests {
         let resp = list(&client).await?;
         println!("{:#?}", resp);
 
-        assert!(resp.token_usage().is_none());
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -426,7 +425,7 @@ mod tests {
         let resp = retrieve(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
         println!("{:#?}", resp);
 
-        assert!(resp.token_usage().is_none());
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -438,7 +437,7 @@ mod tests {
         let resp = cancel(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
         println!("{:#?}", resp);
 
-        assert!(resp.token_usage().is_none());
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -449,7 +448,7 @@ mod tests {
         let resp = list_events(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
         println!("{:#?}", resp);
 
-        assert!(resp.token_usage().is_none());
+        assert!(resp.token_usage.is_none());
         Ok(())
     }
 
@@ -477,7 +476,7 @@ mod tests {
         let resp = delete(&client, "model-to-delete").await?;
         println!("{:#?}", resp);
 
-        assert!(resp.deleted());
+        assert!(resp.deleted);
         Ok(())
     }
 }
