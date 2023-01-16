@@ -182,7 +182,7 @@ pub async fn create_with_stream(
 ) -> Result<reqwest::Response> {
     param.stream.set(true);
 
-    client.create_completion_with_stream(&param).await
+    client.create_completion_with_stream(param).await
 }
 
 impl Client {

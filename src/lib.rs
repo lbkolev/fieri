@@ -17,11 +17,11 @@
 //!     Client, Error,
 //! };
 //! use std::env;
-//! 
+//!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {
 //!     let client = Client::new(env::var("OPENAI_API_KEY")?);
-//! 
+//!
 //!     let param = CompletionParamBuilder::new("ada")
 //!         .prompt("Generate a plot for an absurd interstellar parody.")
 //!         .max_tokens(500)
@@ -30,14 +30,14 @@
 //!         .frequency_penalty(0.0)
 //!         .presence_penalty(0.0)
 //!         .build()?;
-//! 
+//!
 //!     let resp = create(&client, &param).await?;
 //!     println!("Generated text: {:#?}", resp);
-//! 
+//!
 //!     Ok(())
 //! }
 //! ```
-//! 
+//!
 //! ### Generate and stream back text based on a prompt
 //! ```rust
 //! use fieri::{
@@ -45,31 +45,31 @@
 //!     Client, Error,
 //! };
 //! use std::env;
-//! 
+//!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {
 //!     let client = Client::new(env::var("OPENAI_API_KEY")?);
-//! 
+//!
 //!     let param = CompletionParamBuilder::new("ada")
 //!         .prompt("unnecessarily lo")
 //!         .temperature(0.5)
 //!         .build()?;
-//! 
+//!
 //!     let mut resp = create_with_stream(&client, &param).await?;
-//! 
+//!
 //!     while let Some(chunk) = resp.chunk().await? {
 //!         if chunk.to_vec() == b"data: [DONE]\n\n" {
 //!             break;
 //!         }
-//! 
+//!
 //!         let v: Completion = serde_json::from_slice(&chunk[5..])?;
 //!         v.choices().iter().for_each(|c| println!("{:?}", c.text()));
 //!     }
-//! 
+//!
 //!     Ok(())
 //! }
 //! ```
-//! 
+//!
 //! ### Generate an image based on a prompt and save it locally.
 //! ```rust
 //! use fieri::{
@@ -77,21 +77,21 @@
 //!     Client, Error,
 //! };
 //! use std::env;
-//! 
+//!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {
 //!     let client = Client::new(env::var("OPENAI_API_KEY")?);
-//! 
+//!
 //!     let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on top of the highest mountain on Mars.")
 //!         .size(ImageSize::S1024x1024)
 //!         .n(1)
 //!         .build()?;
-//! 
+//!
 //!     generate(&client, &param)
 //!         .await?
 //!         .save("/tmp/")
 //!         .await?;
-//! 
+//!
 //!     Ok(())
 //! }
 //! ```
