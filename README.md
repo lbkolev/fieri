@@ -36,10 +36,9 @@ fieri provides an asynchronous Rust interface for interacting with the OpenAI AP
 Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal. Once you've signed up, you'll be able to find your API key in the [API Keys](https://beta.openai.com/account/api-keys) section of the developer portal.
 
 ## Installation
-To use the client in your project, add the following to your `Cargo.toml` file:
-```toml
-[dependencies]
-fieri = "0.5"
+Run this command in your terminal to add the latest version of `fieri`.
+```sh
+$ cargo add fieri
 ```
 
 ## Basic Usage
