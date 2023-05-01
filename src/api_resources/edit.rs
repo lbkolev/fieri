@@ -100,8 +100,8 @@ impl Client {
 mod tests {
     use super::*;
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create_edit() -> Result<()> {
+    #[test]
+    fn test_create_edit() {
         let param: EditParam = serde_json::from_str(
             r#"
             {
@@ -138,6 +138,5 @@ mod tests {
         assert_eq!(param.n, None);
         assert_eq!(resp.object, "edit");
         assert_eq!(resp.choices.len(), 1);
-        Ok(())
     }
 }

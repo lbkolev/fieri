@@ -17,7 +17,7 @@ license = "MIT"
 tokio           = { version = "1.24.1",  features = ["full"]}
 reqwest         = { version = "0.11.13", features = ["json", "multipart", "stream"]}
 serde           = { version = "1.0.152", features = ["derive"]}
-serde_json      = { version = "1.0.91"}
+serde_json = "1.0.91"
 serde_with      = { version = "2.2.0"}
 serde_derive    = { version = "1.0.152"}
 thiserror       = { version = "1.0.38"}
