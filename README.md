@@ -24,22 +24,16 @@
     </a>
 </p>
 
-> **Note**: fieri's [master](https://github.com/lbkolev/fieri) branch might
-> contain breaking changes. For the most recently *released* code, look to the latest tag.
-
 ## Overview
 ### Unofficial Rust client for the OpenAI API.
 
-fieri provides an asynchronous Rust interface for interacting with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
+fieri provides an asynchronous Rust interface for interaction with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
 
 ## Prerequisites
 Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal. Once you've signed up, you'll be able to find your API key in the [API Keys](https://beta.openai.com/account/api-keys) section of the developer portal.
 
 ## Installation
-Run this command in your terminal to add the latest version of `fieri`.
-```sh
-$ cargo add fieri
-```
+Run `cargo add fieri` in your terminal to add the latest version of `fieri`.
 
 ## Basic Usage
 

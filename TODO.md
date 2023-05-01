@@ -7,6 +7,10 @@
 - [x] [create](https://docs.rs/fieri/latest/fieri/completion/fn.create.html)
 - [x] [create with stream](https://docs.rs/fieri/latest/fieri/completion/fn.create_with_stream.html)
 
+`chat`
+- [ ] [create](https://platform.openai.com/docs/api-reference/chat/create)
+- [ ] [create with stream](https://platform.openai.com/docs/api-reference/chat/create#chat/create-stream)
+
 `edits`
 - [x] [create](https://docs.rs/fieri/latest/fieri/edit/fn.create.html)
 
@@ -17,6 +21,10 @@
 
 `embeddings`
 - [x] [create](https://docs.rs/fieri/latest/fieri/embedding/fn.create.html)
+
+`audio`
+- [ ] [create transcription](https://platform.openai.com/docs/api-reference/audio/create)
+- [ ] [create translation](https://platform.openai.com/docs/api-reference/audio/create)
 
 `files`
 - [x] [list](https://docs.rs/fieri/latest/fieri/file/fn.list.html)
@@ -37,5 +45,5 @@
 `moderations`
 - [x] [create](https://docs.rs/fieri/latest/fieri/moderation/fn.create.html)
 
-`/engines` - *DEPRECATED*
+`engines` - *DEPRECATED*
 
