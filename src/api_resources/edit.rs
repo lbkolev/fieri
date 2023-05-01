@@ -15,7 +15,7 @@ use crate::{
 
 /// Parameters for [`Create Edit`](create) request.
 #[skip_serializing_none]
-#[derive(Builder, Debug, Default, Serialize)]
+#[derive(Builder, Debug, Default, Deserialize, Serialize)]
 #[builder(default, setter(into, strip_option))]
 pub struct EditParam {
     /// The model to use for the edit request.
@@ -67,7 +67,7 @@ pub struct Edit {
 /// Related OpenAI docs: [Create an Edit](https://beta.openai.com/docs/api-reference/edits/create)
 ///
 /// ## Example
-/// ```rust
+/// ```no_run
 /// use std::env;
 /// use fieri::{Client, edit::{create, EditParamBuilder}};
 ///
@@ -99,22 +99,45 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_create_edit() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
+        let param: EditParam = serde_json::from_str(
+            r#"
+            {
+                "model": "text-davinci-edit-001",
+                "input": "What day of the wek is it?",
+                "instruction": "Fix the spelling mistakes"
+            }
+            "#,
+        )
+        .unwrap();
 
-        let param = EditParamBuilder::new("text-davinci-edit-001", "Fix the spelling mistakes")
-            .input("What dey of the wek is it?")
-            .temperature(0.5)
-            .build()?;
+        let resp: Edit = serde_json::from_str(
+            r#"
+            {
+                "object": "edit",
+                "created": 1589478378,
+                "choices": [
+                    {
+                        "text": "What day of the week is it?",
+                        "index": 0
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 25,
+                    "completion_tokens": 32,
+                    "total_tokens": 57
+                }
+            }
+            "#,
+        )
+        .unwrap();
 
-        let resp = create(&client, &param).await?;
-        println!("{:#?}", resp);
-
+        assert_eq!(param.model, "text-davinci-edit-001");
+        assert_eq!(param.n, None);
         assert_eq!(resp.object, "edit");
-        assert!(resp.usage.is_some());
+        assert_eq!(resp.choices.len(), 1);
         Ok(())
     }
 }

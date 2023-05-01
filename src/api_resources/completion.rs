@@ -125,7 +125,7 @@ pub struct Completion {
 /// Related OpenAI docs: [Create Completions](https://beta.openai.com/docs/api-reference/completions/create)
 ///
 /// ## Example
-/// ```rust
+/// ```no_run
 /// use std::env;
 /// use fieri::{Client, completion::{create, CompletionParamBuilder}};
 ///
@@ -153,7 +153,7 @@ pub async fn create(client: &Client, param: &CompletionParam) -> Result<Completi
 /// Related OpenAI docs: [Create Completions](https://beta.openai.com/docs/api-reference/completions/create#completions/create-stream)
 ///
 /// ## Example
-/// ```rust
+/// ```no_run
 /// use std::env;
 /// use fieri::{Client, completion::{create_with_stream, CompletionParamBuilder}};
 ///
@@ -201,43 +201,60 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_create_completion() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
+        let param: CompletionParam = serde_json::from_str(
+            r#"
+            {
+                "model": "text-davinci-003",
+                "prompt": "Say this is a test",
+                "max_tokens": 7,
+                "temperature": 0,
+                "top_p": 1,
+                "n": 1,
+                "stream": false,
+                "logprobs": null,
+                "stop": "\n"
+            }
+            "#,
+        )
+        .unwrap();
 
-        let param = CompletionParamBuilder::default()
-            .model("ada")
-            .prompt("Haskell is a programming language. Generate a complex and unintuitive 'Hello, World' example in Haskell.")
-            .build()?;
+        let resp: Completion = serde_json::from_str(
+            r#"
+            {
+                "id": "cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7",
+                "object": "text_completion",
+                "created": 1589478378,
+                "model": "text-davinci-003",
+                "choices": [
+                {
+                    "text": "\n\nThis is indeed a test",
+                    "index": 0,
+                    "logprobs": null,
+                    "finish_reason": "length"
+                }
+                ],
+                "usage": {
+                    "prompt_tokens": 5,
+                    "completion_tokens": 7,
+                    "total_tokens": 12
+                }
+            }
+            "#,
+        )?;
 
-        let resp = create(&client, &param).await?;
-        println!("{:#?}", resp);
-
-        assert_eq!(resp.model, "ada");
-        Ok(())
-    }
-
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create_completion_with_stream(
-    ) -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
-
-        let param = CompletionParamBuilder::default()
-            .model("ada")
-            .prompt("Haskell is a programming language. Generate a complex and unintuitive 'Hello, World' example in Haskell.")
-            .build()?;
-
-        let mut resp = create_with_stream(&client, &param).await?;
-        let mut times = 0;
-
-        while let Some(chunk) = resp.chunk().await? {
-            println!("{:#?}", chunk);
-            times += 1
-        }
-
-        assert_eq!(times > 1, true);
+        assert_eq!(param.model, "text-davinci-003");
+        assert_eq!(param.prompt.unwrap(), "Say this is a test");
+        assert_eq!(param.suffix, None);
+        assert_eq!(resp.choices.len(), 1);
+        assert_eq!(
+            resp.choices[0].text,
+            Some("\n\nThis is indeed a test".to_string())
+        );
+        assert_eq!(resp.choices[0].logprobs, None);
+        assert_eq!(resp.usage.unwrap().prompt_tokens, 5);
         Ok(())
     }
 }

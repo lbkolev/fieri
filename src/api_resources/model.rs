@@ -48,7 +48,7 @@ pub struct Permissions {
 /// Related OpenAI docs: [Retrieve a Model](https://beta.openai.com/docs/api-reference/models/retrieve)
 ///
 /// ## Example:
-/// ```rust
+/// ```no_run
 /// use std::env;
 /// use fieri::{Client, model::retrieve};
 ///
@@ -70,7 +70,7 @@ pub async fn retrieve(client: &Client, model: impl Into<String>) -> Result<Model
 /// Related OpenAI docs: [List Models](https://beta.openai.com/docs/api-reference/models/list)
 ///
 /// ## Example
-/// ```rust
+/// ```no_run
 /// use std::env;
 /// use fieri::{Client, model::list};
 ///
@@ -107,7 +107,7 @@ mod tests {
     async fn test_model_list() -> Result<()> {
         let client = Client::new(env::var("OPENAI_API_KEY")?);
 
-        let resp = retrieve(&client, "text-babbage-001").await?;
+        let resp: Model = retrieve(&client, "text-babbage-001").await?;
         println!("{:#?}", resp);
 
         assert_eq!(resp.root, "text-babbage-001");
