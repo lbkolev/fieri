@@ -107,7 +107,7 @@ pub struct CategoryScores {
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let param = ModerationParamBuilder::new("I want to kill them.")
 ///         .model("text-moderation-stable")

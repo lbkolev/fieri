@@ -1,20 +1,20 @@
 //! The Client used to establish a connection and interact with the OpenAI API.
 //!
+//!
 //! ## Usage
 //! ```no_run
-//! use std::env;
 //! use fieri::Client;
 //!
-//! let client = Client::new(env::var("OPENAI_API_KEY").unwrap());
+//! let client = Client::new();
 //! ```
 //!
-//! ## Usage with a specified [Organization](https://beta.openai.com/docs/api-reference/requesting-organization)
+//! ## Usage with explicity specified API Key and [Organization](https://beta.openai.com/docs/api-reference/requesting-organization)
 //! ```no_run
-//! use std::env;
 //! use fieri::Client;
 //!
-//! let client = Client::new(env::var("OPENAI_API_KEY").unwrap())
-//!     .organization(env::var("OPENAI_ORGANIZATION").unwrap());
+//! let client = Client::new()
+//!     .api_key("...")
+//!     .organization("...");
 //! ```
 
 use std::fmt::Debug;
@@ -40,7 +40,7 @@ enum Response<T> {
 }
 
 /// The Client used to interact with the OpenAI API.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Client {
     /// Configuration needed to authorize against the API.
     config: Config,
@@ -50,29 +50,74 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new<T: Into<String> + std::fmt::Display>(api_key: T) -> Self {
+    /// Creates a new instance of the Client.
+    /// The API key is read from the `OPENAI_API_KEY` environment variable.
+    /// The API Organization is read from the `OPENAI_ORGANIZATION` environment variable.
+    pub fn new() -> Self {
         let mut headers = HeaderMap::new();
 
+        let api_key = std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string());
+        let organization = std::env::var("OPENAI_ORGANIZATION").unwrap_or_else(|_| "".to_string());
+
+        if !api_key.is_empty() {
+            headers.insert(
+                AUTHORIZATION,
+                format!("Bearer {api_key}")
+                    .parse()
+                    .expect("Unable to parse the API key."),
+            );
+        }
+
+        if !organization.is_empty() {
+            headers.insert(
+                "OpenAI-Organization",
+                organization
+                    .parse()
+                    .expect("Unable to parse the given Organization."),
+            );
+        }
+
+        let config = Config::new(api_key).headers(headers.clone());
+        Self {
+            config,
+            handler: reqwest::Client::builder()
+                .default_headers(headers)
+                .build()
+                .expect("Err creating request handler."),
+        }
+    }
+
+    /// Explicitly specify the api key.
+    /// By default, the api key is read from the `OPENAI_API_KEY` environment variable.
+    /// If both `OPENAI_API_KEY` and `api_key` are set, the `api_key` takes precedence.
+    pub fn api_key<T: Into<String>>(mut self, api_key: T) -> Self {
+        let api_key = api_key.into();
+        let mut headers = self.config.headers;
         headers.insert(
             AUTHORIZATION,
             format!("Bearer {api_key}")
                 .parse()
                 .expect("Unable to parse the API key."),
         );
-        let config = Config::new(api_key).headers(headers.clone());
+
+        self.config.api_key = api_key;
+        self.config.headers = headers.clone();
 
         Self {
-            config,
+            config: self.config,
             handler: reqwest::Client::builder()
                 .default_headers(headers)
                 .build()
-                .expect("Err creating a request handler."),
+                .expect("Err creating request handler."),
         }
     }
 
     /// For users who belong to multiple organizations, you can pass a header
     /// to specify which organization is used for an API request.
-    pub fn organization(mut self, organization: String) -> Self {
+    /// By default, the organization is read from the `OPENAI_ORGANIZATION` environment variable.
+    /// If both `OPENAI_ORGANIZATION` and `organization` are set, the `organization` takes precedence.
+    pub fn organization<T: Into<String>>(mut self, organization: T) -> Self {
+        let organization = organization.into();
         let mut headers = self.config.headers;
         headers.insert(
             "OpenAI-Organization",
@@ -213,19 +258,16 @@ impl Client {
 mod tests {
     use super::*;
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_client() -> Result<()> {
-        let client = Client::new("sk-111111111111122222222222222222223333333333333333");
+    #[test]
+    fn test_client() {
+        let client = Client::new();
 
         assert!(client.config.headers.get(AUTHORIZATION).is_some());
         assert!(client.config.headers.get("OpenAI-Organization").is_none());
 
-        let client = Client::new("sk-111111111111122222222222222222223333333333333333")
-            .organization("OpenAI-Organization".to_string());
+        let client = Client::new().organization("random-org".to_string());
 
         assert!(client.config.headers.get(AUTHORIZATION).is_some());
         assert!(client.config.headers.get("OpenAI-Organization").is_some());
-
-        Ok(())
     }
 }

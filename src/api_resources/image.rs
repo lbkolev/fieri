@@ -111,12 +111,11 @@ impl Image {
     /// ## Example
     /// ```no_run
     /// // Generate an image based on a prompt and save it locally.
-    /// use std::env;
     /// use fieri::{Client, image::{ImageSize, GenerateImageParamBuilder, generate}};
     ///
     /// #[tokio::main]
     /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+    ///     let client = Client::new();
     ///
     ///     let param = GenerateImageParamBuilder::new("A cat")
     ///         .size(ImageSize::S256x256)
@@ -241,12 +240,11 @@ impl VariateImageParamBuilder {
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, image::{ImageSize, GenerateImageParamBuilder, generate}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let param = GenerateImageParamBuilder::new("Dogs playing poker.")
 ///         .size(ImageSize::S256x256)
@@ -267,12 +265,11 @@ pub async fn generate(client: &Client, param: &GenerateImageParam) -> Result<Ima
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, image::{ImageSize, EditImageParamBuilder, edit}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let param = EditImageParamBuilder::new("Transform the image to a dog playing poker.")
 ///         .size(ImageSize::S256x256)
@@ -296,12 +293,11 @@ where
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, image::{ImageSize, VariateImageParamBuilder, variate}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let param = VariateImageParamBuilder::new()
 ///         .size(ImageSize::S256x256)

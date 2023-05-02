@@ -46,13 +46,12 @@ impl std::fmt::Display for Purpose {
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, file::list};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?)
-///         .organization(env::var("OPENAI_ORGANIZATION")?);
+///     let client = Client::new()
+///         .organization("org-..");
 ///
 ///     let resp = list(&client).await?;
 ///     println!("{:#?}", resp);
@@ -70,14 +69,13 @@ pub async fn list(client: &Client) -> Result<ListFiles> {
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use std::path::Path;
 /// use fieri::{Client, file::{Purpose, upload}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?)
-///         .organization(env::var("OPENAI_ORGANIZATION")?);
+///     let client = Client::new()
+///         .organization("org-..");
 ///
 ///     let resp = upload(&client, "/path/to/file.jsonl", Purpose::FineTune).await?;
 ///     println!("{:#?}", resp);
@@ -98,13 +96,12 @@ where
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, file::delete};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?)
-///         .organization(env::var("OPENAI_ORGANIZATION")?);
+///     let client = Client::new()
+///         .organization("org-..");
 ///
 ///     let resp = delete(&client, "file-to-delete").await?;
 ///     println!("{:#?}", resp);
@@ -122,13 +119,12 @@ pub async fn delete(client: &Client, file_id: impl Into<String>) -> Result<Delet
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, file::retrieve, api_resources::File};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?)
-///         .organization(env::var("OPENAI_ORGANIZATION")?);
+///     let client = Client::new()
+///         .organization("org-..");
 ///
 ///     let resp: File = retrieve(&client, "file-to-retrieve").await?;
 ///     println!("{:#?}", resp);

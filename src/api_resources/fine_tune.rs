@@ -161,12 +161,11 @@ pub struct ListFineTune {
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, fine_tune::{create, CreateFineTuneParamBuilder}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///     let param = CreateFineTuneParamBuilder::new("training_file")
 ///         .validation_file("validation_file")
 ///         .model("curie")
@@ -202,7 +201,7 @@ pub async fn create(client: &Client, param: &CreateFineTuneParam) -> Result<Fine
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///    let client = Client::new(env::var("OPENAI_API_KEY")?);
+///    let client = Client::new();
 ///
 ///     let resp = list(&client).await?;
 ///     println!("{:#?}", resp);
@@ -220,12 +219,11 @@ pub async fn list(client: &Client) -> Result<ListFineTune> {
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, fine_tune::retrieve};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///    let client = Client::new(env::var("OPENAI_API_KEY")?);
+///    let client = Client::new();
 ///
 ///     let resp = retrieve(&client, "ft-123").await?;
 ///     println!("{:#?}", resp);
@@ -242,12 +240,11 @@ pub async fn retrieve(client: &Client, fine_tune_id: impl Into<String>) -> Resul
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, fine_tune::cancel};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let resp = cancel(&client, "ft-123").await?;
 ///     println!("{:#?}", resp);
@@ -265,12 +262,11 @@ pub async fn cancel(client: &Client, fine_tune_id: impl Into<String>) -> Result<
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, fine_tune::list_events};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let resp = list_events(&client, "ft-123").await?;
 ///     println!("{:#?}", resp);
@@ -288,12 +284,11 @@ pub async fn list_events(client: &Client, fine_tune_id: impl Into<String>) -> Re
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, fine_tune::list_events_with_stream};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let mut resp = list_events_with_stream(&client, "ft-123").await?;
 ///
@@ -318,12 +313,11 @@ pub async fn list_events_with_stream(
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, fine_tune::delete};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let resp = delete(&client, "model-to-delete").await?;
 ///     println!("{:#?}", resp);

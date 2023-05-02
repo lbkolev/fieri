@@ -126,12 +126,11 @@ pub struct Completion {
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, completion::{create, CompletionParamBuilder}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let param = CompletionParamBuilder::new("ada")
 ///         .prompt("Haskell is a programming language. Generate a poem about Messi and World Cup 2022.")
@@ -154,12 +153,11 @@ pub async fn create(client: &Client, param: &CompletionParam) -> Result<Completi
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, completion::{create_with_stream, CompletionParamBuilder}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let param = CompletionParamBuilder::new("ada")
 ///         .prompt("Haskell is a programming language. Generate a poem about Messi and World Cup 2022.")

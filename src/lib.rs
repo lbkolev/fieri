@@ -7,6 +7,7 @@
 //! Once you've signed up, you'll be able to find your API key in the API Keys section of the developer portal.
 //!
 //! Each request requires a Client, initialized with your API key.
+//! By default, the API key is read from the `OPENAI_API_KEY` environment variable.
 //!
 //! ## Examples
 //!
@@ -20,7 +21,7 @@
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {
-//!     let client = Client::new(env::var("OPENAI_API_KEY")?);
+//!     let client = Client::new();
 //!
 //!     let param = CompletionParamBuilder::new("ada")
 //!         .prompt("Generate a plot for an absurd interstellar parody.")
@@ -48,7 +49,7 @@
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {
-//!     let client = Client::new(env::var("OPENAI_API_KEY")?);
+//!     let client = Client::new();
 //!
 //!     let param = CompletionParamBuilder::new("ada")
 //!         .prompt("unnecessarily lo")
@@ -80,7 +81,7 @@
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {
-//!     let client = Client::new(env::var("OPENAI_API_KEY")?);
+//!     let client = Client::new();
 //!
 //!     let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on top of the highest mountain on Mars.")
 //!         .size(ImageSize::S1024x1024)
