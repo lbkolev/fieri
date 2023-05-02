@@ -196,7 +196,7 @@ pub async fn create(client: &Client, param: &CreateFineTuneParam) -> Result<Fine
 /// Related OpenAI docs: [List Fine-tune](https://beta.openai.com/docs/api-reference/fine-tunes/list)
 ///
 /// ## Example
-/// ```rust
+/// ```no_run
 /// use std::env;
 /// use fieri::{Client, fine_tune::list};
 ///
@@ -380,103 +380,117 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create_fine_tune() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
+    #[test]
+    fn test_create_fine_tune() {
+        let resp: FineTune = serde_json::from_str(
+            r#"
+            {
+                "id": "ft-AF1WoRqd3aJAHsqc9NY7iL8F",
+                "object": "fine-tune",
+                "model": "curie",
+                "created_at": 1614807352,
+                "events": [
+                  {
+                    "object": "fine-tune-event",
+                    "created_at": 1614807352,
+                    "level": "info",
+                    "message": "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                  }
+                ],
+                "fine_tuned_model": null,
+                "hyperparams": {
+                  "batch_size": 4,
+                  "learning_rate_multiplier": 0.1,
+                  "n_epochs": 4,
+                  "prompt_loss_weight": 0.1
+                },
+                "organization_id": "org-...",
+                "result_files": [],
+                "status": "pending",
+                "validation_files": [],
+                "training_files": [
+                  {
+                    "id": "file-XGinujblHPwGLSztz8cPS8XY",
+                    "object": "file",
+                    "bytes": 1547276,
+                    "created_at": 1610062281,
+                    "filename": "my-data-train.jsonl",
+                    "purpose": "fine-tune-train"
+                  }
+                ],
+                "updated_at": 1614807352
+            }              
+            "#,
+        )
+        .unwrap();
 
-        let param = CreateFineTuneParamBuilder::new("file-mN8td2DLg8bHQh0K7Bla7x7Z")
-            .validation_file("file-1FZQ73L5AK8UknTTT0PxWMBE")
-            .n_epochs(1)
-            .batch_size(1)
-            .learning_rate_multiplier(1.0)
-            .prompt_loss_weight(1.0)
-            .compute_classification_metrics(true)
-            .classification_n_classes(1)
-            .classification_positive_class("positive")
-            .classification_betas(vec![1.0, 1.0])
-            .suffix(" ")
-            .build()?;
-
-        let resp = create(&client, &param).await?;
-        println!("{:#?}", resp);
-
+        assert_eq!(resp.id, "ft-AF1WoRqd3aJAHsqc9NY7iL8F");
         assert_eq!(resp.object, "fine-tune");
-        assert!(resp.token_usage.is_none());
-        Ok(())
+        assert_eq!(resp.events.len(), 1);
+        assert_eq!(resp.training_files[0].filename, "my-data-train.jsonl");
     }
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_list_fine_tune() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
+    #[test]
+    fn test_list_fine_tune_events() {
+        let resp: ListEvents = serde_json::from_str(
+            r#"
+            {
+                "object": "list",
+                "data": [
+                  {
+                    "object": "fine-tune-event",
+                    "created_at": 1614807352,
+                    "level": "info",
+                    "message": "Job enqueued. Waiting for jobs ahead to complete. Queue number: 0."
+                  },
+                  {
+                    "object": "fine-tune-event",
+                    "created_at": 1614807356,
+                    "level": "info",
+                    "message": "Job started."
+                  },
+                  {
+                    "object": "fine-tune-event",
+                    "created_at": 1614807861,
+                    "level": "info",
+                    "message": "Uploaded snapshot: curie:ft-acmeco-2021-03-03-21-44-20."
+                  },
+                  {
+                    "object": "fine-tune-event",
+                    "created_at": 1614807864,
+                    "level": "info",
+                    "message": "Uploaded result files: file-QQm6ZpqdNwAaVC3aSz5sWwLT."
+                  },
+                  {
+                    "object": "fine-tune-event",
+                    "created_at": 1614807864,
+                    "level": "info",
+                    "message": "Job succeeded."
+                  }
+                ]
+              }              
+            "#,
+        )
+        .unwrap();
 
-        let resp = list(&client).await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.token_usage.is_none());
-        Ok(())
+        assert_eq!(resp.data.len(), 5);
+        assert_eq!(resp.data[0].level, "info");
     }
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_retrieve_fine_tune() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
+    #[test]
+    fn test_delete_fine_tune() {
+        let resp: Delete = serde_json::from_str(
+            r#"
+            {
+                "id": "curie:ft-acmeco-2021-03-03-21-44-20",
+                "object": "model",
+                "deleted": true
+            }              
+            "#,
+        )
+        .unwrap();
 
-        let resp = retrieve(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.token_usage.is_none());
-        Ok(())
-    }
-
-    #[ignore]
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_cancel_fine_tune() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
-
-        let resp = cancel(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.token_usage.is_none());
-        Ok(())
-    }
-
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_list_fine_tune_events() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
-
-        let resp = list_events(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.token_usage.is_none());
-        Ok(())
-    }
-
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_list_fine_tune_events_with_stream() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
-
-        let mut resp = list_events_with_stream(&client, "ft-pxhz75Q1U9cAHOyCRzaoClNL").await?;
-        let mut times = 0;
-
-        while let Some(chunk) = resp.chunk().await? {
-            println!("{:#?}", chunk);
-            times += 1;
-        }
-
-        assert_eq!(times > 1, true);
-        Ok(())
-    }
-
-    #[ignore = "requires file deletion"]
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_delete_fine_tune() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
-
-        let resp = delete(&client, "model-to-delete").await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.deleted);
-        Ok(())
+        assert_eq!(resp.id, "curie:ft-acmeco-2021-03-03-21-44-20");
     }
 }

@@ -202,8 +202,8 @@ impl Client {
 mod tests {
     use super::*;
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create_completion() -> Result<()> {
+    #[test]
+    fn test_create_completion() {
         let param: CompletionParam = serde_json::from_str(
             r#"
             {
@@ -243,7 +243,8 @@ mod tests {
                 }
             }
             "#,
-        )?;
+        )
+        .unwrap();
 
         assert_eq!(param.model, "text-davinci-003");
         assert_eq!(param.prompt.unwrap(), "Say this is a test");
@@ -255,6 +256,5 @@ mod tests {
         );
         assert_eq!(resp.choices[0].logprobs, None);
         assert_eq!(resp.usage.unwrap().prompt_tokens, 5);
-        Ok(())
     }
 }

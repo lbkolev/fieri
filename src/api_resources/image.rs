@@ -17,6 +17,7 @@ use std::{
     fs,
     io::{copy, Cursor},
     path::Path,
+    str::FromStr,
 };
 
 use crate::{api_resources::TokenUsage, Client, Result};
@@ -24,7 +25,7 @@ use crate::{api_resources::TokenUsage, Client, Result};
 /// The size of the generated images.
 ///
 /// Must be one of 256x256, 512x512, or 1024x1024.
-#[derive(Clone, Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 pub enum ImageSize {
     S256x256,
     S512x512,
@@ -38,6 +39,19 @@ impl std::fmt::Display for ImageSize {
             ImageSize::S256x256 => write!(f, "256x256"),
             ImageSize::S512x512 => write!(f, "512x512"),
             ImageSize::S1024x1024 => write!(f, "1024x1024"),
+        }
+    }
+}
+
+impl FromStr for ImageSize {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "256x256" => Ok(ImageSize::S256x256),
+            "512x512" => Ok(ImageSize::S512x512),
+            "1024x1024" => Ok(ImageSize::S1024x1024),
+            _ => Err(format!("Invalid ImageSize: {}", s)),
         }
     }
 }
@@ -95,7 +109,7 @@ impl Image {
     ///
     ///
     /// ## Example
-    /// ```rust
+    /// ```no_run
     /// // Generate an image based on a prompt and save it locally.
     /// use std::env;
     /// use fieri::{Client, image::{ImageSize, GenerateImageParamBuilder, generate}};
@@ -347,56 +361,38 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
 
-    #[ignore = "expensive"]
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_generate_image() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
+    #[test]
+    fn test_parse_image_response() {
+        let param: GenerateImageParam = serde_json::from_str(
+            r#"{
+                "prompt": "A cute baby sea otter",
+                "size": "S256x256",
+                "n": 1
+            }"#,
+        )
+        .unwrap();
 
-        let param = GenerateImageParamBuilder::new("Generate an image reflecting the year 1939.")
-            .size(ImageSize::S256x256)
-            .n(1)
-            .build()?;
+        let result: Image = serde_json::from_str(
+            r#"
+            {
+                "created": 1589478378,
+                "data": [
+                    {
+                        "url": "https://..."
+                    },
+                    {
+                        "url": "https://..."
+                    }
+                ]
+            }
+        "#,
+        )
+        .unwrap();
 
-        let resp = generate(&client, &param).await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.token_usage.is_none());
-        Ok(())
-    }
-
-    #[ignore = "expensive"]
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_edit_image() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
-
-        let param = EditImageParamBuilder::new("Make it more generic")
-            .size(ImageSize::S256x256)
-            .n(1)
-            .build()?;
-
-        let resp = edit(&client, "assets/image_tests.png", &param).await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.token_usage.is_none());
-        Ok(())
-    }
-
-    #[ignore = "expensive"]
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_variate_image() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
-
-        let param = VariateImageParamBuilder::new()
-            .size(ImageSize::S256x256)
-            .n(1)
-            .build()?;
-
-        let resp = variate(&client, "./assets/image_tests.png", &param).await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.token_usage.is_none());
-        Ok(())
+        assert_eq!(param.prompt, "A cute baby sea otter");
+        assert_eq!(param.size, Some(ImageSize::S256x256));
+        assert_eq!(param.user, None);
+        assert_eq!(result.data.unwrap().len(), 2);
     }
 }
