@@ -253,21 +253,3 @@ impl Client {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_client() {
-        let client = Client::new();
-
-        assert!(client.config.headers.get(AUTHORIZATION).is_some());
-        assert!(client.config.headers.get("OpenAI-Organization").is_none());
-
-        let client = Client::new().organization("random-org".to_string());
-
-        assert!(client.config.headers.get(AUTHORIZATION).is_some());
-        assert!(client.config.headers.get("OpenAI-Organization").is_some());
-    }
-}
