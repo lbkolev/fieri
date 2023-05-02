@@ -68,7 +68,6 @@ pub struct Edit {
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, edit::{create, EditParamBuilder}};
 ///
 /// #[tokio::main]

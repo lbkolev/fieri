@@ -102,7 +102,6 @@ pub struct CategoryScores {
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, moderation::{ModerationParamBuilder, create}};
 ///
 /// #[tokio::main]

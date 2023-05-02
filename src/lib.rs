@@ -17,7 +17,6 @@
 //!     completion::{create, CompletionParamBuilder},
 //!     Client, Error,
 //! };
-//! use std::env;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {
@@ -45,7 +44,6 @@
 //!     completion::{create_with_stream, Completion, CompletionParamBuilder},
 //!     Client, Error,
 //! };
-//! use std::env;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {
@@ -77,7 +75,6 @@
 //!     image::{ImageSize, GenerateImageParamBuilder, generate},
 //!     Client, Error,
 //! };
-//! use std::env;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Error> {

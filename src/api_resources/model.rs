@@ -49,7 +49,6 @@ pub struct Permissions {
 ///
 /// ## Example:
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, model::retrieve};
 ///
 /// #[tokio::main]
@@ -71,7 +70,6 @@ pub async fn retrieve(client: &Client, model: impl Into<String>) -> Result<Model
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, model::list};
 ///
 /// #[tokio::main]

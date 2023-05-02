@@ -196,7 +196,6 @@ pub async fn create(client: &Client, param: &CreateFineTuneParam) -> Result<Fine
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, fine_tune::list};
 ///
 /// #[tokio::main]

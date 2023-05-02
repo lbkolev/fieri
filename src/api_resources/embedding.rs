@@ -68,7 +68,6 @@ type Embeddings = Vec<f32>;
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, embedding::{create, EmbeddingParamBuilder}};
 ///
 /// #[tokio::main]
