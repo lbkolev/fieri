@@ -67,7 +67,7 @@ type Embeddings = Vec<f32>;
 /// Related OpenAI docs: [Create Embeddings](https://beta.openai.com/docs/api-reference/embeddings/create).
 ///
 /// ## Example
-/// ```rust
+/// ```no_run
 /// use std::env;
 /// use fieri::{Client, embedding::{create, EmbeddingParamBuilder}};
 ///
@@ -99,23 +99,47 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_create() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
+    #[test]
+    fn test_create_embedding() {
+        let param: EmbeddingParam = serde_json::from_str(
+            r#"
+            {
+                "model": "text-embedding-ada-002",
+                "input": "The food was delicious and the waiter..."
+            }              
+            "#,
+        )
+        .unwrap();
 
-        let param = EmbeddingParamBuilder::default()
-            .model("text-embedding-ada-002")
-            .input("Hello world!")
-            .user("rand-user")
-            .build()?;
+        let resp: Embedding = serde_json::from_str(
+            r#"
+            {
+                "object": "list",
+                "data": [
+                  {
+                    "object": "embedding",
+                    "embedding": [
+                      0.0023064255,
+                      -0.009327292,
+                      -0.0028842222
+                    ],
+                    "index": 0
+                  }
+                ],
+                "model": "text-embedding-ada-002",
+                "usage": {
+                  "prompt_tokens": 8,
+                  "total_tokens": 8
+                }
+              }              
+            "#,
+        )
+        .unwrap();
 
-        let resp = create(&client, &param).await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.usage.is_some());
-        assert!(resp.mode.is_empty());
-        Ok(())
+        assert_eq!(param.model, "text-embedding-ada-002");
+        assert_eq!(param.user, None);
+        assert_eq!(resp.data.len(), 1);
+        assert_eq!(resp.data[0].embedding.len(), 3);
     }
 }

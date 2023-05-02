@@ -361,10 +361,9 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
 
     #[test]
-    fn test_generate_image() {
+    fn test_parse_image_response() {
         let param: GenerateImageParam = serde_json::from_str(
             r#"{
                 "prompt": "A cute baby sea otter",
@@ -395,37 +394,5 @@ mod tests {
         assert_eq!(param.size, Some(ImageSize::S256x256));
         assert_eq!(param.user, None);
         assert_eq!(result.data.unwrap().len(), 2);
-    }
-
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_edit_image() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
-
-        let param = EditImageParamBuilder::new("Make it more generic")
-            .size(ImageSize::S256x256)
-            .n(1)
-            .build()?;
-
-        let resp = edit(&client, "assets/image_tests.png", &param).await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.token_usage.is_none());
-        Ok(())
-    }
-
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_variate_image() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
-
-        let param = VariateImageParamBuilder::new()
-            .size(ImageSize::S256x256)
-            .n(1)
-            .build()?;
-
-        let resp = variate(&client, "./assets/image_tests.png", &param).await?;
-        println!("{:#?}", resp);
-
-        assert!(resp.token_usage.is_none());
-        Ok(())
     }
 }

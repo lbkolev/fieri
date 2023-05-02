@@ -45,7 +45,7 @@ impl std::fmt::Display for Purpose {
 /// Related OpenAI docs: [List Files](https://beta.openai.com/docs/api-reference/files/list)
 ///
 /// ## Example
-/// ```rust
+/// ```no_run
 /// use std::env;
 /// use fieri::{Client, file::list};
 ///
@@ -172,64 +172,58 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_list_files() -> Result<()> {
-        let client =
-            Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
-
-        let resp = list(&client).await?;
-        println!("{:#?}", resp);
-
-        assert_eq!(resp.object, "list");
-        assert!(resp.token_usage.is_none());
-        Ok(())
-    }
-
-    #[ignore = "requires file upload"]
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_upload_file() -> Result<()> {
-        let client =
-            Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
-
-        let resp = upload(
-            &client,
-            "./assets/file_upload_example.jsonl",
-            Purpose::FineTune,
+    #[test]
+    fn test_list_files() {
+        let resp: ListFiles = serde_json::from_str(
+            r#"
+            {
+                "data": [
+                  {
+                    "id": "file-ccdDZrC3iZVNiQVeEA6Z66wf",
+                    "object": "file",
+                    "bytes": 175,
+                    "created_at": 1613677385,
+                    "filename": "train.jsonl",
+                    "purpose": "search"
+                  },
+                  {
+                    "id": "file-XjGxS3KTG0uNmNOK362iJua3",
+                    "object": "file",
+                    "bytes": 140,
+                    "created_at": 1613779121,
+                    "filename": "puppy.jsonl",
+                    "purpose": "search"
+                  }
+                ],
+                "object": "list"
+              }              
+            "#,
         )
-        .await?;
-        println!("{:#?}", resp);
+        .unwrap();
 
-        assert_eq!(resp.object, "file");
-        assert!(resp.token_usage.is_none());
-        Ok(())
+        assert_eq!(resp.data.len(), 2);
+        assert_eq!(resp.data[0].id, "file-ccdDZrC3iZVNiQVeEA6Z66wf");
+        assert_eq!(resp.data[1].object, "file");
     }
 
-    #[ignore]
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_delete_file() -> Result<()> {
-        let client =
-            Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
+    #[test]
+    fn test_upload_file() {
+        let resp: File = serde_json::from_str(
+            r#"
+            {
+                "id": "file-XjGxS3KTG0uNmNOK362iJua3",
+                "object": "file",
+                "bytes": 140,
+                "created_at": 1613779121,
+                "filename": "mydata.jsonl",
+                "purpose": "fine-tune"
+              }              
+            "#,
+        )
+        .unwrap();
 
-        let resp = delete(&client, "rand-file").await?;
-        println!("{:#?}", resp);
-
-        assert_eq!(resp.deleted, false);
-        assert!(resp.token_usage.is_none());
-        Ok(())
-    }
-
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_retrieve_file() -> Result<()> {
-        let client =
-            Client::new(env::var("OPENAI_API_KEY")?).organization(env::var("OPENAI_ORGANIZATION")?);
-
-        let resp = retrieve(&client, "file-1FZQ73L5AK8UknTTT0PxWMBE").await?;
-        println!("{:#?}", resp);
-
+        assert_eq!(resp.id, "file-XjGxS3KTG0uNmNOK362iJua3");
         assert_eq!(resp.object, "file");
-        assert!(resp.token_usage.is_none());
-        Ok(())
     }
 }

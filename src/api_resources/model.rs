@@ -101,29 +101,66 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_model_list() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
+    #[test]
+    fn test_model_list() {
+        let resp: Models = serde_json::from_str(
+            r#"
+            {
+                "data": [
+                  {
+                    "id": "model-id-0",
+                    "object": "model",
+                    "created": 1623155849,
+                    "owned_by": "organization-owner",
+                    "permission": [],
+                    "root": "model-id-1"
+                  },
+                  {
+                    "id": "model-id-1",
+                    "object": "model",
+                    "created": 11,
+                    "owned_by": "organization-owner",
+                    "permission": [],
+                    "root": "model-id-0"
+                  },
+                  {
+                    "id": "model-id-2",
+                    "object": "model",
+                    "created": 1234567890,
+                    "owned_by": "openai",
+                    "permission": [],
+                    "root": "model-id-2"
+                  }
+                ],
+                "object": "list"
+              }              
+            "#,
+        )
+        .unwrap();
 
-        let resp: Model = retrieve(&client, "text-babbage-001").await?;
-        println!("{:#?}", resp);
-
-        assert_eq!(resp.root, "text-babbage-001");
+        assert_eq!(resp.data.len(), 3);
+        assert_eq!(resp.data[0].id, "model-id-0");
         assert!(resp.token_usage.is_none());
-        Ok(())
     }
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-    async fn test_model_retrieve() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
+    #[test]
+    fn test_model_retrieve() {
+        let resp: Model = serde_json::from_str(
+            r#"
+            {
+                "id": "text-davinci-003",
+                "object": "model",
+                "created": 1623155849,
+                "owned_by": "openai",
+                "permission": [],
+                "root": "text-davinci-003"
+              }              
+            "#,
+        )
+        .unwrap();
 
-        let resp = list(&client).await?;
-        println!("{:#?}", resp);
-
-        assert!(!resp.data.is_empty());
+        assert_eq!(resp.id, "text-davinci-003");
         assert!(resp.token_usage.is_none());
-        Ok(())
     }
 }

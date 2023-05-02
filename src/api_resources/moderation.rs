@@ -101,7 +101,7 @@ pub struct CategoryScores {
 /// Related OpenAI docs: [Create Moderation](https://beta.openai.com/docs/api-reference/moderations/create).
 ///
 /// ## Example
-/// ```rust
+/// ```no_run
 /// use std::env;
 /// use fieri::{Client, moderation::{ModerationParamBuilder, create}};
 ///
@@ -133,21 +133,54 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::env;
 
-    #[tokio::test]
-    async fn test_create_moderation() -> Result<()> {
-        let client = Client::new(env::var("OPENAI_API_KEY")?);
+    #[test]
+    fn test_create_moderation() {
+        let param: ModerationParam = serde_json::from_str(
+            r#"
+            {
+                "input": "I want to kill them."
+              }              
+            "#,
+        )
+        .unwrap();
 
-        let param = ModerationParamBuilder::new("That shouldn't be flagged as flagged, even though it posseses KILL, MURDER and SUICIDE")
-            .model("text-moderation-stable")
-            .build()?;
+        let resp: Moderation = serde_json::from_str(
+            r#"
+            {
+                "id": "modr-5MWoLO",
+                "model": "text-moderation-001",
+                "results": [
+                  {
+                    "categories": {
+                      "hate": false,
+                      "hate/threatening": true,
+                      "self-harm": false,
+                      "sexual": false,
+                      "sexual/minors": false,
+                      "violence": true,
+                      "violence/graphic": false
+                    },
+                    "category_scores": {
+                      "hate": 0.22714105248451233,
+                      "hate/threatening": 0.4132447838783264,
+                      "self-harm": 0.005232391878962517,
+                      "sexual": 0.01407341007143259,
+                      "sexual/minors": 0.0038522258400917053,
+                      "violence": 0.9223177433013916,
+                      "violence/graphic": 0.036865197122097015
+                    },
+                    "flagged": true
+                  }
+                ]
+              }              
+            "#,
+        )
+        .unwrap();
 
-        let resp = create(&client, &param).await?;
-        println!("{:#?}", resp);
-
-        assert!(!resp.flagged);
-        assert!(resp.token_usage.is_none());
-        Ok(())
+        assert_eq!(param.input, "I want to kill them.");
+        assert_eq!(resp.id, "modr-5MWoLO");
+        assert_eq!(resp.model, "text-moderation-001");
+        assert_eq!(resp.results.len(), 1);
     }
 }

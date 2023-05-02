@@ -215,13 +215,13 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn test_client() -> Result<()> {
-        let client = Client::new(std::env::var("OPENAI_API_KEY")?);
+        let client = Client::new("sk-111111111111122222222222222222223333333333333333");
 
         assert!(client.config.headers.get(AUTHORIZATION).is_some());
         assert!(client.config.headers.get("OpenAI-Organization").is_none());
 
-        let client = Client::new(std::env::var("OPENAI_API_KEY")?)
-            .organization(std::env::var("OPENAI_ORGANIZATION")?);
+        let client = Client::new("sk-111111111111122222222222222222223333333333333333")
+            .organization("OpenAI-Organization".to_string());
 
         assert!(client.config.headers.get(AUTHORIZATION).is_some());
         assert!(client.config.headers.get("OpenAI-Organization").is_some());

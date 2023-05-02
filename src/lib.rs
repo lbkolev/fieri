@@ -11,7 +11,7 @@
 //! ## Examples
 //!
 //! ### Generate text based on a prompt
-//! ```rust
+//! ```no_run
 //! use fieri::{
 //!     completion::{create, CompletionParamBuilder},
 //!     Client, Error,
@@ -39,7 +39,7 @@
 //! ```
 //!
 //! ### Generate and stream back text based on a prompt
-//! ```rust
+//! ```no_run
 //! use fieri::{
 //!     completion::{create_with_stream, Completion, CompletionParamBuilder},
 //!     Client, Error,
@@ -71,7 +71,7 @@
 //! ```
 //!
 //! ### Generate an image based on a prompt and save it locally.
-//! ```rust
+//! ```no_run
 //! use fieri::{
 //!     image::{ImageSize, GenerateImageParamBuilder, generate},
 //!     Client, Error,

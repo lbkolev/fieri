@@ -3,8 +3,6 @@ on:
     branches:
       - master
   pull_request:
-    branches:
-      - master
 
 name: CI
 jobs:
@@ -43,3 +41,18 @@ jobs:
         with:
           command: doc
           args: --release --no-deps
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_ORGANIZATION: ${{ secrets.OPENAI_ORGANIZATION }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+
