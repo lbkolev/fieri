@@ -16,18 +16,15 @@
     <a href="https://github.com/lbkolev/fieri/actions?query=workflow%3ACI+branch%3Amaster">
         <img src="https://github.com/lbkolev/fieri/actions/workflows/ci.yml/badge.svg">
     </a>
-    <a href="https://github.com/lbkolev/fieri/actions?query=workflow%3TESTS+branch%3Amaster">
-        <img src="https://github.com/lbkolev/fieri/actions/workflows/tests.yml/badge.svg">
-    </a>
     <a href="https://docs.rs/fieri">
         <img src="https://img.shields.io/docsrs/fieri/latest">
     </a>
 </p>
 
 ## Overview
-### Unofficial Rust client for the OpenAI API.
+### Unofficial Rust client for OpenAI.
 
-fieri provides an asynchronous Rust interface for interaction with the OpenAI API, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
+fieri provides an asynchronous Rust interface for interaction with OpenAI, allowing you to easily use OpenAI's state-of-the-art machine learning models in your Rust projects.
 
 ## Prerequisites
 Before you can use the Rust Client for OpenAI, you'll need to sign up for an API key at the OpenAI Developer Portal. Once you've signed up, you'll be able to find your API key in the [API Keys](https://beta.openai.com/account/api-keys) section of the developer portal.
@@ -47,7 +44,7 @@ use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let client = Client::new(env::var("OPENAI_API_KEY")?);
+    let client = Client::new();
 
     let param = CompletionParamBuilder::new("ada")
         .prompt("Generate a plot for an absurd interstellar parody.")
@@ -75,7 +72,7 @@ use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let client = Client::new(env::var("OPENAI_API_KEY")?);
+    let client = Client::new();
 
     let param = CompletionParamBuilder::new("ada")
         .prompt("unnecessarily lo")
@@ -107,7 +104,7 @@ use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let client = Client::new(env::var("OPENAI_API_KEY")?);
+    let client = Client::new();
 
     let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on top of the highest mountain on Mars.")
         .size(ImageSize::S1024x1024)
@@ -123,7 +120,15 @@ async fn main() -> Result<(), Error> {
 }
 ```
 
-Examples for each endpoint can be found in the [docs](https://docs.rs/fieri).
+**By default, the api key and organization are implicitly loaded from environment variables `OPENAI_API_KEY` & `OPENAI_ORGANIZATION`.** it's possible to configure/overwrite them per client. e.g: using for example: 
+```rust
+use fieri::Client
+
+let client = Client::new().api_key("<key>");
+let client_with_org = Client::new().organization("<organization>");
+```
+
+More examples can be found in the [docs](https://docs.rs/fieri).
 
 ## Limitations
 Note that the Rust Client for OpenAI is provided as-is, and is not officially supported by OpenAI. While we will do our best to keep the library up-to-date and bug-free, we cannot guarantee that it will always work as expected.

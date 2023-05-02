@@ -102,12 +102,11 @@ pub struct CategoryScores {
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, moderation::{ModerationParamBuilder, create}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let param = ModerationParamBuilder::new("I want to kill them.")
 ///         .model("text-moderation-stable")

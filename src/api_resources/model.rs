@@ -49,12 +49,11 @@ pub struct Permissions {
 ///
 /// ## Example:
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, model::retrieve};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///     let resp = retrieve(&client, "text-babbage-001").await?;
 ///     println!("{:#?}", resp);
 ///
@@ -71,12 +70,11 @@ pub async fn retrieve(client: &Client, model: impl Into<String>) -> Result<Model
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, model::list};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///     let resp = list(&client).await?;
 ///     println!("{:#?}", resp);
 ///

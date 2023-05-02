@@ -68,12 +68,11 @@ type Embeddings = Vec<f32>;
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, embedding::{create, EmbeddingParamBuilder}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let param = EmbeddingParamBuilder::new("text-embedding-ada-002", "Hello world!")
 ///         .user("/user/")

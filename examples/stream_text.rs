@@ -4,11 +4,10 @@ use fieri::{
     completion::{create_with_stream, Completion, CompletionParamBuilder},
     Client, Error,
 };
-use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let client = Client::new(env::var("OPENAI_API_KEY")?);
+    let client = Client::new();
 
     let param = CompletionParamBuilder::new("ada")
         .prompt("unnecessarily lo")

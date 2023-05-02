@@ -68,12 +68,11 @@ pub struct Edit {
 ///
 /// ## Example
 /// ```no_run
-/// use std::env;
 /// use fieri::{Client, edit::{create, EditParamBuilder}};
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let client = Client::new(env::var("OPENAI_API_KEY")?);
+///     let client = Client::new();
 ///
 ///     let param = EditParamBuilder::new("text-davinci-edit-001", "Fix the spelling mistakes")
 ///         .input("What dey of the wek is it?")
