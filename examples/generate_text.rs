@@ -1,5 +1,3 @@
-//! Generate text
-
 use fieri::{
     completion::{create, CompletionParamBuilder},
     Client, Error,

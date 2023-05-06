@@ -32,95 +32,23 @@ Before you can use the Rust Client for OpenAI, you'll need to sign up for an API
 ## Installation
 Run `cargo add fieri` in your terminal to add the latest version of the client.
 
-## Basic Usage
 
-### Generate text based on a prompt
+## ChatGPT
 ```rust
 use fieri::{
-    completion::{create, CompletionParamBuilder},
+    chat::{chat, ChatMessageBuilder, ChatParamBuilder},
     Client, Error,
 };
-use std::env;
 
-#[tokio::main]
-async fn main() -> Result<(), Error> {
-    let client = Client::new();
+let client = Client::new();
+let message = ChatMessageBuilder::new("user", "Hello!").build()?;
+let param = ChatParamBuilder::new("gpt-3.5-turbo", vec![message]).build()?;
 
-    let param = CompletionParamBuilder::new("ada")
-        .prompt("Generate a plot for an absurd interstellar parody.")
-        .max_tokens(500)
-        .temperature(0.9)
-        .top_p(1.0)
-        .frequency_penalty(0.0)
-        .presence_penalty(0.0)
-        .build()?;
-
-    let resp = create(&client, &param).await?;
-    println!("Generated text: {:#?}", resp);
-
-    Ok(())
-}
+let resp = chat(&client, &param).await?;
+println!("{:#?}", resp);
 ```
 
-### Generate and stream back text based on a prompt
-```rust
-use fieri::{
-    completion::{create_with_stream, Completion, CompletionParamBuilder},
-    Client, Error,
-};
-use std::env;
-
-#[tokio::main]
-async fn main() -> Result<(), Error> {
-    let client = Client::new();
-
-    let param = CompletionParamBuilder::new("ada")
-        .prompt("unnecessarily lo")
-        .temperature(0.5)
-        .build()?;
-
-    let mut resp = create_with_stream(&client, &param).await?;
-
-    while let Some(chunk) = resp.chunk().await? {
-        if chunk.to_vec() == b"data: [DONE]\n\n" {
-            break;
-        }
-
-        let v: Completion = serde_json::from_slice(&chunk[5..])?;
-        v.choices.iter().for_each(|c| println!("{:?}", c.text));
-    }
-
-    Ok(())
-}
-```
-
-### Generate an image based on a prompt and save it locally.
-```rust
-use fieri::{
-    image::{ImageSize, GenerateImageParamBuilder, generate},
-    Client, Error,
-};
-use std::env;
-
-#[tokio::main]
-async fn main() -> Result<(), Error> {
-    let client = Client::new();
-
-    let param = GenerateImageParamBuilder::new("A bunch of cats dancing tango on top of the highest mountain on Mars.")
-        .size(ImageSize::S1024x1024)
-        .n(1)
-        .build()?;
-
-    generate(&client, &param)
-        .await?
-        .save("/tmp/")
-        .await?;
-
-    Ok(())
-}
-```
-
-**By default, the api key and organization are implicitly loaded from environment variables `OPENAI_API_KEY` & `OPENAI_ORGANIZATION`.** it's possible to configure/overwrite them per client. e.g: using for example: 
+By default, the api key and organization are implicitly loaded from environment variables `OPENAI_API_KEY` & `OPENAI_ORGANIZATION`. It's possible to configure/overwrite them per client, using for example:
 ```rust
 use fieri::Client
 

@@ -53,16 +53,45 @@ pub struct ChatParam {
     user: Option<String>,
 }
 
+#[skip_serializing_none]
 #[derive(Builder, Clone, Debug, Default, Deserialize, Serialize)]
+#[builder(default, setter(into, strip_option))]
 pub struct ChatMessage {
     /// The role of the author of this message. One of system, user, or assistant.
-    role: String,
+    pub role: String,
 
     /// The contents of the message.
-    content: String,
+    pub content: String,
 
     /// The name of the author of this message. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
-    name: Option<String>,
+    pub name: Option<String>,
+}
+
+impl ChatMessageBuilder {
+    pub fn new(role: impl Into<String>, content: impl Into<String>) -> Self {
+        Self {
+            role: Some(role.into()),
+            content: Some(content.into()),
+            ..Self::default()
+        }
+    }
+}
+
+impl ChatParamBuilder {
+    pub fn new(model: impl Into<String>, messages: Vec<ChatMessage>) -> Self {
+        Self {
+            model: Some(model.into()),
+            messages: Some(messages),
+            ..Self::default()
+        }
+    }
+}
+
+#[derive(Builder, Clone, Debug, Default, Deserialize, Serialize)]
+pub struct ChatChoice {
+    pub index: u32,
+    pub message: ChatMessage,
+    pub finish_reason: Option<String>,
 }
 
 #[derive(Builder, Clone, Debug, Default, Deserialize, Serialize)]
@@ -73,13 +102,6 @@ pub struct Chat {
     choices: Vec<ChatChoice>,
 
     usage: TokenUsage,
-}
-
-#[derive(Builder, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct ChatChoice {
-    pub index: u32,
-    pub message: ChatMessage,
-    pub finish_reason: Option<String>,
 }
 
 pub async fn chat(client: &Client, param: &ChatParam) -> Result<Chat> {
@@ -104,7 +126,7 @@ mod tests {
             {
                 "model": "gpt-3.5-turbo",
                 "messages": [{"role": "user", "content": "Hello!"}]
-            }              
+            }
             "#,
         )
         .unwrap();
@@ -128,7 +150,7 @@ mod tests {
                   "completion_tokens": 12,
                   "total_tokens": 21
                 }
-              }              
+              }
             "#,
         )
         .unwrap();

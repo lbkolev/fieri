@@ -39,3 +39,7 @@ path = "examples/generate_text.rs"
 [[example]]
 name = "stream_text"
 path = "examples/stream_text.rs"
+
+[[example]]
+name = "chatgpt"
+path = "examples/chatgpt.rs"
