@@ -19,9 +19,16 @@ pub struct TokenUsage {
 
 #[derive(Clone, Debug, std::default::Default, serde::Deserialize, serde::Serialize)]
 pub struct Choices {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub index: Option<u32>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub finish_reason: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub logprobs: Option<f32>,
 }
 
@@ -33,6 +40,7 @@ pub struct Delete {
     pub object: String,
     pub deleted: bool,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub token_usage: Option<TokenUsage>,
 }
 
@@ -48,6 +56,7 @@ pub struct File {
     pub purpose: String,
     pub status: String,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub token_usage: Option<TokenUsage>,
 }
 

@@ -41,6 +41,12 @@ pub enum Error {
 
     #[error("Invalid values provided. {0}")]
     GenerateImageParamBuilderError(#[from] crate::image::GenerateImageParamBuilderError),
+
+    #[error("Invalid values provided. {0}")]
+    ChatParamBuilderError(#[from] crate::chat::ChatParamBuilderError),
+
+    #[error("Invalid values provided. {0}")]
+    ChatMessageBuilderError(#[from] crate::chat::ChatMessageBuilderError),
 }
 
 /// Possible Errors returned by responses from OpenAI.

@@ -74,12 +74,15 @@ pub struct GenerateImageParam {
     prompt: String,
 
     /// The number of images to generate. Must be between 1 and 10.
+    #[serde(skip_serializing_if = "Option::is_none")]
     n: Option<u8>,
 
     /// The size of the generated images.
+    #[serde(skip_serializing_if = "Option::is_none")]
     size: Option<ImageSize>,
 
     /// A unique identifier representing your end-user.
+    #[serde(skip_serializing_if = "Option::is_none")]
     user: Option<String>,
 }
 
@@ -95,8 +98,13 @@ impl GenerateImageParamBuilder {
 /// Response from [Generate](generate), [Edit](edit) & [Variation](variate) requests.
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Image {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<u64>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<Links>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub token_usage: Option<TokenUsage>,
 }
 

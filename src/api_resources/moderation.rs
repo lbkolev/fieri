@@ -21,6 +21,7 @@ use crate::{api_resources::TokenUsage, Client, Result};
 #[builder(default, setter(into, strip_option))]
 pub struct ModerationParam {
     /// The content moderations model to use for the request.
+    #[serde(skip_serializing_if = "Option::is_none")]
     model: Option<String>,
 
     /// The input text to classify.
@@ -139,7 +140,7 @@ mod tests {
             r#"
             {
                 "input": "I want to kill them."
-              }              
+              }
             "#,
         )
         .unwrap();
@@ -172,7 +173,7 @@ mod tests {
                     "flagged": true
                   }
                 ]
-              }              
+              }
             "#,
         )
         .unwrap();

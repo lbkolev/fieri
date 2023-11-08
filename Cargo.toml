@@ -2,27 +2,36 @@
 name = "fieri"
 version = "0.7.0"
 edition = "2021"
-authors = [ "Lachezar Kolev <lachezarkolevgg@gmail.com>" ]
+authors = ["Lachezar Kolev <lachezarkolevgg@gmail.com>"]
 rust-version = "1.66.0"
-description = "Unofficial Rust client for OpenAI."
+description = "Unofficial OpenAI Rust SDK."
 documentation = "https://docs.rs/fieri"
 readme = "README.md"
 homepage = "https://docs.rs/fieri"
 repository = "https://github.com/lbkolev/fieri"
 keyword = ["openai", "rest-client"]
-categories = ["api-bindings"]
+categories = ["api-bindings", "sdk", "cli"]
 license = "MIT"
 
 [dependencies]
-tokio = { version = "1.24.1",  features = ["full"]}
-reqwest = { version = "0.11.13", features = ["json", "multipart", "stream"]}
-serde = { version = "1.0.152", features = ["derive"]}
+clap = { version = "4.3.12", features = ["derive", "env", "cargo", "string"], optional = true }
+derive_builder = "0.12.0"
+reqwest = { version = "0.11.13", features = ["json", "multipart", "stream"] }
+rustyline = { version = "12.0.0", features = ["with-file-history"], optional = true }
+serde = { version = "1.0.152", features = ["derive"] }
+serde_derive = "1.0.152"
 serde_json = "1.0.91"
 serde_with = "2.2.0"
-serde_derive = "1.0.152"
 thiserror = "1.0.38"
-derive_builder = "0.12.0"
+tokio = { version = "1.24.1", features = ["full"] }
 url = "2.3.1"
+
+[features]
+binary = ["clap", "rustyline"]
+
+[[bin]]
+name = "fieri"
+required-features = ["binary"]
 
 [[example]]
 name = "get_models"
@@ -39,3 +48,7 @@ path = "examples/generate_text.rs"
 [[example]]
 name = "stream_text"
 path = "examples/stream_text.rs"
+
+[[example]]
+name = "chatgpt"
+path = "examples/chatgpt.rs"

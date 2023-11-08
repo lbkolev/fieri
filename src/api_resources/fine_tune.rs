@@ -40,44 +40,55 @@ pub struct CreateFineTuneParam {
     /// If you provide this file, the data is used to generate validation metrics periodically during fine-tuning. These metrics can be viewed in the fine-tuning results file.
     /// Your train and validation data should be mutually exclusive.
     // Note: Even though it's given as "optional" in the docs, it's required in the API.
+    #[serde(skip_serializing_if = "Option::is_none")]
     validation_file: Option<String>,
 
     /// The name of the base model to fine-tune. You can select one of "ada", "babbage", "curie", "davinci", or a fine-tuned model created after 2022-04-21.
+    #[serde(skip_serializing_if = "Option::is_none")]
     model: Option<String>,
 
     /// The number of epochs to train the model for. An epoch refers to one full cycle through the training dataset.
+    #[serde(skip_serializing_if = "Option::is_none")]
     n_epochs: Option<i32>,
 
     /// The batch size to use for training. The batch size is the number of training examples used to train a single forward and backward pass.
+    #[serde(skip_serializing_if = "Option::is_none")]
     batch_size: Option<i32>,
 
     /// The learning rate multiplier to use for training. The fine-tuning learning rate is the original learning rate used for pretraining multiplied by this value.
+    #[serde(skip_serializing_if = "Option::is_none")]
     learning_rate_multiplier: Option<f32>,
 
     /// The weight to use for loss on the prompt tokens.
     ///
     /// This controls how much the model tries to learn to generate the prompt (as compared to the completion which always has a weight of 1.0), and can add a stabilizing effect to training when completions are short.
+    #[serde(skip_serializing_if = "Option::is_none")]
     prompt_loss_weight: Option<f32>,
 
     /// If set, we calculate classification-specific metrics such as accuracy and F-1 score using the validation set at the end of every epoch.
+    #[serde(skip_serializing_if = "Option::is_none")]
     compute_classification_metrics: Option<bool>,
 
     /// The number of classes in a classification task.
     ///
     /// This parameter is required for multiclass classification.
+    #[serde(skip_serializing_if = "Option::is_none")]
     classification_n_classes: Option<i32>,
 
     /// The positive class in binary classification.
     ///
     /// This parameter is needed to generate precision, recall, and F1 metrics when doing binary classification.
+    #[serde(skip_serializing_if = "Option::is_none")]
     classification_positive_class: Option<String>,
 
     /// If this is provided, we calculate F-beta scores at the specified beta values. The F-beta score is a generalization of F-1 score. This is only used for binary classification.
     ///
     /// With a beta of 1 (i.e. the F-1 score), precision and recall are given the same weight. A larger beta score puts more weight on recall and less on precision. A smaller beta score puts more weight on precision and less on recall.
+    #[serde(skip_serializing_if = "Option::is_none")]
     classification_betas: Option<Vec<f32>>,
 
     /// Suffix to be added to the model's name.
+    #[serde(skip_serializing_if = "Option::is_none")]
     suffix: Option<String>,
 }
 
@@ -108,6 +119,7 @@ pub struct FineTune {
     pub status: String,
     pub updated_at: u64,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub token_usage: Option<TokenUsage>,
 }
 
@@ -143,6 +155,7 @@ pub struct ListEvents {
     pub object: String,
     pub data: Vec<Event>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub token_usage: Option<TokenUsage>,
 }
 
@@ -152,6 +165,7 @@ pub struct ListFineTune {
     pub object: String,
     pub data: Vec<FineTune>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub token_usage: Option<TokenUsage>,
 }
 
@@ -413,7 +427,7 @@ mod tests {
                   }
                 ],
                 "updated_at": 1614807352
-            }              
+            }
             "#,
         )
         .unwrap();
@@ -462,7 +476,7 @@ mod tests {
                     "message": "Job succeeded."
                   }
                 ]
-              }              
+              }
             "#,
         )
         .unwrap();
@@ -479,7 +493,7 @@ mod tests {
                 "id": "curie:ft-acmeco-2021-03-03-21-44-20",
                 "object": "model",
                 "deleted": true
-            }              
+            }
             "#,
         )
         .unwrap();

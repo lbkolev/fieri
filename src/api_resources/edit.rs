@@ -25,19 +25,23 @@ pub struct EditParam {
     instruction: String,
 
     /// The input text to use as a starting point for the edit.
+    #[serde(skip_serializing_if = "Option::is_none")]
     input: Option<String>,
 
     /// How many edits to generate for the input and instruction.
+    #[serde(skip_serializing_if = "Option::is_none")]
     n: Option<u32>,
 
     /// What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
     ///
     /// It's recommended to alter this or `top_p` but not both.
+    #[serde(skip_serializing_if = "Option::is_none")]
     temperature: Option<f32>,
 
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
     ///
     /// It's recommended to alter this or `temperature` but not both.
+    #[serde(skip_serializing_if = "Option::is_none")]
     top_p: Option<f32>,
 }
 
@@ -59,6 +63,7 @@ pub struct Edit {
     pub created: u64,
     pub choices: Vec<Choices>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub usage: Option<TokenUsage>,
 }
 

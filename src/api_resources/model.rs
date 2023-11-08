@@ -9,6 +9,7 @@ use crate::{api_resources::TokenUsage, Client, Result};
 pub struct Models {
     pub data: Vec<Model>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub token_usage: Option<TokenUsage>,
 }
 
@@ -21,8 +22,11 @@ pub struct Model {
     pub owned_by: String,
     pub permission: Vec<Permissions>,
     pub root: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub parent: Option<String>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub token_usage: Option<TokenUsage>,
 }
 
@@ -39,8 +43,10 @@ pub struct Permissions {
     pub allow_view: bool,
     pub allow_fine_tuning: bool,
     pub organization: String,
-    pub group: Option<String>,
     pub is_blocking: bool,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub group: Option<String>,
 }
 
 /// Retrieves a model instance, providing basic information about the model such as the owner and permissioning.
@@ -132,7 +138,7 @@ mod tests {
                   }
                 ],
                 "object": "list"
-              }              
+              }
             "#,
         )
         .unwrap();
@@ -153,7 +159,7 @@ mod tests {
                 "owned_by": "openai",
                 "permission": [],
                 "root": "text-davinci-003"
-              }              
+              }
             "#,
         )
         .unwrap();

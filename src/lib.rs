@@ -102,7 +102,9 @@ mod config;
 pub mod error;
 
 #[doc(inline)]
-pub use api_resources::{completion, edit, embedding, file, fine_tune, image, model, moderation};
+pub use api_resources::{
+    chat, completion, edit, embedding, file, fine_tune, image, model, moderation,
+};
 
 #[doc(inline)]
 pub use client::Client;

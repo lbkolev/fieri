@@ -106,7 +106,7 @@ mod tests {
             {
                 "model": "text-embedding-ada-002",
                 "input": "The food was delicious and the waiter..."
-            }              
+            }
             "#,
         )
         .unwrap();
@@ -131,7 +131,7 @@ mod tests {
                   "prompt_tokens": 8,
                   "total_tokens": 8
                 }
-              }              
+              }
             "#,
         )
         .unwrap();

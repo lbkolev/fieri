@@ -16,6 +16,7 @@ pub struct ListFiles {
     pub data: Files,
     pub object: String,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub token_usage: Option<TokenUsage>,
 }
 
@@ -193,7 +194,7 @@ mod tests {
                   }
                 ],
                 "object": "list"
-              }              
+              }
             "#,
         )
         .unwrap();
@@ -214,7 +215,7 @@ mod tests {
                 "created_at": 1613779121,
                 "filename": "mydata.jsonl",
                 "purpose": "fine-tune"
-              }              
+              }
             "#,
         )
         .unwrap();

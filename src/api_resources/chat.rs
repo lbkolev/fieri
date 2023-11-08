@@ -19,50 +19,89 @@ pub struct ChatParam {
     /// What sampling temperature to use, between 0 and 2.
     /// Higher values like 0.8 will make the output more random,
     /// while lower values like 0.2 will make it more focused and deterministic.
+    #[serde(skip_serializing_if = "Option::is_none")]
     temperature: Option<f32>,
 
     /// An alternative to sampling with temperature, called nucleus sampling,
     /// where the model considers the results of the tokens with top_p probability mass.
     /// So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+    #[serde(skip_serializing_if = "Option::is_none")]
     top_p: Option<f32>,
 
     /// How many chat completion choices to generate for each input message.
+    #[serde(skip_serializing_if = "Option::is_none")]
     n: Option<u32>,
 
     /// If set, partial message deltas will be sent, like in ChatGPT.
     //stream: bool,
 
     /// Up to 4 sequences where the API will stop generating further tokens.
+    #[serde(skip_serializing_if = "Option::is_none")]
     stop: Option<String>,
 
     /// The maximum number of tokens to generate in the chat completion.
+    #[serde(skip_serializing_if = "Option::is_none")]
     max_tokens: Option<u32>,
 
     /// Positive values penalize new tokens based on whether they appear in the text so far,
     /// increasing the model's likelihood to talk about new topics.
+    #[serde(skip_serializing_if = "Option::is_none")]
     presence_penalty: Option<f32>,
 
     /// Positive values penalize new tokens based on their existing frequency in the text so far,
     /// decreasing the model's likelihood to repeat the same line verbatim.
+    #[serde(skip_serializing_if = "Option::is_none")]
     frequency_penalty: Option<f32>,
 
     /// Modify the likelihood of specified tokens appearing in the completion.
+    #[serde(skip_serializing_if = "Option::is_none")]
     logit_bias: Option<HashMap<String, f32>>,
 
     /// A unique identifier representing your end-user.
+    #[serde(skip_serializing_if = "Option::is_none")]
     user: Option<String>,
 }
 
+#[skip_serializing_none]
 #[derive(Builder, Clone, Debug, Default, Deserialize, Serialize)]
+#[builder(default, setter(into, strip_option))]
 pub struct ChatMessage {
     /// The role of the author of this message. One of system, user, or assistant.
-    role: String,
+    pub role: String,
 
     /// The contents of the message.
-    content: String,
+    pub content: String,
 
     /// The name of the author of this message. May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
-    name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+}
+
+impl ChatMessageBuilder {
+    pub fn new(role: impl Into<String>, content: impl Into<String>) -> Self {
+        Self {
+            role: Some(role.into()),
+            content: Some(content.into()),
+            ..Self::default()
+        }
+    }
+}
+
+impl ChatParamBuilder {
+    pub fn new(model: impl Into<String>, messages: Vec<ChatMessage>) -> Self {
+        Self {
+            model: Some(model.into()),
+            messages: Some(messages),
+            ..Self::default()
+        }
+    }
+}
+
+#[derive(Builder, Clone, Debug, Default, Deserialize, Serialize)]
+pub struct ChatChoice {
+    pub index: u32,
+    pub message: ChatMessage,
+    pub finish_reason: Option<String>,
 }
 
 #[derive(Builder, Clone, Debug, Default, Deserialize, Serialize)]
@@ -73,13 +112,6 @@ pub struct Chat {
     choices: Vec<ChatChoice>,
 
     usage: TokenUsage,
-}
-
-#[derive(Builder, Clone, Debug, Default, Deserialize, Serialize)]
-pub struct ChatChoice {
-    pub index: u32,
-    pub message: ChatMessage,
-    pub finish_reason: Option<String>,
 }
 
 pub async fn chat(client: &Client, param: &ChatParam) -> Result<Chat> {
@@ -104,7 +136,7 @@ mod tests {
             {
                 "model": "gpt-3.5-turbo",
                 "messages": [{"role": "user", "content": "Hello!"}]
-            }              
+            }
             "#,
         )
         .unwrap();
@@ -128,7 +160,7 @@ mod tests {
                   "completion_tokens": 12,
                   "total_tokens": 21
                 }
-              }              
+              }
             "#,
         )
         .unwrap();
