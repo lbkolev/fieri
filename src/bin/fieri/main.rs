@@ -2,14 +2,14 @@ use std::env;
 use std::path::PathBuf;
 
 use clap::Parser;
-use clap::{crate_name, Arg, ArgMatches, Command};
+
 use fieri::{
     chat::{chat, ChatMessageBuilder, ChatParamBuilder},
-    Client, Error,
+    Client,
 };
-use rustyline::error::ReadlineError;
-use rustyline::DefaultEditor;
-use serde_json::json;
+use rustyline::{error::ReadlineError, DefaultEditor};
+
+mod version;
 
 fn history_path() -> PathBuf {
     let mut path = PathBuf::from(env::var("HOME").unwrap());
@@ -80,10 +80,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match cli.command {
         Commands::Console => run_console(&cli.history_file)?,
-        Commands::Chat { silent } => (),
+        Commands::Chat { silent: _ } => (),
     }
 
-    let client = Client::new().api_key(os::var("OPENAI_API_KEY")?);
+    let client = Client::new().api_key(std::env::var("OPENAI_API_KEY")?);
     let message = ChatMessageBuilder::new("user", "Hello!").build()?;
     let param = ChatParamBuilder::new("gpt-3.5-turbo", vec![message]).build()?;
 
