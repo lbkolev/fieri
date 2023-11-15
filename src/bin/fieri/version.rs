@@ -29,37 +29,13 @@ pub(crate) const SHORT_VERSION: &str =
 pub(crate) const LONG_VERSION: &str = const_str::concat!(
     "Version: ",
     env!("CARGO_PKG_VERSION"),
-    "\n",
-    "Commit SHA: ",
+    " | Commit SHA: ",
     env!("VERGEN_GIT_SHA"),
-    "\n",
-    "Build Timestamp: ",
+    " | Build Timestamp: ",
     env!("VERGEN_BUILD_TIMESTAMP"),
-    "\n",
-    "Build Features: ",
-    env!("VERGEN_CARGO_FEATURES"),
-    "\n",
-    "Build Profile: ",
+    " | Build Profile: ",
     build_profile_name()
 );
-
-/// The default extradata used for payload building.
-///
-/// - The latest version from Cargo.toml
-/// - The OS identifier
-///
-/// # Example
-///
-/// ```text
-/// fieri/v{major}.{minor}.{patch}/{OS}
-/// ```
-pub fn default_extradata() -> String {
-    format!(
-        "fierfi/v{}/{}",
-        env!("CARGO_PKG_VERSION"),
-        std::env::consts::OS
-    )
-}
 
 const fn build_profile_name() -> &'static str {
     // Derived from https://stackoverflow.com/questions/73595435/how-to-get-profile-from-cargo-toml-in-build-rs-or-at-runtime
@@ -73,18 +49,4 @@ const fn build_profile_name() -> &'static str {
     };
     let parts = const_str::split!(OUT_DIR, SEP);
     parts[parts.len() - 4]
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn assert_extradata_less_32bytes() {
-        let extradata = default_extradata();
-        assert!(
-            extradata.as_bytes().len() <= 32,
-            "extradata must be less than 32 bytes: {extradata}"
-        )
-    }
 }

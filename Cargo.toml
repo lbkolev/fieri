@@ -14,11 +14,13 @@ categories = ["api-bindings", "sdk", "cli", "repl"]
 license = "MIT"
 
 [dependencies]
-clap = { version = "4.3.12", features = ["derive", "env", "cargo", "string"], optional = true }
+async-stream = "0.3.5"
+clap = { version = "4.3.12", features = ["derive", "env", "cargo", "string"] }
 const-str = "0.5.6"
 derive_builder = "0.12.0"
+futures = "0.3.29"
 reqwest = { version = "0.11.13", features = ["json", "multipart", "stream"] }
-rustyline = { version = "12.0.0", features = ["with-file-history"], optional = true }
+rustyline = { version = "12.0.0", features = ["with-file-history"] }
 serde = { version = "1.0.152", features = ["derive"] }
 serde_derive = "1.0.152"
 serde_json = "1.0.91"
@@ -30,12 +32,8 @@ url = "2.3.1"
 [build-dependencies]
 vergen = { version = "8.2.6", features = ["build", "cargo", "git", "gitcl"] }
 
-[features]
-binary = ["clap", "rustyline"]
-
 [[bin]]
 name = "fieri"
-required-features = ["binary"]
 
 [[example]]
 name = "get_models"

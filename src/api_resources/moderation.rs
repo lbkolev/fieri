@@ -135,7 +135,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_create_moderation() {
+    fn test_create_moderation_deserialization() {
         let param: ModerationParam = serde_json::from_str(
             r#"
             {

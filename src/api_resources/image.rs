@@ -367,7 +367,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse_image_response() {
+    fn test_parse_image_response_deserialization() {
         let param: GenerateImageParam = serde_json::from_str(
             r#"{
                 "prompt": "A cute baby sea otter",

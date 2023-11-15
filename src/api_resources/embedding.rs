@@ -100,7 +100,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_create_embedding() {
+    fn test_create_embedding_deserialization() {
         let param: EmbeddingParam = serde_json::from_str(
             r#"
             {

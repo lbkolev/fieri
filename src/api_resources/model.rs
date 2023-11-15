@@ -107,7 +107,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_model_list() {
+    fn test_model_list_deserialization() {
         let resp: Models = serde_json::from_str(
             r#"
             {
@@ -149,7 +149,7 @@ mod tests {
     }
 
     #[test]
-    fn test_model_retrieve() {
+    fn test_model_retrieve_deserialization() {
         let resp: Model = serde_json::from_str(
             r#"
             {

@@ -171,7 +171,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_list_files() {
+    fn test_list_files_deserialization() {
         let resp: ListFiles = serde_json::from_str(
             r#"
             {
@@ -205,7 +205,7 @@ mod tests {
     }
 
     #[test]
-    fn test_upload_file() {
+    fn test_upload_file_deserialization() {
         let resp: File = serde_json::from_str(
             r#"
             {

@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use clap::Parser;
 
 use fieri::{
-    chat::{chat, ChatMessageBuilder, ChatParamBuilder},
+    chat::{chat, ChatParam, ChatRole},
     Client,
 };
 use rustyline::{error::ReadlineError, DefaultEditor};
@@ -24,9 +24,14 @@ enum Commands {
     Console,
 
     Chat {
-        /// Silences bar output
-        #[clap(short, long)]
-        silent: bool,
+        #[clap(flatten)]
+        param: ChatParam,
+
+        #[clap(short, long, default_value = "user")]
+        role: ChatRole,
+
+        #[clap(short, long, default_value = "")]
+        name: String,
     },
 }
 
@@ -51,18 +56,13 @@ fn run_console(file: &PathBuf) -> rustyline::Result<()> {
         match readline {
             Ok(line) => {
                 let _ = rl.add_history_entry(line.as_str());
-                println!("Line: {}", line);
             }
-            Err(ReadlineError::Interrupted) => {
-                println!("CTRL-C");
-                break;
-            }
-            Err(ReadlineError::Eof) => {
-                println!("CTRL-D");
+            Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
+                println!("Exiting");
                 break;
             }
             Err(err) => {
-                println!("Error: {:?}", err);
+                println!("{:?}", err);
                 break;
             }
         }
@@ -77,19 +77,25 @@ fn run_console(file: &PathBuf) -> rustyline::Result<()> {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
+    let client = Client::new().api_key(std::env::var("OPENAI_API_KEY")?);
 
     match cli.command {
         Commands::Console => run_console(&cli.history_file)?,
-        Commands::Chat { silent: _ } => (),
+        Commands::Chat {
+            mut param,
+            role,
+            name,
+        } => {
+            println!("{:#?}", param);
+            param.messages.iter_mut().for_each(|m| {
+                m.role = role;
+                m.name = Some(name.clone())
+            });
+            let param = ChatParam { ..param };
+            let resp = chat(&client, &param).await?;
+            println!("{:#?}", resp);
+        }
     }
-
-    let client = Client::new().api_key(std::env::var("OPENAI_API_KEY")?);
-    let message = ChatMessageBuilder::new("user", "Hello!").build()?;
-    let param = ChatParamBuilder::new("gpt-3.5-turbo", vec![message]).build()?;
-
-    let resp = chat(&client, &param).await?;
-    // let as_json = serde_json::from_str(&serde_json::to_string(&resp)?)?;
-    println!("{:#?}", resp);
 
     Ok(())
 }

@@ -389,7 +389,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_create_fine_tune() {
+    fn test_create_fine_tune_deserialization() {
         let resp: FineTune = serde_json::from_str(
             r#"
             {
@@ -439,7 +439,7 @@ mod tests {
     }
 
     #[test]
-    fn test_list_fine_tune_events() {
+    fn test_list_fine_tune_events_deserialization() {
         let resp: ListEvents = serde_json::from_str(
             r#"
             {
@@ -486,7 +486,7 @@ mod tests {
     }
 
     #[test]
-    fn test_delete_fine_tune() {
+    fn test_delete_fine_tune_deserialization() {
         let resp: Delete = serde_json::from_str(
             r#"
             {

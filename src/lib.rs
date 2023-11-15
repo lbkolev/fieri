@@ -100,6 +100,7 @@ pub mod api_resources;
 pub mod client;
 mod config;
 pub mod error;
+mod utils;
 
 #[doc(inline)]
 pub use api_resources::{

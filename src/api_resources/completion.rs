@@ -11,13 +11,16 @@
 //!
 //! Showing, not just telling, is often the secret to a good prompt.
 
+
 use derive_builder::Builder;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::cell::Cell;
+
 
 use crate::{
     api_resources::{Choices, TokenUsage},
+    utils::is_false,
     Client, Result,
 };
 
@@ -31,7 +34,7 @@ pub struct CompletionParam {
 
     /// The prompt(s) to generate completions for.
     #[serde(skip_serializing_if = "Option::is_none")]
-    prompt: Option<String>,
+    prompt: Option<Vec<String>>,
 
     /// The suffix that comes after a completion of inserted text.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -44,7 +47,7 @@ pub struct CompletionParam {
     #[serde(skip_serializing_if = "Option::is_none")]
     max_tokens: Option<i32>,
 
-    /// Higher values means the model will take more risks.
+    /// What sampling temperature to use, between 0 and 2. Higher values means the model will take more risks.
     ///
     /// Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -65,18 +68,16 @@ pub struct CompletionParam {
     n: Option<u32>,
 
     // Whether to stream back partial progress.
-    //
-    // For streamed progress, use [`create_with_stream`](create_with_stream).
-    #[builder(setter(skip))]
-    stream: Cell<bool>,
+    #[serde(skip_serializing_if = "is_false")]
+    stream: bool,
 
     /// Include the log probabilities on the `logprobs` most likely tokens, as well the chosen tokens.
     #[serde(skip_serializing_if = "Option::is_none")]
     logprobs: Option<f32>,
 
     /// Echo back the prompt in addition to the completion
-    #[serde(skip_serializing_if = "Option::is_none")]
-    echo: Option<bool>,
+    #[serde(skip_serializing_if = "is_false")]
+    echo: bool,
 
     /// Up to 4 sequences where the API will stop generating further tokens.
     ///
@@ -157,6 +158,10 @@ pub struct Completion {
 ///     Ok(())
 /// }
 /// ```
+#[deprecated(
+    since = "0.7.0",
+    note = "Please use chat endpoint. More at https://platform.openai.com/docs/guides/text-generation/completions-api"
+)]
 pub async fn create(client: &Client, param: &CompletionParam) -> Result<Completion> {
     client.create_completion(param).await
 }
@@ -187,12 +192,14 @@ pub async fn create(client: &Client, param: &CompletionParam) -> Result<Completi
 ///
 ///     Ok(())
 /// }
+#[deprecated(
+    since = "0.7.0",
+    note = "Please use chat endpoint. More at https://platform.openai.com/docs/guides/text-generation/completions-api"
+)]
 pub async fn create_with_stream(
     client: &Client,
     param: &CompletionParam,
 ) -> Result<reqwest::Response> {
-    param.stream.set(true);
-
     client.create_completion_with_stream(param).await
 }
 
@@ -208,6 +215,55 @@ impl Client {
     ) -> Result<reqwest::Response> {
         self.post_stream("completions", Some(param)).await
     }
+
+    /*
+    fn create_completion_with_stream(
+        &self,
+        param: &CompletionParam,
+    ) -> Pin<
+        Box<
+            dyn Stream<
+                    Item = std::result::Result<Completion, Box<dyn std::error::Error + Send + '_>>,
+                > + Send,
+        >,
+    > {
+        Box::pin(stream! {
+            let mut resp = match self.post_stream("completions", Some(&param)).await {
+                Ok(r) => r,
+                Err(e) => {
+                    yield Err(Box::new(e) as Box<dyn std::error::Error + Send + '_>);
+                    return;
+                }
+            };
+
+            let mut cv = String::new();
+
+            while let Ok(Some(chunk)) = resp.chunk().await {
+                let a = match String::from_utf8(chunk.to_vec()) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        yield Err(Box::new(e) as Box<dyn std::error::Error + Send + '_>);
+                        continue;
+                    }
+                };
+                let whole_val = a.split("data: ").collect::<Vec<_>>();
+
+                for part in whole_val {
+                    match serde_json::from_str::<Completion>(part) {
+                        Ok(v) => yield Ok(v),
+                        Err(_) => {
+                            cv.push_str(part);
+                            if let Ok(v) = serde_json::from_str::<Completion>(&cv) {
+                                cv.clear();
+                                yield Ok(v);
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    }
+    */
 }
 
 #[cfg(test)]
@@ -215,7 +271,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_create_completion() {
+    fn test_create_completion_deserialization() {
         let param: CompletionParam = serde_json::from_str(
             r#"
             {

@@ -105,7 +105,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_create_edit() {
+    fn test_create_edit_deserialization() {
         let param: EditParam = serde_json::from_str(
             r#"
             {
