@@ -4,7 +4,10 @@
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("{}, {}", .0.error.r#type, .0.error.message)]
-    APIError(RequestError),
+    APIError(crate::types::RequestError),
+
+    #[error("{}, {}", .0.r#type, .0.message)]
+    MissingParameter(crate::types::ErrorMessage),
 
     #[error(transparent)]
     Reqwest(#[from] reqwest::Error),
@@ -47,20 +50,4 @@ pub enum Error {
 
     #[error("Invalid values provided. {0}")]
     ChatMessageBuilderError(#[from] crate::types::ChatMessageBuilderError),
-}
-
-/// Possible Errors returned by responses from OpenAI.
-#[derive(Clone, Debug, serde::Deserialize)]
-pub struct RequestError {
-    pub error: ErrorMessage,
-}
-
-#[derive(Clone, Debug, std::default::Default, serde::Deserialize)]
-pub struct ErrorMessage {
-    pub message: String,
-    pub r#type: String,
-
-    // those are most frequently returned as null from OpenAI, even in the occurence of an error.
-    pub param: serde_json::Value,
-    pub code: serde_json::Value,
 }

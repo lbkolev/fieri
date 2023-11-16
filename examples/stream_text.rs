@@ -1,7 +1,8 @@
 //! Create a completion stream for the provided prompt and parameters.
 
 use fieri::{
-    completion::{create_with_stream, Completion, CompletionParamBuilder},
+    completion::create_with_stream,
+    types::{Completion, CompletionParamBuilder},
     Client, Error,
 };
 
@@ -10,7 +11,7 @@ async fn main() -> Result<(), Error> {
     let client = Client::new();
 
     let param = CompletionParamBuilder::new("ada")
-        .prompt("unnecessarily lo")
+        .prompt(vec!["unnecessarily lo".into()])
         .temperature(0.5)
         .build()?;
 

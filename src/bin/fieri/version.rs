@@ -1,17 +1,4 @@
-/// The short version information for fieri.
-///
-/// - The latest version from Cargo.toml
-/// - The short SHA of the latest commit.
-///
-/// # Example
-///
-/// ```text
-/// 0.1.0 (defa64b2)
-/// ```
-pub(crate) const SHORT_VERSION: &str =
-    concat!(env!("CARGO_PKG_VERSION"), " (", env!("VERGEN_GIT_SHA"), ")");
-
-/// The long version information for fierfi.
+/// The long version information for fieri.
 ///
 /// - The latest version from Cargo.toml
 /// - The long SHA of the latest commit.

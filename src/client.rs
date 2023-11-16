@@ -24,12 +24,9 @@ use reqwest::{
     multipart,
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use url::Url;
 
-use crate::{
-    config::Config,
-    error::{Error, RequestError},
-    Result,
-};
+use crate::{config::Config, error::Error, types::RequestError, Result};
 
 // Response returned by each interaction with OpenAI, either an error or a valid generic.
 #[derive(Debug, Deserialize)]
@@ -84,6 +81,15 @@ impl Client {
                 .default_headers(headers)
                 .build()
                 .expect("Err creating request handler."),
+        }
+    }
+
+    // Used by the unit/integr tests.
+    pub(crate) fn mock_new(url: Url) -> Self {
+        let config = Config::mock_new(url);
+        Self {
+            config,
+            handler: reqwest::Client::new(),
         }
     }
 

@@ -37,6 +37,16 @@ impl Config {
         }
     }
 
+    // Used by the unit/integr tests.
+    pub(crate) fn mock_new(url: impl Into<Url>) -> Self {
+        Self {
+            api_key: String::new(),
+            url: url.into(),
+            headers: HeaderMap::new(),
+            organization: String::new(),
+        }
+    }
+
     pub fn headers(mut self, headers: HeaderMap) -> Self {
         self.headers = headers;
 

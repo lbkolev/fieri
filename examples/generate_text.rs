@@ -1,14 +1,13 @@
-use fieri::{
-    completion::{create, CompletionParamBuilder},
-    Client, Error,
-};
+use fieri::{completion::create, types::CompletionParamBuilder, Client, Error};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     let client = Client::new();
 
     let param = CompletionParamBuilder::new("ada")
-        .prompt("Generate a plot for an absurd interstellar parody.")
+        .prompt(vec![
+            "Generate a plot for an absurd interstellar parody.".into()
+        ])
         .max_tokens(500)
         .temperature(0.9)
         .top_p(1.0)
