@@ -2,52 +2,10 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::{api_resources::TokenUsage, Client, Result};
-
-/// Response from [List Models](list) request.
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub struct Models {
-    pub data: Vec<Model>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub token_usage: Option<TokenUsage>,
-}
-
-/// Response from [Retrieve a Model](retrieve) request.
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub struct Model {
-    pub id: String,
-    pub object: String,
-    pub created: u64,
-    pub owned_by: String,
-    pub permission: Vec<Permissions>,
-    pub root: String,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub token_usage: Option<TokenUsage>,
-}
-
-/// Types of permissions that can be applied to a model.
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub struct Permissions {
-    pub id: String,
-    pub object: String,
-    pub created: u64,
-    pub allow_create_engine: bool,
-    pub allow_sampling: bool,
-    pub allow_logprobs: bool,
-    pub allow_search_indices: bool,
-    pub allow_view: bool,
-    pub allow_fine_tuning: bool,
-    pub organization: String,
-    pub is_blocking: bool,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub group: Option<String>,
-}
+use crate::{
+    types::{Model, Models},
+    Client, Result,
+};
 
 /// Retrieves a model instance, providing basic information about the model such as the owner and permissioning.
 ///
@@ -106,65 +64,4 @@ impl Client {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_model_list() {
-        let resp: Models = serde_json::from_str(
-            r#"
-            {
-                "data": [
-                  {
-                    "id": "model-id-0",
-                    "object": "model",
-                    "created": 1623155849,
-                    "owned_by": "organization-owner",
-                    "permission": [],
-                    "root": "model-id-1"
-                  },
-                  {
-                    "id": "model-id-1",
-                    "object": "model",
-                    "created": 11,
-                    "owned_by": "organization-owner",
-                    "permission": [],
-                    "root": "model-id-0"
-                  },
-                  {
-                    "id": "model-id-2",
-                    "object": "model",
-                    "created": 1234567890,
-                    "owned_by": "openai",
-                    "permission": [],
-                    "root": "model-id-2"
-                  }
-                ],
-                "object": "list"
-              }
-            "#,
-        )
-        .unwrap();
-
-        assert_eq!(resp.data.len(), 3);
-        assert_eq!(resp.data[0].id, "model-id-0");
-        assert!(resp.token_usage.is_none());
-    }
-
-    #[test]
-    fn test_model_retrieve() {
-        let resp: Model = serde_json::from_str(
-            r#"
-            {
-                "id": "text-davinci-003",
-                "object": "model",
-                "created": 1623155849,
-                "owned_by": "openai",
-                "permission": [],
-                "root": "text-davinci-003"
-              }
-            "#,
-        )
-        .unwrap();
-
-        assert_eq!(resp.id, "text-davinci-003");
-        assert!(resp.token_usage.is_none());
-    }
 }

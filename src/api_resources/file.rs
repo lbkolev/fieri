@@ -5,41 +5,9 @@ use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, fs, path::Path};
 
 use crate::{
-    api_resources::{Delete, File, Files, TokenUsage},
+    types::{Delete, File, ListFiles, Purpose},
     Client, Result,
 };
-
-/// Response from [`List File`](list) request.
-#[derive(Debug, Default, Deserialize, Serialize)]
-#[serde(default)]
-pub struct ListFiles {
-    pub data: Files,
-    pub object: String,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub token_usage: Option<TokenUsage>,
-}
-
-/// The Possible Purposes of the uploaded documents.
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub enum Purpose {
-    #[default]
-    FineTune,
-    Answers,
-    Search,
-    Classifications,
-}
-
-impl std::fmt::Display for Purpose {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Purpose::FineTune => write!(f, "fine-tune"),
-            Purpose::Answers => write!(f, "answers"),
-            Purpose::Search => write!(f, "search"),
-            Purpose::Classifications => write!(f, "classifications"),
-        }
-    }
-}
 
 /// Returns a [`list`][ListFiles] of files that belong to the user's organization.
 ///
@@ -167,60 +135,4 @@ impl Client {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_list_files() {
-        let resp: ListFiles = serde_json::from_str(
-            r#"
-            {
-                "data": [
-                  {
-                    "id": "file-ccdDZrC3iZVNiQVeEA6Z66wf",
-                    "object": "file",
-                    "bytes": 175,
-                    "created_at": 1613677385,
-                    "filename": "train.jsonl",
-                    "purpose": "search"
-                  },
-                  {
-                    "id": "file-XjGxS3KTG0uNmNOK362iJua3",
-                    "object": "file",
-                    "bytes": 140,
-                    "created_at": 1613779121,
-                    "filename": "puppy.jsonl",
-                    "purpose": "search"
-                  }
-                ],
-                "object": "list"
-              }
-            "#,
-        )
-        .unwrap();
-
-        assert_eq!(resp.data.len(), 2);
-        assert_eq!(resp.data[0].id, "file-ccdDZrC3iZVNiQVeEA6Z66wf");
-        assert_eq!(resp.data[1].object, "file");
-    }
-
-    #[test]
-    fn test_upload_file() {
-        let resp: File = serde_json::from_str(
-            r#"
-            {
-                "id": "file-XjGxS3KTG0uNmNOK362iJua3",
-                "object": "file",
-                "bytes": 140,
-                "created_at": 1613779121,
-                "filename": "mydata.jsonl",
-                "purpose": "fine-tune"
-              }
-            "#,
-        )
-        .unwrap();
-
-        assert_eq!(resp.id, "file-XjGxS3KTG0uNmNOK362iJua3");
-        assert_eq!(resp.object, "file");
-    }
-}
+mod tests {}
