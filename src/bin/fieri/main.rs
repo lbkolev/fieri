@@ -4,7 +4,8 @@ use std::path::PathBuf;
 use clap::Parser;
 
 use fieri::{
-    chat::{chat, ChatParam, ChatRole},
+    chat::chat,
+    types::{ChatParam, ChatRole},
     Client,
 };
 use rustyline::{error::ReadlineError, DefaultEditor};
@@ -18,7 +19,7 @@ fn history_path() -> PathBuf {
     path
 }
 
-#[derive(Parser, Debug)]
+#[derive(Clone, Parser, Debug)]
 enum Commands {
     /// Opens a REPL console
     Console,
@@ -35,7 +36,7 @@ enum Commands {
     },
 }
 
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Clone)]
 #[clap(author, version, about="OpenAI command-line interface.", long_about = None)]
 struct Cli {
     #[clap(subcommand)]
@@ -45,6 +46,16 @@ struct Cli {
     /// If not specified, history is by default saved to $HOME/.fieri_history
     #[arg(long, env = "FIERI_HISTORY", default_value = history_path().into_os_string())]
     history_file: PathBuf,
+    /*
+    #[arg(
+        long = "log.level",
+        env = "RUST_LOG",
+        help = "The log level to use",
+        default_value = "warn",
+        value_parser = clap::value_parser!(log::Level),
+    )]
+    pub log_level: log::Level,
+    */
 }
 
 fn run_console(file: &PathBuf) -> rustyline::Result<()> {
@@ -84,18 +95,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Commands::Chat {
             mut param,
             role,
-            name,
+            name: _,
         } => {
-            println!("{:#?}", param);
             param.messages.iter_mut().for_each(|m| {
                 m.role = role;
-                m.name = Some(name.clone())
             });
             let param = ChatParam { ..param };
+            println!("{:#?}", param);
             let resp = chat(&client, &param).await?;
             println!("{:#?}", resp);
+            //println!("{:#?}", resp.choices[0].message.content);
         }
     }
 
     Ok(())
 }
+
+/*
+async fn run_chat(client: &Client, param: &ChatParam) -> Result<()> {
+    let resp = chat(client, param).await?;
+    println!("{:#?}", resp);
+    Ok(())
+}
+*/

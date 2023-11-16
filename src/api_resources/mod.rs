@@ -8,7 +8,7 @@ pub mod image;
 pub mod model;
 pub mod moderation;
 
-/// Tokens used by the requested action from OpenAI.
+/// Tokens used for the requested action from OpenAI.
 #[derive(Clone, Debug, std::default::Default, serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct TokenUsage {

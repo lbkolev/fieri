@@ -25,28 +25,28 @@ pub enum Error {
     FieldError(#[from] derive_builder::UninitializedFieldError),
 
     #[error("Invalid values provided. {0}")]
-    CompletionParamBuilderError(#[from] crate::completion::CompletionParamBuilderError),
+    CompletionParamBuilderError(#[from] crate::types::CompletionParamBuilderError),
 
     #[error("Invalid values provided. {0}")]
-    EditParamBuilderError(#[from] crate::edit::EditParamBuilderError),
+    EditParamBuilderError(#[from] crate::types::EditParamBuilderError),
 
     #[error("Invalid values provided. {0}")]
-    EmbeddingParamBuilderError(#[from] crate::embedding::EmbeddingParamBuilderError),
+    EmbeddingParamBuilderError(#[from] crate::types::EmbeddingParamBuilderError),
 
     #[error("Invalid values provided. {0}")]
-    FineTuneParamBuilderError(#[from] crate::fine_tune::CreateFineTuneParamBuilderError),
+    FineTuneParamBuilderError(#[from] crate::types::CreateFineTuneParamBuilderError),
 
     #[error("Invalid values provided. {0}")]
-    ModerationParamBuilderError(#[from] crate::moderation::ModerationParamBuilderError),
+    ModerationParamBuilderError(#[from] crate::types::ModerationParamBuilderError),
 
     #[error("Invalid values provided. {0}")]
-    GenerateImageParamBuilderError(#[from] crate::image::GenerateImageParamBuilderError),
+    GenerateImageParamBuilderError(#[from] crate::types::GenerateImageParamBuilderError),
 
     #[error("Invalid values provided. {0}")]
-    ChatParamBuilderError(#[from] crate::chat::ChatParamBuilderError),
+    ChatParamBuilderError(#[from] crate::types::ChatParamBuilderError),
 
     #[error("Invalid values provided. {0}")]
-    ChatMessageBuilderError(#[from] crate::chat::ChatMessageBuilderError),
+    ChatMessageBuilderError(#[from] crate::types::ChatMessageBuilderError),
 }
 
 /// Possible Errors returned by responses from OpenAI.

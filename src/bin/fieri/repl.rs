@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use clap::Parser;
 
-use crate::version::LONG_VERSION;
+use version::LONG_VERSION;
 use fieri::{
     chat::{chat, ChatMessageBuilder, ChatParamBuilder},
     Client,

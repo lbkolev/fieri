@@ -11,125 +11,15 @@
 //!
 //! Showing, not just telling, is often the secret to a good prompt.
 
-
 use derive_builder::Builder;
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-
 use crate::{
-    api_resources::{Choices, TokenUsage},
-    utils::is_false,
+    types::{Completion, CompletionParam},
     Client, Result,
 };
-
-/// Parameters for [`Create Completion`](create) request.
-#[skip_serializing_none]
-#[derive(Builder, Clone, Debug, Default, Deserialize, Serialize)]
-#[builder(default, setter(into, strip_option))]
-pub struct CompletionParam {
-    /// The model to use for the completion request.
-    model: String,
-
-    /// The prompt(s) to generate completions for.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    prompt: Option<Vec<String>>,
-
-    /// The suffix that comes after a completion of inserted text.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    suffix: Option<String>,
-
-    /// The maximum number of tokens to generate in the completion.
-    ///
-    /// The token count of your prompt plus `max_tokens` cannot exceed the model's context length.
-    /// Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    max_tokens: Option<i32>,
-
-    /// What sampling temperature to use, between 0 and 2. Higher values means the model will take more risks.
-    ///
-    /// Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    temperature: Option<f32>,
-
-    /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass.
-    /// So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    ///
-    /// It's generally recommended to alter this or `temperature` but not both.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    top_p: Option<f32>,
-
-    /// How many completions to generate for each prompt.
-    ///
-    /// Note: Because this parameter generates many completions, it can quickly consume your token quota.
-    /// Use carefully and ensure that you have reasonable settings for `max_tokens` and `stop`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    n: Option<u32>,
-
-    // Whether to stream back partial progress.
-    #[serde(skip_serializing_if = "is_false")]
-    stream: bool,
-
-    /// Include the log probabilities on the `logprobs` most likely tokens, as well the chosen tokens.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    logprobs: Option<f32>,
-
-    /// Echo back the prompt in addition to the completion
-    #[serde(skip_serializing_if = "is_false")]
-    echo: bool,
-
-    /// Up to 4 sequences where the API will stop generating further tokens.
-    ///
-    /// The returned text will not contain the stop sequence.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    stop: Option<String>,
-
-    /// Number between -2.0 and 2.0.
-    ///
-    /// Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    presence_penalty: Option<f32>,
-
-    /// Number between -2.0 and 2.0.
-    ///
-    /// Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    frequency_penalty: Option<f32>,
-
-    /// Generates best_of completions server-side and returns the "best" (the one with the highest log probability per token).
-    ///
-    /// Results cannot be streamed.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    best_of: Option<u16>,
-
-    /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    user: Option<String>,
-}
-
-impl CompletionParamBuilder {
-    pub fn new(model: impl Into<String>) -> Self {
-        Self {
-            model: Some(model.into()),
-            ..Self::default()
-        }
-    }
-}
-
-/// Response from [`Create completion`](create) request.
-#[derive(Debug, Default, Deserialize, Serialize)]
-#[serde(default)]
-pub struct Completion {
-    pub id: String,
-    pub object: String,
-    pub created: u64,
-    pub model: String,
-    pub choices: Vec<Choices>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub usage: Option<TokenUsage>,
-}
 
 /// Creates a completion for the provided prompt and parameters.
 ///
@@ -267,62 +157,4 @@ impl Client {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_create_completion_deserialization() {
-        let param: CompletionParam = serde_json::from_str(
-            r#"
-            {
-                "model": "text-davinci-003",
-                "prompt": "Say this is a test",
-                "max_tokens": 7,
-                "temperature": 0,
-                "top_p": 1,
-                "n": 1,
-                "stream": false,
-                "logprobs": null,
-                "stop": "\n"
-            }
-            "#,
-        )
-        .unwrap();
-
-        let resp: Completion = serde_json::from_str(
-            r#"
-            {
-                "id": "cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7",
-                "object": "text_completion",
-                "created": 1589478378,
-                "model": "text-davinci-003",
-                "choices": [
-                {
-                    "text": "\n\nThis is indeed a test",
-                    "index": 0,
-                    "logprobs": null,
-                    "finish_reason": "length"
-                }
-                ],
-                "usage": {
-                    "prompt_tokens": 5,
-                    "completion_tokens": 7,
-                    "total_tokens": 12
-                }
-            }
-            "#,
-        )
-        .unwrap();
-
-        assert_eq!(param.model, "text-davinci-003");
-        assert_eq!(param.prompt.unwrap(), "Say this is a test");
-        assert_eq!(param.suffix, None);
-        assert_eq!(resp.choices.len(), 1);
-        assert_eq!(
-            resp.choices[0].text,
-            Some("\n\nThis is indeed a test".to_string())
-        );
-        assert_eq!(resp.choices[0].logprobs, None);
-        assert_eq!(resp.usage.unwrap().prompt_tokens, 5);
-    }
-}
+mod tests {}
