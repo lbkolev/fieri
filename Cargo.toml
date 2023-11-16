@@ -30,6 +30,9 @@ thiserror = "1.0.38"
 tokio = { version = "1.24.1", features = ["full"] }
 url = "2.3.1"
 
+[dev-dependencies]
+mockito = "1.2.0"
+
 [build-dependencies]
 vergen = { version = "8.2.6", features = ["build", "cargo", "git", "gitcl"] }
 

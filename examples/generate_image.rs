@@ -1,7 +1,8 @@
 //! Generate 2 images with size 512x512 using the OpenAI's DALL-E model
 
 use fieri::{
-    image::{generate, GenerateImageParamBuilder, ImageSize},
+    image::generate,
+    types::{GenerateImageParamBuilder, ImageSize},
     Client, Error,
 };
 

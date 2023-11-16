@@ -1,7 +1,6 @@
 #![doc = include_str!("../../docs/types.md")]
 
 use std::{
-    borrow::Cow,
     fmt::Display,
     fs,
     io::{copy, Cursor},
@@ -15,13 +14,29 @@ use reqwest::{
     get,
     multipart::{Form, Part},
 };
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_with::skip_serializing_none;
 
 use crate::{utils::is_false, Client, Result};
 
+/// Possible Errors returned by responses from OpenAI.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct RequestError {
+    pub error: ErrorMessage,
+}
+
+#[derive(Clone, Debug, std::default::Default, Deserialize, Serialize)]
+pub struct ErrorMessage {
+    pub message: String,
+    pub r#type: String,
+
+    // those are most frequently returned as null from OpenAI, even in the occurence of an error.
+    pub param: serde_json::Value,
+    pub code: serde_json::Value,
+}
+
 /// Tokens used for the requested action from OpenAI.
-#[derive(Clone, Debug, std::default::Default, serde::Deserialize, serde::Serialize)]
+#[derive(Clone, Debug, std::default::Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct TokenUsage {
     pub prompt_tokens: u32,
@@ -29,7 +44,7 @@ pub struct TokenUsage {
     pub total_tokens: u32,
 }
 
-#[derive(Clone, Debug, std::default::Default, serde::Deserialize, serde::Serialize)]
+#[derive(Clone, Debug, std::default::Default, Deserialize, Serialize)]
 pub struct Choices {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
@@ -45,7 +60,7 @@ pub struct Choices {
 }
 
 /// Information from requests wishing for a resource to be deleted, like [`Delete File`](crate::file::delete) and [`Delete Fine-tune`](crate::fine_tune::delete).
-#[derive(Debug, std::default::Default, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, std::default::Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Delete {
     pub id: String,
@@ -57,7 +72,7 @@ pub struct Delete {
 }
 
 /// Response from endpoints like [`Upload File`](crate::file::upload), [`Retrieve file`][crate::file::retrieve] & [`Create Fine-tune`](crate::fine_tune::create).
-#[derive(Debug, std::default::Default, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, std::default::Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct File {
     pub id: String,
@@ -201,18 +216,13 @@ impl Display for ChatRole {
 }
 
 impl Serialize for ChatRole {
-    fn serialize<S: serde::Serializer>(
-        &self,
-        serializer: S,
-    ) -> std::result::Result<S::Ok, S::Error> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
         serializer.serialize_str(self.to_string().as_str())
     }
 }
 
 impl<'de> Deserialize<'de> for ChatRole {
-    fn deserialize<D: serde::Deserializer<'de>>(
-        deserializer: D,
-    ) -> std::result::Result<Self, D::Error> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> std::result::Result<Self, D::Error> {
         let s = String::deserialize(deserializer)?;
         Ok(Self::from(s))
     }
@@ -263,6 +273,8 @@ pub struct Chat {
     pub choices: Vec<ChatChoice>,
 
     pub usage: TokenUsage,
+    //#[serde(flatten)]
+    pub error: Option<ErrorMessage>,
 }
 
 /// Parameters for [`Create Completion`](create) request.
@@ -687,7 +699,7 @@ impl FromStr for ImageSize {
 impl Serialize for ImageSize {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
-        S: serde::Serializer,
+        S: Serializer,
     {
         serializer.serialize_str(&self.to_string())
     }
@@ -1051,7 +1063,7 @@ mod tests {
             r#"
             {
                 "model": "text-davinci-003",
-                "prompt": "Say this is a test",
+                "prompt": ["Say this is a test"],
                 "max_tokens": 7,
                 "temperature": 0,
                 "top_p": 1,
@@ -1090,7 +1102,7 @@ mod tests {
         .unwrap();
 
         assert_eq!(param.model, "text-davinci-003");
-        assert_eq!(param.prompt.unwrap(), "Say this is a test");
+        assert_eq!(param.prompt.unwrap(), vec!["Say this is a test"]);
         assert_eq!(param.suffix, None);
         assert_eq!(resp.choices.len(), 1);
         assert_eq!(

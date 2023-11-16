@@ -3,7 +3,6 @@ use std::path::PathBuf;
 
 use clap::Parser;
 
-use version::LONG_VERSION;
 use fieri::{
     chat::{chat, ChatMessageBuilder, ChatParamBuilder},
     Client,
@@ -14,7 +13,7 @@ pub fn run_console(file: &PathBuf) -> rustyline::Result<()> {
     let mut rl = DefaultEditor::new()?;
     let _ = rl.load_history(file).is_err();
 
-    println!("{}", LONG_VERSION);
+    println!("{}", crate::version::LONG_VERSION);
     loop {
         let readline = rl.readline(format!("{}>> ", clap::crate_name!()).as_str());
         match readline {
